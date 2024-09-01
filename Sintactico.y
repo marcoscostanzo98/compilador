@@ -12,7 +12,7 @@ int yyerror();
 int yylex();
 void guardar_TS();
 
-char* tabla_simbolos = "symbols.txt";
+char* tabla_simbolos = "symbol-table.txt";
 t_lista lista_simbolos;
 
 %}
