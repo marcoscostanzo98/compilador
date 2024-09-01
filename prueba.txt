@@ -1,2 +1,18 @@
-c:=d*(e-21)/4
+*- comment normal-*
 
+*- *- comment anidado -* -*
+
+*- *- *- anidado 3 -* -* -*
+
+*- anidado raro -* -*
+
+init {
+    x, z, a, b, c, var_entera : Int
+    variable1, var_flotante : Float
+    y, p1, var_cadena : String
+}
+
+*- test -*
+mientras (x > y) {
+    x := 1
+}
