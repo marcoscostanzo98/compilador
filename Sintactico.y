@@ -85,8 +85,8 @@ programa:
 ;
 
 bloque:
-    bloque sentencia    {printf("   Bloque Sentencia es Bloque\n");}
-    |sentencia          {printf("   Sentencia es Bloque\n");}
+    bloque sentencia    {printf("   Bloque Sentencia es Bloque\n\n");}
+    |sentencia          {printf("   Sentencia es Bloque\n\n");}
 ;
 
 sentencia:

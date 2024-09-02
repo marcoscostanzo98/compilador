@@ -102,4 +102,20 @@ si (sumaLosUltimos(2; [10, 7, 5]) > 10)
     escribir("7 + 5 > 10 ")
 }
 
-j := -x - getPenultimatePosition([3, 8.2, 2, 55.5])
+j := - getPenultimatePosition([3, 8.2, 2, 55.5]) -x
+
+
+*- Comentario anidado -*
+    *- comentario *- comentario interno -* externo -*
+
+
+*- ciclos anidados -*
+mientras (NOT x > y)
+{
+    mientras (y > z)
+    {
+        z := z + 1
+    }
+
+    y := y - 1
+}
