@@ -51,7 +51,7 @@ a := 1
 b := 1
 c := 2
 
-if (NOT a > b)
+si (NOT a > b)
 {
     escribir("a no es mas grande que b")
 }
@@ -62,9 +62,9 @@ a := 1
 b := 1
 c := 2
 
-if (a > b OR c > b)
+si (a > b OR c > b)
 {
-    escribir("a es mas grande que b o c es mas grande que b")
+    escribir("a es mas chica que b o c")
 }
 
 
