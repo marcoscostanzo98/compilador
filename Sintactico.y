@@ -94,7 +94,6 @@ sentencia:
     |asignacion         {printf("   Asignacion es Sentencia\n");}
     |leer               {printf("   Leer es Sentencia\n");}
     |escribir           {printf("   Escribir es Sentencia\n");}
-    |funcion_especial   {printf("   Funcion_especial es Sentencia\n");}
 ;
 
 init:
@@ -161,9 +160,10 @@ asignacion:
 ;
 
 expresion:
-    expresion OP_ADD termino           {printf("   Expresion OP_ADD Termino es Expresion\n");}
-    |expresion OP_SUB termino          {printf("   Expresion OP_SUB Termino es Expresion\n");}
-    |termino                           {printf("   Termino es Expresion\n");}
+    expresion OP_ADD termino            {printf("   Expresion OP_ADD Termino es Expresion\n");}
+    |expresion OP_SUB termino           {printf("   Expresion OP_SUB Termino es Expresion\n");}
+    |termino                            {printf("   Termino es Expresion\n");}
+    |funcion_especial                   {printf("   Funcion_especial es Expresion\n");}
 ;
 
 termino:

@@ -91,8 +91,13 @@ escribir(var1)  *- var1 es una variable numérica definida previamente -*
 *- funciones especiales -*
 x := getPenultimatePosition([3, 8.2, 2, 55.5])
 
-getPenultimatePosition([3, 8.2, 2, 55.5])
+escribir(getPenultimatePosition([3, 8.2, 2, 55.5]))
 
 y := sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])
 
-sumaLosUltimos(5; [28, 13.5, 4, 5.5, 17, 52])
+escribir(sumaLosUltimos(5; [28, 13.5, 4, 5.5, 17, 52]))
+
+si (sumaLosUltimos(2; [10, 7, 5]) > 10) 
+{
+    escribir("7 + 5 > 10 ")
+}
