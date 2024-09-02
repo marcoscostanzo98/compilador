@@ -101,3 +101,5 @@ si (sumaLosUltimos(2; [10, 7, 5]) > 10)
 {
     escribir("7 + 5 > 10 ")
 }
+
+j := -x - getPenultimatePosition([3, 8.2, 2, 55.5])

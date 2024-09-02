@@ -160,10 +160,9 @@ asignacion:
 ;
 
 expresion:
-    expresion OP_ADD termino            {printf("   Expresion OP_ADD Termino es Expresion\n");}
-    |expresion OP_SUB termino           {printf("   Expresion OP_SUB Termino es Expresion\n");}
-    |termino                            {printf("   Termino es Expresion\n");}
-    |funcion_especial                   {printf("   Funcion_especial es Expresion\n");}
+    expresion OP_ADD termino                    {printf("   Expresion OP_ADD Termino es Expresion\n");}
+    |expresion OP_SUB termino                   {printf("   Expresion OP_SUB Termino es Expresion\n");}
+    |termino                                    {printf("   Termino es Expresion\n");}
 ;
 
 termino:
@@ -176,11 +175,13 @@ factor:
     ID                                 {printf("   ID es Factor\n");}
     |OP_SUB PAR_OP expresion PAR_CL %prec MENOS_UNARIO 
         {printf("   OP_SUB PAR_OP Expresion PAR_CL es Factor (Menos Unario)\n");}
-    |OP_SUB ID %prec MENOS_UNARIO
-        {printf("   OP_SUB ID es Factor (Menos Unario)\n");}
-    |CONST_INT                         {printf("   CONST_INT es Factor\n");}
-    |CONST_REAL                        {printf("   CONST_REAL es Factor\n");}
-    |PAR_OP expresion PAR_CL           {printf("   PAR_OP Expresion PAR_CL es Factor\n");}
+    |OP_SUB ID %prec MENOS_UNARIO               {printf("   OP_SUB ID es Factor (Menos Unario)\n");}
+    |CONST_INT                                  {printf("   CONST_INT es Factor\n");}
+    |CONST_REAL                                 {printf("   CONST_REAL es Factor\n");}
+    |PAR_OP expresion PAR_CL                    {printf("   PAR_OP Expresion PAR_CL es Factor\n");}
+    |funcion_especial                           {printf("   Funcion_especial es Factor\n");}
+    |OP_SUB funcion_especial %prec MENOS_UNARIO {printf("   OP_SUB Funcion_especial es Factor\n");}
+
 ;
 
 leer:
