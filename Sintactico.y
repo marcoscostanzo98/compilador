@@ -192,6 +192,12 @@ escribir:
     |WRITE PAR_OP CONST_STR PAR_CL     {printf("   WRITE PAR_OP CONST_STR PAR_CL es Escribir\n");}
 ;
 
+
+funcion_especial:
+    suma_los_ultimos            {printf("   Suma_los_ultimos es Funcion_especial\n");}
+    |get_penultimate_position   {printf("   Get_penultimate_position es Funcion_especial\n");}
+;
+
 suma_los_ultimos:
     SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP lista_const CORCHETE_CL PAR_CL
         {printf("   SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Suma_los_ultimos\n");}
@@ -202,10 +208,6 @@ get_penultimate_position:
         {printf("   GETPENULTIMATEPOSITION PAR_OP CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Get_penultimate_position\n");}
 ;
 
-funcion_especial:
-    suma_los_ultimos            {printf("   Suma_los_ultimos es Funcion_especial\n");}
-    |get_penultimate_position   {printf("   Get_penultimate_position es Funcion_especial\n");}
-;
 
 lista_const:
     lista_const COMA CONST_REAL        {printf("   Lista_const COMA CONST_REAL es Lista_const\n");}
