@@ -85,8 +85,8 @@ programa:
 ;
 
 bloque:
-    bloque sentencia    {printf("   Bloque Sentencia es Bloque\n");}
-    |sentencia          {printf("   Sentencia es Bloque\n");}
+    bloque sentencia    {printf("   Bloque Sentencia es Bloque\n\n");}
+    |sentencia          {printf("   Sentencia es Bloque\n\n");}
 ;
 
 sentencia:
@@ -94,7 +94,6 @@ sentencia:
     |asignacion         {printf("   Asignacion es Sentencia\n");}
     |leer               {printf("   Leer es Sentencia\n");}
     |escribir           {printf("   Escribir es Sentencia\n");}
-    |funcion_especial   {printf("   Funcion_especial es Sentencia\n");}
 ;
 
 init:
@@ -155,15 +154,15 @@ operador_logico:
 ;
 
 asignacion:
-    ID OP_ASIG expresion               {printf("   ID OP_ASIG Expresion es Asignacion\n");}
-    |ID OP_ASIG CONST_STR              {printf("   ID OP_ASIG CONST_STR es Asignacion\n");}
-    |ID OP_ASIG funcion_especial       {printf("   ID OP_ASIG Funcion_especial es Asignacion\n");}
+    ID OP_ASIG expresion                {printf("   ID OP_ASIG Expresion es Asignacion\n");}
+    |ID OP_ASIG CONST_STR               {printf("   ID OP_ASIG CONST_STR es Asignacion\n");}
+    |ID OP_ASIG funcion_especial        {printf("   ID OP_ASIG Funcion_especial es Asignacion\n");}
 ;
 
 expresion:
-    expresion OP_ADD termino           {printf("   Expresion OP_ADD Termino es Expresion\n");}
-    |expresion OP_SUB termino          {printf("   Expresion OP_SUB Termino es Expresion\n");}
-    |termino                           {printf("   Termino es Expresion\n");}
+    expresion OP_ADD termino                    {printf("   Expresion OP_ADD Termino es Expresion\n");}
+    |expresion OP_SUB termino                   {printf("   Expresion OP_SUB Termino es Expresion\n");}
+    |termino                                    {printf("   Termino es Expresion\n");}
 ;
 
 termino:
@@ -176,11 +175,13 @@ factor:
     ID                                 {printf("   ID es Factor\n");}
     |OP_SUB PAR_OP expresion PAR_CL %prec MENOS_UNARIO 
         {printf("   OP_SUB PAR_OP Expresion PAR_CL es Factor (Menos Unario)\n");}
-    |OP_SUB ID %prec MENOS_UNARIO
-        {printf("   OP_SUB ID es Factor (Menos Unario)\n");}
-    |CONST_INT                         {printf("   CONST_INT es Factor\n");}
-    |CONST_REAL                        {printf("   CONST_REAL es Factor\n");}
-    |PAR_OP expresion PAR_CL           {printf("   PAR_OP Expresion PAR_CL es Factor\n");}
+    |OP_SUB ID %prec MENOS_UNARIO               {printf("   OP_SUB ID es Factor (Menos Unario)\n");}
+    |CONST_INT                                  {printf("   CONST_INT es Factor\n");}
+    |CONST_REAL                                 {printf("   CONST_REAL es Factor\n");}
+    |PAR_OP expresion PAR_CL                    {printf("   PAR_OP Expresion PAR_CL es Factor\n");}
+    |funcion_especial                           {printf("   Funcion_especial es Factor\n");}
+    |OP_SUB funcion_especial %prec MENOS_UNARIO {printf("   OP_SUB Funcion_especial es Factor\n");}
+
 ;
 
 leer:
@@ -192,15 +193,22 @@ escribir:
     |WRITE PAR_OP CONST_STR PAR_CL     {printf("   WRITE PAR_OP CONST_STR PAR_CL es Escribir\n");}
 ;
 
+
 funcion_especial:
-    ID OP_EQ nombre_funcion PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP lista_const CORCHETE_CL PAR_CL
-        {printf("   ID OP_EQ Nombre_funcion PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Funcion_especial\n");}
+    suma_los_ultimos            {printf("   Suma_los_ultimos es Funcion_especial\n");}
+    |get_penultimate_position   {printf("   Get_penultimate_position es Funcion_especial\n");}
 ;
 
-nombre_funcion:
-    GETPENULTIMATEPOSITION {printf("   GETPENULTIMATEPOSITION es Nombre_funcion\n");}
-    |SUMALOSULTIMOS        {printf("   SUMALOSULTIMOS es Nombre_funcion\n");}
+suma_los_ultimos:
+    SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP lista_const CORCHETE_CL PAR_CL
+        {printf("   SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Suma_los_ultimos\n");}
 ;
+
+get_penultimate_position:
+    GETPENULTIMATEPOSITION PAR_OP CORCHETE_OP lista_const CORCHETE_CL PAR_CL
+        {printf("   GETPENULTIMATEPOSITION PAR_OP CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Get_penultimate_position\n");}
+;
+
 
 lista_const:
     lista_const COMA CONST_REAL        {printf("   Lista_const COMA CONST_REAL es Lista_const\n");}

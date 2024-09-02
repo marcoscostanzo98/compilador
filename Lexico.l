@@ -116,6 +116,7 @@ COMENTARIO          "*-".*"-*"
 {LLAVE_CL}                  {return LLAVE_CL;}
 {COMA}                      {return COMA;}
 {DOSPUNTOS}                 {return DOSPUNTOS;}
+{PUNTOYCOMA}                 {return PUNTOYCOMA;}
 {INIT}                      {return INIT;}
 {IF}                        {return IF;}
 {ELSE}                      {return ELSE;}
