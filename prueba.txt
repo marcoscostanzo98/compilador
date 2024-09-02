@@ -1,3 +1,10 @@
+*- init.txt -*
+init {
+    a1, b1 : Float
+    variable1 : Int
+    p1, p2, p3 : String
+}
+
 *- and.txt -*
 a := 1
 b := 1
@@ -5,15 +12,15 @@ c := 2
 
 si (a > b AND c > b)
 {
-    escribir("a es mas grande que b y c es mas grande que b")
+    escribir("a es mas grande que b")
 }
 
 
 *- arithmetic.txt -*
-x =: 27 - c
-x =: r + 500
-x =: 34 * 3
-x =: z / f
+x := 27 - c
+x := r + 500
+x := 34 * 3
+x := z / f
 
 
 *- assignments.txt -*
@@ -38,15 +45,6 @@ sino
 {
     escribir("a es mas chico o igual a b")
 }
-
-
-*- init.txt -*
-init {
-    a1, b1 : Float
-    variable1 : Int
-    p1, p2, p3 : String
-}
-
 
 *- not.txt -*
 a := 1
@@ -88,3 +86,13 @@ mientras (a > b)
 *- write.txt -*
 escribir(“ewr”)  *- “ewr” es una cte string -*
 escribir(var1)  *- var1 es una variable numérica definida previamente -*
+
+
+*- funciones especiales -*
+x := getPenultimatePosition([3, 8.2, 2, 55.5])
+
+getPenultimatePosition([3, 8.2, 2, 55.5])
+
+y := sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])
+
+sumaLosUltimos(5; [28, 13.5, 4, 5.5, 17, 52])
