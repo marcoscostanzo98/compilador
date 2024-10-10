@@ -5,6 +5,10 @@ init {
     p1, p2, p3 : String
 }
 
+
+*- entero mayor al permitido-*
+x := 33000
+
 *- and.txt -*
 a := 1
 b := 1

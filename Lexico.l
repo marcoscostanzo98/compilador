@@ -89,7 +89,7 @@ WRITE                   "escribir"
 GETPENULTIMATEPOSITION  "getPenultimatePosition"
 SUMALOSULTIMOS          "sumaLosUltimos"
 
-/* Comentarios */ 
+/* Comentarios */
 COMENTARIO_ANIDADO  "*-".*{COMENTARIO}.*"-*"
 COMENTARIO          "*-".*"-*"
 
