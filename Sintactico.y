@@ -4,6 +4,7 @@
 #include <conio.h>
 #include <string.h>
 #include "Lista.h"
+#include "Polaca.h"
 
 FILE *yyin;
 FILE *ts;
@@ -14,6 +15,8 @@ void guardar_TS();
 
 char* tabla_simbolos = "symbol-table.txt";
 t_lista lista_simbolos;
+
+t_polaca listaPolaca;
 
 %}
 
@@ -220,6 +223,7 @@ lista_const:
 int main(int argc, char *argv[])
 {
     crearLista(&lista_simbolos);
+    crearPolaca(&listaPolaca);
 
     if((yyin = fopen(argv[1], "rt")) == NULL){
         printf("\nNo se puede abrir el archivo de prueba: %s\n", argv[1]);

@@ -63,3 +63,5 @@ y.tab.c
 y.output
 y.tab.h
 compilador
+
+.vscode/
