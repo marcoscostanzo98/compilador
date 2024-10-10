@@ -28,7 +28,7 @@ _a es mas chico o igual a b|string|a es mas chico o igual a b|26
 _a no es mas grande que b|string|a no es mas grande que b|24
 _a es mas chica que b o c|string|a es mas chica que b o c|24
 base|||
-ewr|||
+_ewr|string|ewr|3
 var1|||
 _8.2|Float|8.2|0
 _55.5|Float|55.5|0

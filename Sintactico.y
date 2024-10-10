@@ -61,8 +61,6 @@ t_lista lista_simbolos;
 %token WRITE
 %token GETPENULTIMATEPOSITION
 %token SUMALOSULTIMOS
-%token COMENTARIO
-%token COMENTARIO_ANIDADO
 
 
 /* START SYMBOL */
