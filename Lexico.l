@@ -175,6 +175,7 @@ void validar_rango_float(char* str){
 
 void handleErr(char* str){
     printf("\nCaracter inesperado: %s\n", yytext);
+    exit(1);
 }
 
 void obtenerLexema(char* nombre){
