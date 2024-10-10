@@ -12,8 +12,9 @@
 #define MIN_FLOAT -2147483648
 #define MAX_FLOAT 2147483647
 
-#define TIPO_FLOAT "Float"
-#define TIPO_INT "Int"
+#define TIPO_FLOAT  "CTE_FLOAT"
+#define TIPO_INT    "CTE_INTEGER"
+#define TIPO_STRING "CTE_STRING"
 
 void mostrar_token_inutil();
 void validar_longitud_str(char* str);
@@ -195,7 +196,7 @@ void agregar_string_a_TS(char* lex)
 
     eliminar_caracteres(lexCopy, '"');
     strcpy(lexema.valor, lexCopy);
-    strcpy(lexema.tipodato, "string");
+    strcpy(lexema.tipodato, TIPO_STRING);
     itoa(strlen(lexCopy), lexema.longitud, 10);
     strcpy(lexema.nombre, "_");
     strcat(lexema.nombre, lexCopy);

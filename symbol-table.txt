@@ -6,41 +6,41 @@ p1|||
 p2|||
 p3|||
 a|||
-_1|Int|1|0
+_1|CTE_INTEGER|1|0
 b|||
 c|||
-_2|Int|2|0
-_a es mas grande que b|string|a es mas grande que b|21
+_2|CTE_INTEGER|2|0
+_a es mas grande que b|CTE_STRING|a es mas grande que b|21
 x|||
-_27|Int|27|0
+_27|CTE_INTEGER|27|0
 r|||
-_500|Int|500|0
-_34|Int|34|0
-_3|Int|3|0
+_500|CTE_INTEGER|500|0
+_34|CTE_INTEGER|34|0
+_3|CTE_INTEGER|3|0
 z|||
 f|||
-_99999.99|Float|99999.99|0
-_99.0|Float|99.0|0
-_0.9999|Float|0.9999|0
-_@sdADaSjfla%dfg|string|@sdADaSjfla%dfg|15
-_asldk  fh sjf|string|asldk  fh sjf|13
-_a es mas chico o igual a b|string|a es mas chico o igual a b|26
-_a no es mas grande que b|string|a no es mas grande que b|24
-_a es mas chica que b o c|string|a es mas chica que b o c|24
+_99999.99|CTE_FLOAT|99999.99|0
+_99.0|CTE_FLOAT|99.0|0
+_0.9999|CTE_FLOAT|0.9999|0
+_@sdADaSjfla%dfg|CTE_STRING|@sdADaSjfla%dfg|15
+_asldk  fh sjf|CTE_STRING|asldk  fh sjf|13
+_a es mas chico o igual a b|CTE_STRING|a es mas chico o igual a b|26
+_a no es mas grande que b|CTE_STRING|a no es mas grande que b|24
+_a es mas chica que b o c|CTE_STRING|a es mas chica que b o c|24
 base|||
-_ewr|string|ewr|3
+_ewr|CTE_STRING|ewr|3
 var1|||
-_8.2|Float|8.2|0
-_55.5|Float|55.5|0
+_8.2|CTE_FLOAT|8.2|0
+_55.5|CTE_FLOAT|55.5|0
 y|||
-_4|Int|4|0
-_28|Int|28|0
-_13.5|Float|13.5|0
-_5.5|Float|5.5|0
-_17|Int|17|0
-_52|Int|52|0
-_5|Int|5|0
-_10|Int|10|0
-_7|Int|7|0
-_7 + 5 > 10 |string|7 + 5 > 10 |11
+_4|CTE_INTEGER|4|0
+_28|CTE_INTEGER|28|0
+_13.5|CTE_FLOAT|13.5|0
+_5.5|CTE_FLOAT|5.5|0
+_17|CTE_INTEGER|17|0
+_52|CTE_INTEGER|52|0
+_5|CTE_INTEGER|5|0
+_10|CTE_INTEGER|10|0
+_7|CTE_INTEGER|7|0
+_7 + 5 > 10 |CTE_STRING|7 + 5 > 10 |11
 j|||

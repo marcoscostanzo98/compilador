@@ -7,7 +7,7 @@ init {
 
 
 *- entero mayor al permitido-*
-x := 33000
+*- x := 33000 -*
 
 *- and.txt -*
 a := 1
