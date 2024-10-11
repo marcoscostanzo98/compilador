@@ -40,6 +40,8 @@ void insertarOperador();
 void negarOperador();
 void validarComparadores();
 
+void resolverSalto(int isWhile); // desapila de la pila de conectores de condicionales, si es AND hace X cosa, si es OR hace X otra, y aparte valida si es if o while
+
 /* funciones de pila de celdas */
 int desapilarCelda();
 void apilarCelda();
@@ -52,6 +54,7 @@ t_polaca listaPolaca;
 t_pila pilaCeldas; // si
 t_pila pilaIds; // si
 t_pila pilaTipoDatoExpresion;
+t_pila pilaConectores;
 
 /* variables auxiliares */
 char tipoDatoInit[10];
@@ -176,6 +179,7 @@ tipo_dato:
     |T_INT   {printf("   T_INT es Tipo_dato\n"); strcpy(tipoDatoInit, INT);}
 ;
 
+/*
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
 struct_condicional:
     IF PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL {insertarPolaca("BI"); int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual+1); apilarCelda(); avanzarPolaca(); } ELSE LLAVE_OP bloque LLAVE_CL {int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual);}
@@ -185,17 +189,28 @@ struct_condicional:
     |WHILE PAR_OP {apilarCelda(); insertarEtiquetaEnPolaca();} condicional PAR_CL LLAVE_OP bloque LLAVE_CL {insertarPolaca("BI"); int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual+1); celda = desapilarCelda(); insertarIntEnPolaca(celda);}
         {printf("   WHILE PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
 ;
+*/
+
+//complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
+struct_condicional:
+    IF PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL {insertarPolaca("BI"); resolverSalto(while=false); apilarCelda(); avanzarPolaca();} ELSE LLAVE_OP bloque LLAVE_CL {int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual); /*esta parte queda igual sin importar la condición del if*/}
+        {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL ELSE LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
+    |IF PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL {resolverSalto(while=false);}
+        {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
+    |WHILE PAR_OP {apilarCelda(); insertarEtiquetaEnPolaca();} condicional PAR_CL LLAVE_OP bloque LLAVE_CL {insertarPolaca("BI"); resolverSalto(while=true); celda = desapilarCelda(); insertarIntEnPolaca(celda);}
+        {printf("   WHILE PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
+;
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
 condicional:
     condicion                         {printf("   Condicion es Condicional\n");}
-    |condicion operador_logico condicion {printf("   Condicion Operador_logico Condicion es Condicional\n");}  //falta este
+    |condicion operador_logico {conector = desapilar(); if(conector == "OR"){ip(BI); x= desapilarCelda(); escribir(x, actual+1); apilar(); avanzar(); apilar(&pilaConectores, "OR");} /*si es OR, escribe BI, apila y avanza. */} condicion {printf("   Condicion Operador_logico Condicion es Condicional\n");}  //falta este
     |OP_NOT {negadorDeOperador = 1;} condicion                 {printf("   OP_NOT Condicion es Condicional\n"); negadorDeOperador = 0; /*ver si va acá*/} //cuidado con este porque esto cambia la comparación del comparador
 ;
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
 condicion:
-    expresion comparador expresion    {printf("   Expresion Comparador Expresion es Condicion\n"); validarComparadores(); insertarPolaca("CMP"); insertarOperador(); apilarCelda(); avanzarPolaca();}
+    expresion comparador {} expresion    {printf("   Expresion Comparador Expresion es Condicion\n"); validarComparadores(); insertarPolaca("CMP"); insertarOperador(); apilarCelda(); avanzarPolaca();}
 ;
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
@@ -210,11 +225,11 @@ comparador:
 
 //esto generaría saltos extras en los ifs, no sé si habrá que apilarlos o usar flags
 operador_logico:
-    OP_AND {printf("   OP_AND es Operador_logico\n");}
-    |OP_OR {printf("   OP_OR es Operador_logico\n");}
+    OP_AND {printf("   OP_AND es Operador_logico\n"); apilar(&pilaConectores, "AND");}
+    |OP_OR {printf("   OP_OR es Operador_logico\n"); apilar(&pilaConectores, "OR");}
 ;
 
-// listo pero hay que validar el tipo de dato (IMPORTANTE!!!!!) ya estaría validado el tipo de dato
+// listo
 asignacion:
     ID OP_ASIG expresion                {printf("   ID OP_ASIG Expresion es Asignacion\n"); validarTipoAsigExp($1); insertarPolaca($1); insertarPolaca(":=");}
     |ID OP_ASIG CONST_STR               {printf("   ID OP_ASIG CONST_STR es Asignacion\n"); validarTipoAsigString($1); insertarPolaca($3); insertarPolaca($1); insertarPolaca(":=");}
@@ -235,11 +250,11 @@ termino:
     |factor                            {printf("   Factor es Termino\n");}
 ;
 
-//listo salvo el - unario
+// listo salvo el - unario del ID (ver por qué falla este)
 factor:
     ID                                 {printf("   ID es Factor\n"); insertarPolaca($1); t_lexema lex = buscarIdEnTS($1); apilar(&pilaTipoDatoExpresion, lex.tipodato);}
     |OP_SUB PAR_OP expresion PAR_CL %prec MENOS_UNARIO //VER COMO HACER PARA NO PERDER EL SIGNO - (creo que está resuelto)
-        {printf("   OP_SUB PAR_OP Expresion PAR_CL es Factor (Menos Unario)\n"); insertarPolaca("-1"); insertarPolaca("*");} 
+        {printf("   OP_SUB PAR_OP Expresion PAR_CL es Factor (Menos Unario)\n"); insertarPolaca("-1"); insertarPolaca("*");}
     |OP_SUB ID %prec MENOS_UNARIO               {printf("   OP_SUB ID es Factor (Menos Unario)\n"); t_lexema lex = buscarIdEnTS($2); apilar(&pilaTipoDatoExpresion, lex.tipodato); insertarPolaca($2); insertarPolaca("-1"); insertarPolaca("*");}
     |CONST_INT                                  {printf("   CONST_INT es Factor\n"); insertarPolaca($1); apilar(&pilaTipoDatoExpresion, INT);}
     |CONST_REAL                                 {printf("   CONST_REAL es Factor\n"); insertarPolaca($1); apilar(&pilaTipoDatoExpresion, FLOAT);}
@@ -293,7 +308,8 @@ int main(int argc, char *argv[])
     crearLista(&lista_simbolos);
     crearPila(&pilaCeldas);
     crearPila(&pilaIds);
-    crearPila(&pilaTipoDatoExpresion);
+    crearPila(&pilaTipoDatoExpesion);
+    crearPila(&pilaConectores);
     crearPolaca(&listaPolaca);
 
     if((yyin = fopen(argv[1], "rt")) == NULL){
@@ -369,14 +385,14 @@ void validarTipoExpresion(){
     char* tipo1 = desapilar(&pilaTipoDatoExpresion);
     char* tipo2 = desapilar(&pilaTipoDatoExpresion);
 
-/* con esta opcion si hay un float y un int entonces se transforma a float, caso contrario queda int.
-    if(strcmp(tipo1, TIPO_INT) == 0 || strcmp(tipo2, TIPO_INT) == 0){
-        apilar(&pilaTipoDatoExpresion, TIPO_INT);
-        return;
-    }
+    /* con esta opcion si hay un float y un int entonces se transforma a float, caso contrario queda int.
+        if(strcmp(tipo1, TIPO_INT) == 0 || strcmp(tipo2, TIPO_INT) == 0){
+            apilar(&pilaTipoDatoExpresion, TIPO_INT);
+            return;
+        }
 
-    apilar(&pilaTipoDatoExpresion, TIPO_FLOAT);
-*/
+        apilar(&pilaTipoDatoExpresion, TIPO_FLOAT);
+    */
 
     //con esta opción los 2 operadores tienen que ser del mismo tipo para avanzar con la expresión
     //ver si queremos pasarlo a float, eso lo hablamos entre todos despues
@@ -483,8 +499,9 @@ void apilarCelda(){
 
 // funciones de ifs
 void insertarOperador(){
-    if(negadorDeOperador) {
+    if(negadorDeOperador || orOperador) {
         negarOperador();
+        orOperador = 0;
     }
 
     insertarPolaca(operadorLogicoAct);
@@ -525,6 +542,23 @@ void negarOperador(){
 void resolverSaltoIfSimple(){
     int celda = desapilarCelda();
     actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
+}
+
+void resolverSalto(int isWhile){ // desapila de la pila de conectores de condicionales, si es AND hace X cosa, si es OR hace X otra, y aparte valida si es if o while
+    char* conector = desapilar(&pilaConectores);
+
+    if(strcmp(conector, "AND") == 0) {
+        //si hay un and, desapilo, desapilo y actualizo ambos con celdaActual + isWhile
+        int celda = desapilarCelda();
+        actualizarCeldaPolaca(celda, listaPolaca.celdaActual + isWhile);
+        int celda = desapilarCelda();
+        actualizarCeldaPolaca(celda, listaPolaca.celdaActual + isWhile);
+    } else { //or
+        //si hay un or, 
+
+    }
+
+    return;
 }
 
 void validarComparadores() {
