@@ -6,7 +6,7 @@ init {
 }
 
 mientras(a1 > b1) {
-    mientras( var1 > var2) {
+    mientras( var1 > p3) {
         a1 := 2.2
     }
     a1 := 1.1

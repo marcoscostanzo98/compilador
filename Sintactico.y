@@ -38,6 +38,7 @@ void insertarEtiquetaEnPolaca();
 /* funciones de los ifs */
 void insertarOperador();
 void negarOperador();
+void validarComparadores();
 
 /* funciones de pila de celdas */
 int desapilarCelda();
@@ -188,13 +189,13 @@ struct_condicional:
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
 condicional:
     condicion                         {printf("   Condicion es Condicional\n");}
-    |condicion operador_logico condicion {printf("   Condicion Operador_logico Condicion es Condicional\n");}
+    |condicion operador_logico condicion {printf("   Condicion Operador_logico Condicion es Condicional\n");}  //falta este
     |OP_NOT {negadorDeOperador = 1;} condicion                 {printf("   OP_NOT Condicion es Condicional\n"); negadorDeOperador = 0; /*ver si va acá*/} //cuidado con este porque esto cambia la comparación del comparador
 ;
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
 condicion:
-    expresion comparador expresion    {printf("   Expresion Comparador Expresion es Condicion\n"); insertarPolaca("CMP"); insertarOperador(); apilarCelda(); avanzarPolaca();}
+    expresion comparador expresion    {printf("   Expresion Comparador Expresion es Condicion\n"); validarComparadores(); insertarPolaca("CMP"); insertarOperador(); apilarCelda(); avanzarPolaca();}
 ;
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
@@ -470,7 +471,7 @@ void insertarEtiquetaEnPolaca() {
 
 //funciones de pila celdas
 int desapilarCelda(){
-    char *celdaStr = desapilar(&pilaCeldas);    
+    char *celdaStr = desapilar(&pilaCeldas);
     return atoi(celdaStr);
 }
 
@@ -524,4 +525,19 @@ void negarOperador(){
 void resolverSaltoIfSimple(){
     int celda = desapilarCelda();
     actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
+}
+
+void validarComparadores() {
+    char* tipo1 = desapilar(&pilaTipoDatoExpresion);
+    char* tipo2 = desapilar(&pilaTipoDatoExpresion);
+
+    if(!strcmp(tipo1, STRING) || !strcmp(tipo2, STRING)) {
+        printf("error en condicion. No se pueden realizar comparaciones con cadenas\n");
+        exit(1);
+    }
+
+    if(strcmp(tipo1, tipo2) != 0){
+        printf("error en condicion. Se intenta comparar operadores %s y %s\n", tipo1, tipo2);
+        exit(1);
+    }
 }
