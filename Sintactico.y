@@ -450,7 +450,7 @@ void resolverSalto(){
     int celda = atoi(celdaStr);
     itoa(listaPolaca.celdaActual, celdaStr, 10);
     
-    printf("celda nueva: %s\n")
+    printf("celda nueva: %s\n", celdaStr);
 
     buscarYActualizarPolaca(&listaPolaca, celda, celdaStr);
 }
