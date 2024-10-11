@@ -8,4 +8,7 @@ p2|string||
 p3|string||
 a1|||
 b1|||
+var1|||
+var2|||
+_2.2|CTE_FLOAT|2.2|0
 _1.1|CTE_FLOAT|1.1|0

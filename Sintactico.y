@@ -33,6 +33,7 @@ void apilarCelda();
 void resolverSaltoIfSimple();
 void actualizarCeldaPolaca(int celda, int nuevoValor);
 void insertarIntEnPolaca(int num);
+void insertarEtiquetaEnPolaca();
 
 /* funciones de los ifs */
 void insertarOperador();
@@ -53,7 +54,7 @@ t_pila pilaTipoDatoExpresion;
 
 /* variables auxiliares */
 char tipoDatoInit[10];
-
+int contadorTag = 0;
 
 /* variables globales */
 char operadorLogicoAct[10];
@@ -180,7 +181,7 @@ struct_condicional:
         {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL ELSE LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
     |IF PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL {resolverSaltoIfSimple();}
         {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
-    |WHILE PAR_OP {apilarCelda(); insertarPolaca("ET");} condicional PAR_CL LLAVE_OP bloque LLAVE_CL {insertarPolaca("BI"); int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual+1); celda = desapilarCelda(); insertarIntEnPolaca(celda);}
+    |WHILE PAR_OP {apilarCelda(); insertarEtiquetaEnPolaca();} condicional PAR_CL LLAVE_OP bloque LLAVE_CL {insertarPolaca("BI"); int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual+1); celda = desapilarCelda(); insertarIntEnPolaca(celda);}
         {printf("   WHILE PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
 ;
 
@@ -459,6 +460,12 @@ void insertarIntEnPolaca(int num) {
     char str[100];
     itoa(num, str, 10);
     insertarPolaca(str);
+}
+
+void insertarEtiquetaEnPolaca() {
+    char tag[10];
+    sprintf(tag, "ET_%d", contadorTag++);
+    insertarEnPolaca(&listaPolaca, tag);
 }
 
 //funciones de pila celdas
