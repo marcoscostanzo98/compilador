@@ -98,6 +98,19 @@ int buscarEnlista(const t_lista *l, const char *nombre, t_lexema *lex)
     return 0;
 }
 
+void buscarYactualizarTipoDato(t_lista* l, const char* nombre, const char* tipoDato)
+{
+    t_nodo* actual = *l;    
+    while (actual) {
+        if (strcmp(actual->lexema.nombre, nombre) == 0) 
+        {
+            strcpy(actual->lexema.tipodato, tipoDato);
+            return;
+        }
+        actual = actual->sig;
+    }
+}
+
 void vaciarLista(t_lista *l)
 {
     t_nodo *elim;

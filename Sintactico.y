@@ -7,6 +7,11 @@
 #include "Pila.h"
 #include "Polaca.h"
 
+//si quieren lo sacamos, es lo mismo
+#define STRING "string"
+#define FLOAT "float"
+#define INT "int"
+
 FILE *yyin;
 FILE *ts;
 
@@ -18,8 +23,11 @@ void validarTipoExpresion();
 void validarTipoAsigExp(char* nombre);
 void validarTipoAsigString(char* nombre);
 
+t_lexema buscarIdEnTS(char* nombre);
+
 
 void insertarPolaca(char* cad);
+void imprimirPolaca();
 
 char* tabla_simbolos = "symbol-table.txt";
 t_lista lista_simbolos;
@@ -31,7 +39,7 @@ t_pila pilaIds; // si
 t_pila pilaTipoDatoExpresion;
 
 /* variables auxiliares */
-char* tipoDatoInit;
+char tipoDatoInit[10];
 
 %}
 
@@ -92,7 +100,7 @@ char* tipoDatoInit;
 %%
 //no se expresa en polaca ni lleva lógica extra
 inicio: 
-    programa {printf("   Programa es Inicio\n"); guardar_TS();}
+    programa {printf("   Programa es Inicio\n"); guardar_TS(); imprimirPolaca();}
 ;
 
 //no se expresa en polaca ni lleva lógica extra
@@ -143,9 +151,9 @@ lista_ids:
 //no se expresa en polaca pero hay que guardarlo en una var global para actualizar la TS
 //ya estaría
 tipo_dato:
-    T_STRING {printf("   T_STRING es Tipo_dato\n"); strcpy(tipoDato, $1);}
-    |T_FLOAT {printf("   T_FLOAT es Tipo_dato\n"); strcpy(tipoDato, $1);}
-    |T_INT   {printf("   T_INT es Tipo_dato\n"); strcpy(tipoDato, $1);}
+    T_STRING {printf("   T_STRING es Tipo_dato\n"); strcpy(tipoDatoInit, STRING);}
+    |T_FLOAT {printf("   T_FLOAT es Tipo_dato\n"); strcpy(tipoDatoInit, FLOAT);}
+    |T_INT   {printf("   T_INT es Tipo_dato\n"); strcpy(tipoDatoInit, INT);}
 ;
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
@@ -188,36 +196,36 @@ operador_logico:
 
 // listo pero hay que validar el tipo de dato (IMPORTANTE!!!!!) ya estaría validado el tipo de dato
 asignacion:
-    ID OP_ASIG expresion                {printf("   ID OP_ASIG Expresion es Asignacion\n"); validarTipoAsigExp($1); insertarPolaca($1); insertarPolaca($2);}
-    |ID OP_ASIG CONST_STR               {printf("   ID OP_ASIG CONST_STR es Asignacion\n"); validarTipoAsigString($1); insertarPolaca($1); insertarPolaca($1);}
-    |ID OP_ASIG funcion_especial        {printf("   ID OP_ASIG Funcion_especial es Asignacion\n"); validarTipoAsigExp($1); insertarPolaca($1); insertarPolaca($2);} //TODO: funcion_especial al final de todo debería apilar su tipo en pilaTipoDato
+    ID OP_ASIG expresion                {printf("   ID OP_ASIG Expresion es Asignacion\n"); validarTipoAsigExp($1); insertarPolaca($1); insertarPolaca(":=");}
+    |ID OP_ASIG CONST_STR               {printf("   ID OP_ASIG CONST_STR es Asignacion\n"); validarTipoAsigString($1); insertarPolaca($3); insertarPolaca($1); insertarPolaca(":=");}
+    |ID OP_ASIG funcion_especial        {printf("   ID OP_ASIG Funcion_especial es Asignacion\n"); validarTipoAsigExp($1); insertarPolaca($1); insertarPolaca(":=");} //TODO: funcion_especial al final de todo debería apilar su tipo en pilaTipoDato
 ;
 
 // listo
 expresion:
-    expresion OP_ADD termino                    {printf("   Expresion OP_ADD Termino es Expresion\n"); validarTipoExpresion(); insertarPolaca($2);}
-    |expresion OP_SUB termino                   {printf("   Expresion OP_SUB Termino es Expresion\n"); validarTipoExpresion(); insertarPolaca($2);}
+    expresion OP_ADD termino                    {printf("   Expresion OP_ADD Termino es Expresion\n"); validarTipoExpresion(); insertarPolaca("+");}
+    |expresion OP_SUB termino                   {printf("   Expresion OP_SUB Termino es Expresion\n"); validarTipoExpresion(); insertarPolaca("-");}
     |termino                                    {printf("   Termino es Expresion\n");}
 ;
 
 // listo
 termino:
-    termino OP_MUL factor              {printf("   Termino OP_MUL Factor es Termino\n"); validarTipoExpresion(); insertarPolaca($2);}
-    |termino OP_DIV factor             {printf("   Termino OP_DIV Factor es Termino\n"); validarTipoExpresion(); insertarPolaca($2);}
+    termino OP_MUL factor              {printf("   Termino OP_MUL Factor es Termino\n"); validarTipoExpresion(); insertarPolaca("*");}
+    |termino OP_DIV factor             {printf("   Termino OP_DIV Factor es Termino\n"); validarTipoExpresion(); insertarPolaca("/");}
     |factor                            {printf("   Factor es Termino\n");}
 ;
 
 //listo salvo el - unario
 factor:
-    ID                                 {printf("   ID es Factor\n"); insertarPolaca($1)}
-    |OP_SUB PAR_OP expresion PAR_CL %prec MENOS_UNARIO //VER COMO HACER PARA NO PERDER EL SIGNO -
-        {printf("   OP_SUB PAR_OP Expresion PAR_CL es Factor (Menos Unario)\n");}
-    |OP_SUB ID %prec MENOS_UNARIO               {printf("   OP_SUB ID es Factor (Menos Unario)\n"); insertarPolaca($2);} //VER COMO NO PERDER EL SIGNO -
-    |CONST_INT                                  {printf("   CONST_INT es Factor\n"); insertarPolaca($1); apilar(&tipoDatosExpresion, TIPO_INT);}
-    |CONST_REAL                                 {printf("   CONST_REAL es Factor\n"); insertarPolaca($1); apilar(&tipoDatosExpresion, TIPO_FLOAT);}
+    ID                                 {printf("   ID es Factor\n"); insertarPolaca($1); t_lexema lex = buscarIdEnTS($1); apilar(&pilaTipoDatoExpresion, lex.tipodato);}
+    |OP_SUB PAR_OP expresion PAR_CL %prec MENOS_UNARIO //VER COMO HACER PARA NO PERDER EL SIGNO - (creo que está resuelto)
+        {printf("   OP_SUB PAR_OP Expresion PAR_CL es Factor (Menos Unario)\n"); insertarPolaca("-1"); insertarPolaca("*");} 
+    |OP_SUB ID %prec MENOS_UNARIO               {printf("   OP_SUB ID es Factor (Menos Unario)\n"); t_lexema lex = buscarIdEnTS($2); apilar(&pilaTipoDatoExpresion, lex.tipodato); insertarPolaca($2); insertarPolaca("-1"); insertarPolaca("*");}
+    |CONST_INT                                  {printf("   CONST_INT es Factor\n"); insertarPolaca($1); apilar(&pilaTipoDatoExpresion, INT);}
+    |CONST_REAL                                 {printf("   CONST_REAL es Factor\n"); insertarPolaca($1); apilar(&pilaTipoDatoExpresion, FLOAT);}
     |PAR_OP expresion PAR_CL                    {printf("   PAR_OP Expresion PAR_CL es Factor\n");}
     |funcion_especial                           {printf("   Funcion_especial es Factor\n");}
-    |OP_SUB funcion_especial %prec MENOS_UNARIO {printf("   OP_SUB Funcion_especial es Factor\n");} //VER COMO NO PERDER EL SIGNO -
+    |OP_SUB funcion_especial %prec MENOS_UNARIO {printf("   OP_SUB Funcion_especial es Factor\n"); insertarPolaca("-1"); insertarPolaca("*");}
 ;
 
 //listo
@@ -227,7 +235,7 @@ leer:
 
 //listo
 escribir:
-    WRITE PAR_OP expresion PAR_CL      {printf("   WRITE PAR_OP Expresion PAR_CL es Escribir\n"); insertarPolaca($3); insertarPolaca("ESCRIBIR");}
+    WRITE PAR_OP expresion PAR_CL      {printf("   WRITE PAR_OP Expresion PAR_CL es Escribir\n"); insertarPolaca("ESCRIBIR");}
     |WRITE PAR_OP CONST_STR PAR_CL     {printf("   WRITE PAR_OP CONST_STR PAR_CL es Escribir\n"); insertarPolaca($3); insertarPolaca("ESCRIBIR");}
 ;
 
@@ -305,22 +313,36 @@ void guardar_TS(){
     return;
 }
 
+// funciones de manejo de la tabla de simbolos
 void actualizarTiposDeDato(){
     char* nombre;
     t_lexema actual;
     while(!pilaVacia(&pilaIds)) {
-        strcpy(nombre, desapilar(&pilaIds));
-
+        nombre = desapilar(&pilaIds);
         buscarEnlista(&lista_simbolos, nombre, &actual);
 
-        if(strcmp(actual.tipo, "")) {
+        if(strcmp(actual.tipodato, "")) {
             printf("Variable %s ya declarada", nombre);
             exit(1);
         }
 
-        buscarYActualizar(&lista_simbolos, actual, tipoDato); //TODO: DEFINIR LA PRIMITIVA DE LISTA. VER SI DEBERÍA LLAMARSE BuscarYActualizarTipoDato
+        buscarYactualizarTipoDato(&lista_simbolos, actual.nombre, tipoDatoInit); //TODO: DEFINIR LA PRIMITIVA DE LISTA. VER SI DEBERÍA LLAMARSE BuscarYActualizarTipoDato
     }
 }
+
+t_lexema buscarIdEnTS(char* nombre){
+    t_lexema lex;
+    buscarEnlista(&lista_simbolos, nombre, &lex);
+
+    if(strcmp(lex.tipodato, "") == 0){
+        printf("variable '%s' no definida inicialmente\n", nombre);
+        exit(1);
+    }
+
+    return lex;
+}
+
+// funciones de validaciones
 
 //TODO: ver si realmente es necesario.
 void validarTipoExpresion(){
@@ -336,48 +358,63 @@ void validarTipoExpresion(){
     apilar(&pilaTipoDatoExpresion, TIPO_FLOAT);
 */
 
-//con esta opción los 2 operadores tienen que ser del mismo tipo para avanzar con la expresión
+    //con esta opción los 2 operadores tienen que ser del mismo tipo para avanzar con la expresión
+    //ver si queremos pasarlo a float, eso lo hablamos entre todos despues
     if(strcmp(tipo1, tipo2) != 0){
-        printf("distintos tipos de dato"); //TODO: hacer un comentario mas bello
+        printf("distintos tipos de dato en calculo de expresion. Se intenta operar entre %s y %s\n", tipo1, tipo2);
         exit(1);
     }
 
     apilar(&pilaTipoDatoExpresion, tipo1);
 }
 
-void validarTipoDatoAsigExp(char* nombre){
+void validarTipoAsigExp(char* nombre){
     char* tipoExp = desapilar(&pilaTipoDatoExpresion);
 
+    /*
     t_lexema lex;
-    
-    int encontrado = buscarEnlista(&lista_simbolos, nombre, &lex);
-    if(!encontrado) {
-        printf("variable %s no declarada", nombre);
+    buscarEnlista(&lista_simbolos, nombre, &lex);
+    if (strcmp(lex.tipodato, "") == 0) {
+        printf("variable '%s' no definida inicialmente\n", nombre);
         exit(1);
     }
+    */
 
-    if (strcmp(lex.tipoDato, tipoExp) != 0) {
-        printf("distintos tipos de dato"); //TODO: hacer un comentario mas bello
+    t_lexema lex = buscarIdEnTS(nombre);
+    if (strcmp(lex.tipodato, tipoExp) != 0) {
+        printf("distintos tipos de dato. '%s' es %s y se intenta asignar un %s\n", lex.nombre, lex.tipodato, tipoExp);
         exit(1);
     }
 }
 
 void validarTipoAsigString(char* nombre){
+    /*
     t_lexema lex;
-    
-    int encontrado = buscarEnlista(&lista_simbolos, nombre, &lex);
-    if(!encontrado) {
-        printf("variable %s no declarada", nombre);
+        buscarEnlista(&lista_simbolos, nombre, &lex);
+    if (!strcmp(lex.tipodato, "")) {
+        printf("variable '%s' no definida inicialmente\n", nombre);
         exit(1);
     }
+    */
 
-    if (strcmp(lex.tipoDato, TIPO_STRING) != 0) {
-        printf("distintos tipos de dato"); //TODO: hacer un comentario mas bello
+    t_lexema lex = buscarIdEnTS(nombre);
+    if (strcmp(lex.tipodato, STRING) != 0) {
+        printf("distintos tipos de dato. '%s' es %s y se intenta asignar un %s\n", lex.nombre, lex.tipodato, STRING);
         exit(1);
     }
 }
 
 // funciones de manejo de la lista de polaca inversa:
 void insertarPolaca(char* cad){
-    insertarEnPolaca(&lista_polaca, cad);
+    insertarEnPolaca(&listaPolaca, cad);
+}
+
+void imprimirPolaca(){
+    char elemPolaca[100];
+    while(!polacaVacia(&listaPolaca)){
+        extraerPrimeroDePolaca(&listaPolaca, elemPolaca);
+        printf("%s | ", elemPolaca);
+    }
+
+    printf("\n");
 }

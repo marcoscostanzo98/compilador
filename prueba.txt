@@ -1,7 +1,7 @@
 *- init.txt -*
 init {
     a1, b1 : Float
-    variable1 : Int
+    variable1, j : Int
     p1, p2, p3 : String
 }
 
@@ -10,115 +10,7 @@ init {
 *- x := 33000 -*
 
 *- and.txt -*
-a := 1
-b := 1
-c := 2
-
-si (a > b AND c > b)
-{
-    escribir("a es mas grande que b")
-}
-
-*- arithmetic.txt -*
-x := 27 - c
-x := r + 500
-x := 34 * 3
-x := z / f
-
-
-*- assignments.txt -*
-a := 99999.99
-a := 99.
-a := .9999
-
-b := "@sdADaSjfla%dfg"
-b := "asldk  fh sjf"
-
-
-*- comment.txt -*
-*- Esto es un comentario -*
-
-
-*- if.txt -*
-si (a > b)
-{
-    escribir("a es mas grande que b")
-}
-sino
-{
-    escribir("a es mas chico o igual a b")
-}
-
-*- not.txt -*
-a := 1
-b := 1
-c := 2
-
-si (NOT a > b)
-{
-    escribir("a no es mas grande que b")
-}
-
-
-*- or.txt -*
-a := 1
-b := 1
-c := 2
-
-si (a > b OR c > b)
-{
-    escribir("a es mas chica que b o c")
-}
-
-
-*- read.txt -*
-leer(base) *- base es una variable -*
-
-
-*- while.txt -*
-a := 1
-b := 3
-
-mientras (a > b)
-{
-    escribir("a es mas grande que b")
-    a := a + 1
-}
-
-
-*- write.txt -*
-escribir("ewr")  *- "ewr" es una cte string -*
-escribir(var1)  *- var1 es una variable numérica definida previamente -*
-
-
-*- funciones especiales -*
-x := getPenultimatePosition([3, 8.2, 2, 55.5])
-
-escribir(getPenultimatePosition([3, 8.2, 2, 55.5]))
-
-y := sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])
-
-escribir(sumaLosUltimos(5; [28, 13.5, 4, 5.5, 17, 52]))
-
-si (sumaLosUltimos(2; [10, 7, 5]) > 10) 
-{
-    escribir("7 + 5 > 10 ")
-}
-
-j := - getPenultimatePosition([3, 8.2, 2, 55.5]) -x
-
-
-*- Comentario anidado -*
-    *- comentario *- comentario interno -* externo -*
-
-
-*- ciclos anidados -*
-mientras (NOT x > y)
-{
-    mientras (y > z)
-    {
-        z := z + 1
-    }
-
-    y := y - 1
-}
+a1 := 4.2 + (4.1 + 4.0)
+p3 := "hopla"
+variable1 := -3 + (1 * (5 - (4/3)))
+j := -(variable1 / 0)
