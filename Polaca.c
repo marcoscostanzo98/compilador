@@ -9,6 +9,7 @@ int insertarEnPolaca (t_polaca *polaca, char *cadena){
     t_nodo_polaca *nuevoNodo = (t_nodo_polaca*)malloc(sizeof(t_nodo_polaca));
     if (!nuevoNodo) return FALSE; // Error en asignacion de memoria
     strcpy(nuevoNodo->cadena,cadena);
+    nuevoNodo->sig = NULL;
 
     t_nodo_polaca *act = polaca->lista;
 
@@ -29,8 +30,8 @@ int insertarEnPolaca (t_polaca *polaca, char *cadena){
     act->sig = nuevoNodo;
     polaca->celdaActual++;
 
-    printf("celda actual: %d", polaca->celdaActual);
-    printf("\n");
+    //printf("celda actual: %d", polaca->celdaActual);
+    //printf("\n");
 
 	return TRUE;
 }
@@ -74,7 +75,7 @@ int buscarYActualizarPolaca ( t_polaca *polaca, int numCelda, char* cadNueva){
     t_nodo_polaca *current = polaca->lista;
     int i;
     for (i = 0; current && i < numCelda; i++) {
-        printf("en la celda num %d, contenido: %s\n", i, current->cadena);
+        //printf("en la celda num %d, contenido: %s\n", i, current->cadena);
         current = current->sig;
     }
 
