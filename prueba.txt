@@ -1,10 +1,15 @@
 *- init.txt -*
 init {
     a1, b1 : Float
-    variable1 : Int
+    var1, var2 : Int
     p1, p2, p3 : String
 }
 
 si(a1 > b1) {
     a1 := 1.1
+    si (var1 != var2) {
+        p1 := "hi"
+    }
+} sino {
+    b1 := 2.2
 }

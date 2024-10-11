@@ -1,10 +1,16 @@
 NOMBRE|TIPO|VALOR|LONGITUD
 a1|float||
 b1|float||
-variable1|int||
+var1|int||
+var2|int||
 p1|string||
 p2|string||
 p3|string||
 a1|||
 b1|||
 _1.1|CTE_FLOAT|1.1|0
+var1|||
+var2|||
+p1|||
+_hi|CTE_STRING|hi|2
+_2.2|CTE_FLOAT|2.2|0

@@ -16,6 +16,7 @@ int insertarEnPolaca (t_polaca *polaca, char *cadena){
     {
         //printf("esta vacia y asigno el primero\n");
         polaca->lista = nuevoNodo;
+        polaca->celdaActual++;
         return TRUE;
     }
 
@@ -28,6 +29,7 @@ int insertarEnPolaca (t_polaca *polaca, char *cadena){
     act->sig = nuevoNodo;
     polaca->celdaActual++;
 
+    printf("celda actual: %d", polaca->celdaActual);
     printf("\n");
 
 	return TRUE;
@@ -70,13 +72,17 @@ int buscarEnPolaca(const t_polaca *polaca, const char *cadena){
 
 int buscarYActualizarPolaca ( t_polaca *polaca, int numCelda, char* cadNueva){
     t_nodo_polaca *current = polaca->lista;
-    for (int i = 0; current && i < numCelda; i++) {
-        if (i == numCelda) {
-            strcpy(current->cadena, cadNueva);
-            return TRUE; // Actualizado
-        }
+    int i;
+    for (i = 0; current && i < numCelda; i++) {
+        printf("en la celda num %d, contenido: %s\n", i, current->cadena);
         current = current->sig;
     }
+
+    if (i == numCelda) {
+        strcpy(current->cadena, cadNueva);
+        return TRUE; // Actualizado
+    }
+    
     return FALSE; // No encontrado
 }
 

@@ -30,12 +30,16 @@ void insertarPolaca(char* cad);
 void imprimirPolaca();
 void avanzarPolaca();
 void apilarCelda();
-void resolverSalto();
+void resolverSaltoIfSimple();
+void actualizarCeldaPolaca(int celda, int nuevoValor);
 
 /* funciones de los ifs */
 void insertarOperador();
 void negarOperador();
 
+/* funciones de pila de celdas */
+int desapilarCelda();
+void apilarCelda();
 
 char* tabla_simbolos = "symbol-table.txt";
 t_lista lista_simbolos;
@@ -171,9 +175,9 @@ tipo_dato:
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
 struct_condicional:
-    IF PAR_OP condicional PAR_CL {/*  */} LLAVE_OP bloque LLAVE_CL ELSE LLAVE_OP bloque LLAVE_CL
+    IF PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL {insertarPolaca("BI"); int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual+1); apilarCelda(); avanzarPolaca(); } ELSE LLAVE_OP bloque LLAVE_CL {int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual);}
         {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL ELSE LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
-    |IF PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL {resolverSalto();}
+    |IF PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL {resolverSaltoIfSimple();}
         {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
     |WHILE PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL
         {printf("   WHILE PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
@@ -424,9 +428,17 @@ void insertarPolaca(char* cad){
 
 void imprimirPolaca(){
     char elemPolaca[100];
+    int celdaMax = listaPolaca.celdaActual;
+
     while(!polacaVacia(&listaPolaca)){
         extraerPrimeroDePolaca(&listaPolaca, elemPolaca);
-        printf("%s | ", elemPolaca);
+        printf("%5s | ", elemPolaca);
+    }
+
+    printf("\n");
+
+    for(int i = 0; i < celdaMax; i++){
+        printf("%5d | ", i);
     }
 
     printf("\n");
@@ -436,23 +448,22 @@ void avanzarPolaca(){
     insertarEnPolaca(&listaPolaca, "_");
 }
 
+void actualizarCeldaPolaca(int celda, int nuevoValor) {
+    char nuevaCeldaStr[100];
+    itoa(nuevoValor, nuevaCeldaStr, 10);
+    buscarYActualizarPolaca(&listaPolaca, celda, nuevaCeldaStr);
+}
+
+//funciones de pila celdas
+int desapilarCelda(){
+    char *celdaStr = desapilar(&pilaCeldas);    
+    return atoi(celdaStr);
+}
+
 void apilarCelda(){
     char celdaStr[100];
     itoa(listaPolaca.celdaActual, celdaStr, 10);
     apilar(&pilaCeldas, celdaStr);
-}
-
-void resolverSalto(){
-    char *celdaStr = desapilar(&pilaCeldas);
-
-    printf("Celda a resolver: %s\n", celdaStr);
-    
-    int celda = atoi(celdaStr);
-    itoa(listaPolaca.celdaActual, celdaStr, 10);
-    
-    printf("celda nueva: %s\n", celdaStr);
-
-    buscarYActualizarPolaca(&listaPolaca, celda, celdaStr);
 }
 
 // funciones de ifs
@@ -494,4 +505,9 @@ void negarOperador(){
         strcpy(operadorLogicoAct, "BLE");
         return;
     }
+}
+
+void resolverSaltoIfSimple(){
+    int celda = desapilarCelda();
+    actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
 }

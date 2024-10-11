@@ -1,19 +1,30 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef PILA_H
+#define PILA_H
 
-#define MAX_LEN 100
+#define TRUE 1
+#define FALSE 0
 
-// Definición de la estructura de un nodo de la pila
-typedef struct s_nodo_pila {
-    char dato[MAX_LEN];
-    struct s_nodo_pila* siguiente;
-}t_nodo_pila;
+// Definición de la estructura de un NodoP
+typedef struct NodoPila {
+    char *dato;
+    struct NodoPila *siguiente;
+} NodoP;
 
-typedef t_nodo_pila* t_pila;
+// Definición de la estructura de la pila
+typedef struct {
+    NodoP *cima;
+    int tam;
+} t_pila;
 
-void crearPila(t_pila *pila);
-int apilar(t_pila *pila, char *dato);
+// Funciones para la pila
+NodoP* crearNodo(const char *dato);
+t_pila* crearPila();
+int pilaVacia(t_pila *pila);
+void apilar(t_pila *pila, const char *dato);
 char* desapilar(t_pila *pila);
-void vaciarPila(t_pila *p);
-int pilaVacia(const t_pila* p);
+char* topePila(t_pila *pila);
+int tamPila(t_pila *pila);
+void vaciarPila(t_pila *pila);
+
+#endif // PILA_H
+
