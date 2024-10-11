@@ -25,9 +25,17 @@ void validarTipoAsigString(char* nombre);
 
 t_lexema buscarIdEnTS(char* nombre);
 
-
+/* funciones de polaca */
 void insertarPolaca(char* cad);
 void imprimirPolaca();
+void avanzarPolaca();
+void apilarCelda();
+void resolverSalto();
+
+/* funciones de los ifs */
+void insertarOperador();
+void negarOperador();
+
 
 char* tabla_simbolos = "symbol-table.txt";
 t_lista lista_simbolos;
@@ -40,6 +48,11 @@ t_pila pilaTipoDatoExpresion;
 
 /* variables auxiliares */
 char tipoDatoInit[10];
+
+
+/* variables globales */
+char operadorLogicoAct[10];
+int negadorDeOperador; //no olvidar actualizar e inicializar
 
 %}
 
@@ -158,9 +171,9 @@ tipo_dato:
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
 struct_condicional:
-    IF PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL ELSE LLAVE_OP bloque LLAVE_CL
+    IF PAR_OP condicional PAR_CL {/*  */} LLAVE_OP bloque LLAVE_CL ELSE LLAVE_OP bloque LLAVE_CL
         {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL ELSE LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
-    |IF PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL
+    |IF PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL {resolverSalto();}
         {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
     |WHILE PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL
         {printf("   WHILE PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
@@ -170,23 +183,23 @@ struct_condicional:
 condicional:
     condicion                         {printf("   Condicion es Condicional\n");}
     |condicion operador_logico condicion {printf("   Condicion Operador_logico Condicion es Condicional\n");}
-    |OP_NOT condicion                 {printf("   OP_NOT Condicion es Condicional\n");} //cuidado con este porque esto cambia la comparación del comparador
+    |OP_NOT {negadorDeOperador = 1;} condicion                 {printf("   OP_NOT Condicion es Condicional\n"); negadorDeOperador = 0; /*ver si va acá*/} //cuidado con este porque esto cambia la comparación del comparador
 ;
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
 condicion:
-    expresion comparador expresion    {printf("   Expresion Comparador Expresion es Condicion\n");}
+    expresion comparador expresion    {printf("   Expresion Comparador Expresion es Condicion\n"); insertarPolaca("CMP"); insertarOperador(); apilarCelda(); avanzarPolaca();}
 ;
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
 comparador:
-    OP_EQ  {printf("   OP_EQ es Comparador\n");}
-    |OP_NEQ {printf("   OP_NEQ es Comparador\n");}
-    |OP_GT  {printf("   OP_GT es Comparador\n");}
-    |OP_GEQ {printf("   OP_GEQ es Comparador\n");}
-    |OP_LT  {printf("   OP_LT es Comparador\n");}
-    |OP_LEQ {printf("   OP_LEQ es Comparador\n");}
-;    
+    OP_EQ  {printf("   OP_EQ es Comparador\n"); strcpy(operadorLogicoAct, "BNE");}
+    |OP_NEQ {printf("   OP_NEQ es Comparador\n"); strcpy(operadorLogicoAct, "BEQ");}
+    |OP_GT  {printf("   OP_GT es Comparador\n"); strcpy(operadorLogicoAct, "BLE");}
+    |OP_GEQ {printf("   OP_GEQ es Comparador\n"); strcpy(operadorLogicoAct, "BLT");}
+    |OP_LT  {printf("   OP_LT es Comparador\n"); strcpy(operadorLogicoAct, "BGE");}
+    |OP_LEQ {printf("   OP_LEQ es Comparador\n"); strcpy(operadorLogicoAct, "BGT");}
+;
 
 //esto generaría saltos extras en los ifs, no sé si habrá que apilarlos o usar flags
 operador_logico:
@@ -417,4 +430,68 @@ void imprimirPolaca(){
     }
 
     printf("\n");
+}
+
+void avanzarPolaca(){
+    insertarEnPolaca(&listaPolaca, "_");
+}
+
+void apilarCelda(){
+    char celdaStr[100];
+    itoa(listaPolaca.celdaActual, celdaStr, 10);
+    apilar(&pilaCeldas, celdaStr);
+}
+
+void resolverSalto(){
+    char *celdaStr = desapilar(&pilaCeldas);
+
+    printf("Celda a resolver: %s\n", celdaStr);
+    
+    int celda = atoi(celdaStr);
+    itoa(listaPolaca.celdaActual, celdaStr, 10);
+    
+    printf("celda nueva: %s\n")
+
+    buscarYActualizarPolaca(&listaPolaca, celda, celdaStr);
+}
+
+// funciones de ifs
+void insertarOperador(){
+    if(negadorDeOperador) {
+        negarOperador();
+    }
+
+    insertarPolaca(operadorLogicoAct);
+}
+
+void negarOperador(){
+    if(strcmp(operadorLogicoAct, "BEQ") == 0){
+        strcpy(operadorLogicoAct, "BNE");
+        return;
+    }
+    
+    if(strcmp(operadorLogicoAct, "BNE") == 0){
+        strcpy(operadorLogicoAct, "BEQ");
+        return;
+    }
+
+    if(strcmp(operadorLogicoAct, "BLE") == 0){
+        strcpy(operadorLogicoAct, "BGT");
+        return;
+    }
+    
+    if(strcmp(operadorLogicoAct, "BLT") == 0){
+        strcpy(operadorLogicoAct, "BGE");
+        return;
+    }
+    
+    if(strcmp(operadorLogicoAct, "BGE") == 0){
+        strcpy(operadorLogicoAct, "BLT");
+        return;
+    }
+
+    if(strcmp(operadorLogicoAct, "BGT") == 0){
+        strcpy(operadorLogicoAct, "BLE");
+        return;
+    }
 }

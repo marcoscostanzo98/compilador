@@ -14,15 +14,13 @@ int insertarEnPolaca (t_polaca *polaca, char *cadena){
 
     if( act == NULL )
     {
-        printf("esta vacia y asigno el primero\n");
+        //printf("esta vacia y asigno el primero\n");
         polaca->lista = nuevoNodo;
         return TRUE;
     }
 
-    //printf("no esta vacia\n");
-    //printf("valor de aca: %s\n", act->cadena);
     while( act->sig != NULL){
-        //printf("valor de aca: %s\n", act->sig->cadena);
+        //printf("en polaca: %s\n", act->cadena);
         act = act->sig;
     }
 
@@ -30,8 +28,7 @@ int insertarEnPolaca (t_polaca *polaca, char *cadena){
     act->sig = nuevoNodo;
     polaca->celdaActual++;
 
-    //printf("valor de aca: %s\n", nuevoNodo->cadena);
-    //printf("\n\n\n");
+    printf("\n");
 
 	return TRUE;
 }
