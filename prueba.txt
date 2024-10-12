@@ -5,9 +5,9 @@ init {
     p1, p2, p3 : String
 }
 
-mientras(a1 > b1) {
-    mientras( var1 > var2) {
-        a1 := 2.2
-    }
-    a1 := 1.1
+
+si(var1 < var2 AND a1 < b1){
+    a1 := 2.2
+}sino{
+    b1 := 7.7
 }

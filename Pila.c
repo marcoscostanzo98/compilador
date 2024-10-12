@@ -64,6 +64,7 @@ char* topePila(t_pila *pila) {
         printf("La pila está vacía. No se puede ver la cima.\n");
         return NULL;
     }
+    
     return pila->cima->dato;
 }
 

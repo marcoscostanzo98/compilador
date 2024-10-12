@@ -41,7 +41,8 @@ void negarOperador();
 void validarComparadores();
 void resolverCondicionConector();
 
-void resolverSalto(int isWhile); // desapila de la pila de conectores de condicionales, si es AND hace X cosa, si es OR hace X otra, y aparte valida si es if o while
+void resolverSaltoPreBloque(int isWhile, int desapilable); // desapila de la pila de conectores de condicionales, si es AND hace X cosa, si es OR hace X otra, y aparte valida si es if o while
+void resolverSaltoPosBloque(int isWhile, int desapilable);
 
 /* funciones de pila de celdas */
 int desapilarCelda();
@@ -193,14 +194,32 @@ struct_condicional:
 */
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
+
+/*
 struct_condicional:
-    IF PAR_OP condicional PAR_CL LLAVE_OP {resolverSalto(0);} bloque LLAVE_CL {resolverSalto(0); insertarPolaca("BI"); resolverSalto(0); apilarCelda(); avanzarPolaca();} ELSE LLAVE_OP bloque LLAVE_CL {int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual); /*esta parte queda igual sin importar la condición del if*/}
+    IF PAR_OP condicional PAR_CL LLAVE_OP {resolverSalto(0,0);} bloque LLAVE_CL ELSE {insertarPolaca("BI"); resolverSalto(0,1); apilarCelda(); avanzarPolaca();} LLAVE_OP bloque LLAVE_CL {int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual);}
         {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL ELSE LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
-    |IF PAR_OP condicional PAR_CL LLAVE_OP {resolverSalto(0);} bloque LLAVE_CL {resolverSalto(0);}
-        {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
-    |WHILE PAR_OP {apilarCelda(); insertarEtiquetaEnPolaca();} condicional PAR_CL LLAVE_OP {resolverSalto(1);} bloque  LLAVE_CL {insertarPolaca("BI"); resolverSalto(1); int celda = desapilarCelda(); insertarIntEnPolaca(celda);}
+
+    |IF PAR_OP condicional PAR_CL LLAVE_OP {resolverSalto(0,0);} bloque LLAVE_CL {resolverSalto(0,1);}
+       {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
+
+    |WHILE PAR_OP {apilarCelda(); insertarEtiquetaEnPolaca();} condicional PAR_CL LLAVE_OP {resolverSalto(1,0);} bloque  LLAVE_CL {insertarPolaca("BI"); resolverSalto(1,1); int celda = desapilarCelda(); insertarIntEnPolaca(celda);}
+        {printf("   WHILE PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
+;*/
+
+struct_condicional:
+    if ELSE {insertarPolaca("BI"); avanzarPolaca(); resolverSaltoPosBloque(0,0); apilarCelda();  } LLAVE_OP bloque LLAVE_CL {resolverSaltoPosBloque(0,0); /*int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual);*/}
+        {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL ELSE LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
+
+    |if {resolverSaltoPosBloque(0,1);}
+       {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
+
+    |WHILE PAR_OP {apilarCelda(); insertarEtiquetaEnPolaca();} condicional PAR_CL LLAVE_OP {resolverSaltoPreBloque(1,0);} bloque  LLAVE_CL {insertarPolaca("BI"); resolverSaltoPosBloque(1,1); int celda = desapilarCelda(); insertarIntEnPolaca(celda);}
         {printf("   WHILE PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
 ;
+
+if:
+    IF PAR_OP condicional PAR_CL LLAVE_OP {resolverSaltoPreBloque(0,0);} bloque LLAVE_CL
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
 condicional:
@@ -211,7 +230,7 @@ condicional:
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
 condicion:
-    expresion comparador {} expresion    {printf("   Expresion Comparador Expresion es Condicion\n"); validarComparadores(); insertarPolaca("CMP"); insertarOperador(); apilarCelda(); avanzarPolaca();}
+    expresion comparador expresion {printf("   Expresion Comparador Expresion es Condicion\n"); validarComparadores(); insertarPolaca("CMP"); insertarOperador(); /*int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual+1); */ apilarCelda(); avanzarPolaca();}
 ;
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
@@ -544,26 +563,109 @@ void resolverSaltoIfSimple(){
     actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
 }
 
-void resolverSalto(int isWhile){ // desapila de la pila de conectores de condicionales, si es AND hace X cosa, si es OR hace X otra, y aparte valida si es if o while
-    char* conector = desapilar(&pilaConectores);
+void resolverSaltoPreBloque(int isWhile, int desapilable){ // desapila de la pila de conectores de condicionales, si es AND hace X cosa, si es OR hace X otra, y aparte valida si es if o while
+    
+    //CASO BASICO IF SOLO
+    if(pilaVacia(&pilaConectores)){
+        //no hace nada
+        return;
+    }
+
+    char * conector = topePila(&pilaConectores);
+    //CASO AND
+    if(strcmp(conector, "AND") == 0){
+        //no hago nada
+        return;
+    }
+
+    //CASO OR
+    if(strcmp(conector, "OR") == 0){
+        //celda que me debería llevar despues al fin de todo el if
+        int celda_aux = desapilarCelda();
+
+        //actualizo la celda que me lleva si se cumple la primera condicion
+        int celda_cond_true = desapilarCelda();
+        actualizarCeldaPolaca(celda_cond_true, listaPolaca.celdaActual);
+
+        char celdaStr[100];
+        itoa(celda_aux, celdaStr, 10);
+        apilar(&pilaCeldas, celdaStr);
+
+        
+    }
+
+}
+/*
+    char* conector = NULL;
+    if(!pilaVacia(&pilaConectores)){
+        conector = topePila(&pilaConectores); //desapilar(&pilaConectores);
+    }
+
     int celda;
-    if(strcmp(conector, "AND") == 0) {
+
+    if(!conector){
+        return;
+    }
+
+    if(desapilable){
+        desapilar(&pilaConectores);
+    }
+
+    if(strcmp(conector, "AND") == 0 && desapilable) {
         //si hay un and, desapilo, desapilo y actualizo ambos con celdaActual + isWhile
         celda = desapilarCelda();
         actualizarCeldaPolaca(celda, listaPolaca.celdaActual + isWhile);
         celda = desapilarCelda();
         actualizarCeldaPolaca(celda, listaPolaca.celdaActual + isWhile);
-    } else { //or
-        //si hay un or,
-        celda = desapilarCelda();
 
+    } else {//if(desapilable){ //or
+        //si hay un or
+        
+        celda = desapilarCelda();
+        printf("DESAPILE: %d\n", celda);
         //FIJARSE SI HACE FALTA SUMAR 1
-        actualizarCeldaPolaca(celda, listaPolaca.celdaActual + 1 + isWhile);
-        apilarCelda();
-        avanzarPolaca();
+        actualizarCeldaPolaca(celda, listaPolaca.celdaActual+ isWhile);
+        //apilarCelda();
+
+        //avanzarPolaca();
     }
 
     return;
+    */
+
+
+
+
+void resolverSaltoPosBloque(int isWhile, int desapilable){
+    int celda;
+    //CASO NORMAL IF SIMPLE
+    if(pilaVacia(&pilaConectores)){
+        celda = desapilarCelda();
+        actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
+        return;
+    }
+
+    //char * conector = topePila(&pilaConectores);
+    char * conector = desapilar(&pilaConectores);
+    //CASO AND
+    if(strcmp(conector, "AND") == 0){
+        //tengo que desapilar las dos celdas que me sacan del if
+        celda = desapilarCelda();
+        actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
+
+        celda = desapilarCelda();
+        actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
+        
+        return;
+    }
+
+    //CASO OR
+    if(strcmp(conector, "OR") == 0){
+        //celda que me debería llevar despues al fin de todo el if
+        celda = desapilarCelda();
+        actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
+    }
+
 }
 
 void validarComparadores() {
