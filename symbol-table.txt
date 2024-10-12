@@ -6,9 +6,8 @@ var2|int||
 p1|string||
 p2|string||
 p3|string||
-var1|||
-var2|||
 a1|||
 b1|||
+var1|||
+var2|||
 _2.2|CTE_FLOAT|2.2|0
-_7.7|CTE_FLOAT|7.7|0
