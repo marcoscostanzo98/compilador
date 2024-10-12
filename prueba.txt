@@ -6,9 +6,8 @@ init {
 }
 
 
-mientras(a1<b1 AND a1<b1){
-    si(var1<var2 AND var1<var2){
-        a1:=2.2
+mientras (a1 < b1 OR a1 < b1) {
+    si(var1 < var2) {
+        a1 := 2.2
     }
-    
 }

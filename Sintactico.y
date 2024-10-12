@@ -227,9 +227,9 @@ if:
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
 condicional:
-    condicion                         {printf("   Condicion es Condicional\n");}
+    condicion                         {printf("   Condicion es Condicional\n"); apilar(&pilaConectores, "");}
     |condicion operador_logico {resolverCondicionConector();} condicion {printf("   Condicion Operador_logico Condicion es Condicional\n");}  //falta este
-    |OP_NOT {negadorDeOperador = 1;} condicion                 {printf("   OP_NOT Condicion es Condicional\n"); negadorDeOperador = 0; /*ver si va acá*/} //cuidado con este porque esto cambia la comparación del comparador
+    |OP_NOT {negadorDeOperador = 1;} condicion                 {printf("   OP_NOT Condicion es Condicional\n"); apilar(&pilaConectores, ""); negadorDeOperador = 0; /*ver si va acá*/} //cuidado con este porque esto cambia la comparación del comparador
 ;
 
 //complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
@@ -598,7 +598,6 @@ void resolverSaltoPreBloque(){
         actualizarCeldaPolaca(celda_cond_true, listaPolaca.celdaActual);
 
         apilarCeldaAnterior();
-        
     }
 
 }
@@ -656,22 +655,26 @@ void resolverSalto(int postBloque){
     if(pilaVacia(&pilaConectores)){
         //Si se llama post bloque, actualizo la celda para que me lleve al final del condicional; sino no hago nada
         if(postBloque){
-        celda = desapilarCelda();
-        actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
+            celda = desapilarCelda();
+            actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
+        }
+
         return;
-        }
-        else{
-            //no hace nada
-            return;
-        }
-        
     }
 
     char * conector = topePila(&pilaConectores);
 
+    //CASO IF SIMPLE
+    if(strcmp(conector, "") == 0){
+        if(postBloque){
+            celda = desapilarCelda();
+            actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
+            desapilar(&pilaConectores);
+        }
+    }
+
     //CASO AND
     if(strcmp(conector, "AND") == 0){
-
         if(postBloque){
             //Si se llama post bloque, actualizo las dos celdas de los saltos para que me lleven al final del condicional; sino no hago nada
             celda = desapilarCelda();
@@ -682,13 +685,10 @@ void resolverSalto(int postBloque){
             
             //desapilo el conector porque ya termine el condicional
             desapilar(&pilaConectores);
-            return;
         }
-        else{
-            //no hago nada
-            return;
-        }
-        
+
+        //no hago nada
+        return;
     }
 
     //CASO OR
@@ -716,7 +716,6 @@ void resolverSalto(int postBloque){
             //vuelvo a apilar la celda que me lleva al fin del if
             apilarCeldaAnterior();
         }
-        
     }
 }
 
