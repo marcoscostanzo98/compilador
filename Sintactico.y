@@ -671,6 +671,8 @@ void resolverSalto(int postBloque){
             actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
             desapilar(&pilaConectores);
         }
+
+        return;
     }
 
     //CASO AND
