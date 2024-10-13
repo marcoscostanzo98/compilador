@@ -5,9 +5,10 @@ init {
     p1, p2, p3 : String
 }
 
-
-mientras (a1 < b1 OR a1 < b1) {
-    si(var1 < var2) {
-        a1 := 2.2
+mientras(a1 < b1 AND b1 < a1){
+    si(var1 < var2 AND var2 < var1) {
+        a1 := 3.3
+    } sino {
+        b1 := 2.2
     }
 }
