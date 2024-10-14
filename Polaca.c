@@ -98,7 +98,7 @@ int verUltimoPolaca(t_polaca *polaca, char* cadena){
 }
 
 int polacaVacia(t_polaca *polaca){
-  return !(int)polaca->lista;
+  return polaca->lista == NULL;
 }
 
 void duplicarPolaca( t_polaca *polacaOriginal, t_polaca *polacaNueva){

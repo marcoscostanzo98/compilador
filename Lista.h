@@ -36,3 +36,7 @@ void buscarYactualizarTipoDato(t_lista* l, const char* nombre, const char* tipoD
 void vaciarLista(t_lista *l);
 
 void copiarLexema(t_lexema* dest, t_lexema orig);
+
+char* itoa(int num, char* str, int base);
+
+void reverse(char str[], int length);

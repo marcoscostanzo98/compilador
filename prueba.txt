@@ -5,9 +5,4 @@ init {
     p1, p2, p3 : String
 }
 
-
-mientras (a1 < b1 OR a1 < b1) {
-    si(var1 < var2) {
-        a1 := 2.2
-    }
-}
+var1 := getPenultimatePosition([1,2,4,3])
