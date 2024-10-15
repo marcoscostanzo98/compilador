@@ -28,9 +28,7 @@ void insertarPolaca(char* cad);
 void imprimirPolaca();
 void avanzarPolaca();
 void apilarCelda();
-void resolverSaltoIfSimple();
 void actualizarCeldaPolaca(int celda, int nuevoValor);
-void insertarIntEnPolaca(int num);
 void insertarEtiquetaEnPolaca();
 
 void resolverSumaLosUltimos(int pivote);
@@ -425,12 +423,6 @@ void actualizarCeldaPolaca(int celda, int nuevoValor) {
     buscarYActualizarPolaca(&listaPolaca, celda, nuevaCeldaStr);
 }
 
-void insertarIntEnPolaca(int num) {
-    char str[100];
-    itoa(num, str, 10);
-    insertarPolaca(str);
-}
-
 void insertarEtiquetaEnPolaca() {
     char tag[10];
     sprintf(tag, "ET_%d", contadorTag++);
@@ -555,11 +547,6 @@ void negarOperador(){
         strcpy(operadorLogicoAct, "BLE");
         return;
     }
-}
-
-void resolverSaltoIfSimple(){
-    int celda = desapilarCelda();
-    actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
 }
 
 void resolverSalto(int postBloque, int esElse){
