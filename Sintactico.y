@@ -7,7 +7,6 @@
 #include "Pila.h"
 #include "Polaca.h"
 
-//si quieren lo sacamos, es lo mismo
 #define STRING "string"
 #define FLOAT "float"
 #define INT "int"
@@ -66,7 +65,7 @@ int contadorTag = 0;
 
 /* variables globales */
 char operadorLogicoAct[10];
-int negadorDeOperador; //no olvidar actualizar e inicializar
+int negadorDeOperador;
 
 %}
 
@@ -125,25 +124,21 @@ int negadorDeOperador; //no olvidar actualizar e inicializar
 %right MENOS_UNARIO
 
 %%
-//no se expresa en polaca ni lleva lógica extra
 inicio: 
     programa {printf("   Programa es Inicio\n"); guardar_TS(); imprimirPolaca();}
 ;
 
-//no se expresa en polaca ni lleva lógica extra
 programa:
     init            {printf("   Init es Programa\n");}
     |init bloque    {printf("   Init Bloque es Programa\n");}
     |bloque         {printf("   Bloque es Programa\n");}
 ;
 
-//no se expresa en polaca ni lleva lógica extra
 bloque:
     bloque sentencia    {printf("   Bloque Sentencia es Bloque\n\n");}
     |sentencia          {printf("   Sentencia es Bloque\n\n");}
 ;
 
-//no se expresa en polaca ni lleva lógica extra
 sentencia:
     struct_condicional  {printf("   Struct_condicional es Sentencia\n");}
     |asignacion         {printf("   Asignacion es Sentencia\n");}
@@ -151,63 +146,29 @@ sentencia:
     |escribir           {printf("   Escribir es Sentencia\n");}
 ;
 
-//no se expresa en polaca ni lleva lógica extra
 init:
     INIT LLAVE_OP declaraciones LLAVE_CL {printf("   INIT LLAVE_OP Declaraciones LLAVE_CL es Init\n");}
 ;
 
-//no se expresa en polaca ni lleva lógica extra
 declaraciones:
     declaraciones declaracion    {printf("   Declaraciones Declaracion es Declaraciones\n");}
     |declaracion                 {printf("   Declaracion es Declaraciones\n");}
 ;
 
-//no se expresa en polaca pero hay que apilar los ids de lista_ids y actualizar la TS con el valor de tipo_dato (guardar en variable global o apilar, mejor tener la var global)
-//ya estaría
 declaracion:
     lista_ids DOSPUNTOS tipo_dato {printf("   Lista_ids DOSPUNTOS Tipo_dato es Declaracion\n"); actualizarTiposDeDato();}
 ;
 
-//no se expresa en polaca pero hay que apilarlos
-//ya estaría
 lista_ids:
     lista_ids COMA ID {printf("   Lista_ids COMA ID es Lista_ids\n"); apilar(&pilaIds, $3);}
     |ID              {printf("   ID es Lista_ids\n"); apilar(&pilaIds, $1);}
 ;
 
-//no se expresa en polaca pero hay que guardarlo en una var global para actualizar la TS
-//ya estaría
 tipo_dato:
     T_STRING {printf("   T_STRING es Tipo_dato\n"); strcpy(tipoDatoInit, STRING);}
     |T_FLOAT {printf("   T_FLOAT es Tipo_dato\n"); strcpy(tipoDatoInit, FLOAT);}
     |T_INT   {printf("   T_INT es Tipo_dato\n"); strcpy(tipoDatoInit, INT);}
 ;
-
-/*
-//complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
-struct_condicional:
-    IF PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL {insertarPolaca("BI"); int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual+1); apilarCelda(); avanzarPolaca(); } ELSE LLAVE_OP bloque LLAVE_CL {int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual);}
-        {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL ELSE LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
-    |IF PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL {resolverSaltoIfSimple();}
-        {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
-    |WHILE PAR_OP {apilarCelda(); insertarEtiquetaEnPolaca();} condicional PAR_CL LLAVE_OP bloque LLAVE_CL {insertarPolaca("BI"); int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual+1); celda = desapilarCelda(); insertarIntEnPolaca(celda);}
-        {printf("   WHILE PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
-;
-*/
-
-//complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
-
-/*
-struct_condicional:
-    IF PAR_OP condicional PAR_CL LLAVE_OP {resolverSalto(0,0);} bloque LLAVE_CL ELSE {insertarPolaca("BI"); resolverSalto(0,1); apilarCelda(); avanzarPolaca();} LLAVE_OP bloque LLAVE_CL {int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual);}
-        {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL ELSE LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
-
-    |IF PAR_OP condicional PAR_CL LLAVE_OP {resolverSalto(0,0);} bloque LLAVE_CL {resolverSalto(0,1);}
-       {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
-
-    |WHILE PAR_OP {apilarCelda(); insertarEtiquetaEnPolaca();} condicional PAR_CL LLAVE_OP {resolverSalto(1,0);} bloque  LLAVE_CL {insertarPolaca("BI"); resolverSalto(1,1); int celda = desapilarCelda(); insertarIntEnPolaca(celda);}
-        {printf("   WHILE PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
-;*/
 
 struct_condicional:
     if ELSE {insertarPolaca("BI"); avanzarPolaca(); resolverSalto(2, 0);/*resolverSaltoPosBloque();*/ apilarCeldaAnterior();} LLAVE_OP bloque LLAVE_CL {resolverSalto(1, 1);/*resolverSaltoPosBloque();*/}
@@ -225,19 +186,16 @@ struct_condicional:
 if:
     IF PAR_OP condicional PAR_CL LLAVE_OP {resolverSalto(0, 0);/*resolverSaltoPreBloque()*/;} bloque LLAVE_CL
 
-//complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
 condicional:
     condicion                         {printf("   Condicion es Condicional\n"); apilar(&pilaConectores, "");}
     |condicion operador_logico {resolverCondicionConector();} condicion {printf("   Condicion Operador_logico Condicion es Condicional\n");}  //falta este
     |OP_NOT {negadorDeOperador = 1;} condicion                 {printf("   OP_NOT Condicion es Condicional\n"); apilar(&pilaConectores, ""); negadorDeOperador = 0; /*ver si va acá*/} //cuidado con este porque esto cambia la comparación del comparador
 ;
 
-//complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
 condicion:
     expresion comparador expresion {printf("   Expresion Comparador Expresion es Condicion\n"); validarComparadores(); insertarPolaca("CMP"); insertarOperador(); /*int celda = desapilarCelda(); actualizarCeldaPolaca(celda, listaPolaca.celdaActual+1); */ apilarCelda(); avanzarPolaca();}
 ;
 
-//complicado de hacer la polaca, muchos saltos y se pueden anidar ifs, cuidado
 comparador:
     OP_EQ  {printf("   OP_EQ es Comparador\n"); strcpy(operadorLogicoAct, "BNE");}
     |OP_NEQ {printf("   OP_NEQ es Comparador\n"); strcpy(operadorLogicoAct, "BEQ");}
@@ -247,34 +205,29 @@ comparador:
     |OP_LEQ {printf("   OP_LEQ es Comparador\n"); strcpy(operadorLogicoAct, "BGT");}
 ;
 
-//esto generaría saltos extras en los ifs, no sé si habrá que apilarlos o usar flags
 operador_logico:
     OP_AND {printf("   OP_AND es Operador_logico\n"); apilar(&pilaConectores, "AND");}
     |OP_OR {printf("   OP_OR es Operador_logico\n"); apilar(&pilaConectores, "OR");}
 ;
 
-// listo
 asignacion:
     ID OP_ASIG expresion                {printf("   ID OP_ASIG Expresion es Asignacion\n"); validarTipoAsigExp($1); insertarPolaca($1); insertarPolaca(":=");}
     |ID OP_ASIG CONST_STR               {printf("   ID OP_ASIG CONST_STR es Asignacion\n"); validarTipoAsigString($1); insertarPolaca($3); insertarPolaca($1); insertarPolaca(":=");}
     |ID OP_ASIG funcion_especial        {printf("   ID OP_ASIG Funcion_especial es Asignacion\n"); validarTipoAsigExp($1); insertarPolaca($1); insertarPolaca(":=");} //TODO: funcion_especial al final de todo debería apilar su tipo en pilaTipoDato
 ;
 
-// listo
 expresion:
     expresion OP_ADD termino                    {printf("   Expresion OP_ADD Termino es Expresion\n"); validarTipoExpresion(); insertarPolaca("+");}
     |expresion OP_SUB termino                   {printf("   Expresion OP_SUB Termino es Expresion\n"); validarTipoExpresion(); insertarPolaca("-");}
     |termino                                    {printf("   Termino es Expresion\n");}
 ;
 
-// listo
 termino:
     termino OP_MUL factor              {printf("   Termino OP_MUL Factor es Termino\n"); validarTipoExpresion(); insertarPolaca("*");}
     |termino OP_DIV factor             {printf("   Termino OP_DIV Factor es Termino\n"); validarTipoExpresion(); insertarPolaca("/");}
     |factor                            {printf("   Factor es Termino\n");}
 ;
 
-// listo salvo el - unario del ID (ver por qué falla este)
 factor:
     ID                                 {printf("   ID es Factor\n"); insertarPolaca($1); t_lexema lex = buscarIdEnTS($1); apilar(&pilaTipoDatoExpresion, lex.tipodato);}
     |OP_SUB PAR_OP expresion PAR_CL %prec MENOS_UNARIO //VER COMO HACER PARA NO PERDER EL SIGNO - (creo que está resuelto)
@@ -287,37 +240,30 @@ factor:
     |OP_SUB funcion_especial %prec MENOS_UNARIO {printf("   OP_SUB Funcion_especial es Factor\n"); insertarPolaca("-1"); insertarPolaca("*");}
 ;
 
-//listo
 leer:
     READ PAR_OP ID PAR_CL              {printf("   READ PAR_OP ID PAR_CL es Leer\n"); insertarPolaca($3); insertarPolaca("LEER");}
 ;
 
-//listo
 escribir:
     WRITE PAR_OP expresion PAR_CL      {printf("   WRITE PAR_OP Expresion PAR_CL es Escribir\n"); insertarPolaca("ESCRIBIR");}
     |WRITE PAR_OP CONST_STR PAR_CL     {printf("   WRITE PAR_OP CONST_STR PAR_CL es Escribir\n"); insertarPolaca($3); insertarPolaca("ESCRIBIR");}
 ;
 
-//complicado, Santi ya hizo unas reglas pero habría que ver si funcionan bien
 funcion_especial:
     suma_los_ultimos            {printf("   Suma_los_ultimos es Funcion_especial\n");}
     |get_penultimate_position   {printf("   Get_penultimate_position es Funcion_especial\n");}
 ;
 
-//complicado, Santi ya hizo unas reglas pero habría que ver si funcionan bien
 suma_los_ultimos:
     SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP lista_const CORCHETE_CL PAR_CL
         {printf("   SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Suma_los_ultimos\n");}
 ;
 
-//complicado, Santi ya hizo unas reglas pero habría que ver si funcionan bien
 get_penultimate_position:
     GETPENULTIMATEPOSITION PAR_OP CORCHETE_OP lista_const CORCHETE_CL PAR_CL
         {printf("   GETPENULTIMATEPOSITION PAR_OP CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Get_penultimate_position\n");}
 ;
 
-
-//facil, Santi ya hizo unas reglas pero habría que ver si funcionan bien. Tener cuidado pq las 2 funciones usan este mismo no terminal, vamos a necesitar un flag.
 lista_const:
     lista_const COMA CONST_REAL        {printf("   Lista_const COMA CONST_REAL es Lista_const\n");}
     |lista_const COMA CONST_INT        {printf("   Lista_const COMA CONST_INT es Lista_const\n");}
@@ -386,7 +332,7 @@ void actualizarTiposDeDato(){
             exit(1);
         }
 
-        buscarYactualizarTipoDato(&lista_simbolos, actual.nombre, tipoDatoInit); //TODO: DEFINIR LA PRIMITIVA DE LISTA. VER SI DEBERÍA LLAMARSE BuscarYActualizarTipoDato
+        buscarYactualizarTipoDato(&lista_simbolos, actual.nombre, tipoDatoInit);
     }
 }
 
@@ -403,23 +349,11 @@ t_lexema buscarIdEnTS(char* nombre){
 }
 
 // funciones de validaciones
-
-//TODO: ver si realmente es necesario.
 void validarTipoExpresion(){
     char* tipo1 = desapilar(&pilaTipoDatoExpresion);
     char* tipo2 = desapilar(&pilaTipoDatoExpresion);
 
-    /* con esta opcion si hay un float y un int entonces se transforma a float, caso contrario queda int.
-        if(strcmp(tipo1, TIPO_INT) == 0 || strcmp(tipo2, TIPO_INT) == 0){
-            apilar(&pilaTipoDatoExpresion, TIPO_INT);
-            return;
-        }
-
-        apilar(&pilaTipoDatoExpresion, TIPO_FLOAT);
-    */
-
     //con esta opción los 2 operadores tienen que ser del mismo tipo para avanzar con la expresión
-    //ver si queremos pasarlo a float, eso lo hablamos entre todos despues
     if(strcmp(tipo1, STRING) == 0 || strcmp(tipo2, STRING) == 0){
         printf("no se pueden realizar operaciones entre strings\n");
         exit(1);
@@ -436,15 +370,6 @@ void validarTipoExpresion(){
 void validarTipoAsigExp(char* nombre){
     char* tipoExp = desapilar(&pilaTipoDatoExpresion);
 
-    /*
-    t_lexema lex;
-    buscarEnlista(&lista_simbolos, nombre, &lex);
-    if (strcmp(lex.tipodato, "") == 0) {
-        printf("variable '%s' no definida inicialmente\n", nombre);
-        exit(1);
-    }
-    */
-
     t_lexema lex = buscarIdEnTS(nombre);
     
     if (strcmp(lex.tipodato, STRING) == 0) {
@@ -460,15 +385,6 @@ void validarTipoAsigExp(char* nombre){
 }
 
 void validarTipoAsigString(char* nombre){
-    /*
-    t_lexema lex;
-        buscarEnlista(&lista_simbolos, nombre, &lex);
-    if (!strcmp(lex.tipodato, "")) {
-        printf("variable '%s' no definida inicialmente\n", nombre);
-        exit(1);
-    }
-    */
-
     t_lexema lex = buscarIdEnTS(nombre);
     if (strcmp(lex.tipodato, STRING) != 0) {
         printf("distintos tipos de dato. '%s' es %s y se intenta asignar un %s\n", lex.nombre, lex.tipodato, STRING);
@@ -520,8 +436,6 @@ void insertarEtiquetaEnPolaca() {
     sprintf(tag, "ET_%d", contadorTag++);
     insertarEnPolaca(&listaPolaca, tag);
 }
-
-
 
 //funciones de pila celdas
 int desapilarCelda(){
@@ -592,7 +506,7 @@ void resolverSaltoIfSimple(){
 }
 
 void resolverSaltoPreBloque(){
-    
+
     //CASO BASICO IF SOLO
     if(pilaVacia(&pilaConectores)){
         //no hace nada
@@ -652,20 +566,7 @@ void resolverSaltoPosBloque(){
 
 }
 
-
-/*¡FALTA! -> siempre que sea post bloque va a querer desapilar un operador y esta mal. Ej: si yo hago: 
-        while(X && Y)
-        { 
-            if(x>2){
-                a = 2}
-        }
-    al ejecutar el resuelvoSalto del post bloque del if desapila el && del while y esta MAL. El orden en que se ejecuta es:
-         ----------- prebloque while -> prebloque if -> posbloque if -> posbloque while ----------------
-         ((es como si fuese una gramatica simetrica en el centro))
-         
-    Y si por ejemplo ejecuto lo mismo pero con un AND dentro del if, anda pipi cucu porque desapila uno y uno.*/
 void resolverSalto(int postBloque, int esElse){
-
     printf("RESUELVO SALTO %d\n",postBloque);
     int celda;
 
@@ -693,17 +594,6 @@ void resolverSalto(int postBloque, int esElse){
             }
         }
 
-        /*
-        if(postBloque == 1){
-            celda = desapilarCelda();
-            actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
-            desapilar(&pilaConectores);
-        } else if(postBloque == 2) { //para el caso de if else, en el cuerpo del verdadero no tiene que desapilar el conector, solo después del cuerpo del else.
-            celda = desapilarCelda();
-            actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
-        }
-        */
-
         //no hago nada
         return;
     }
@@ -719,8 +609,7 @@ void resolverSalto(int postBloque, int esElse){
                 celda = desapilarCelda();
                 actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
             }
-            //desapilo el conector porque ya termine el condicional
-            //desapilar(&pilaConectores);
+
            if(postBloque == 1){ //para el caso de if else, en el cuerpo del verdadero (2) no tiene que desapilar el conector, solo después del cuerpo del else (1).
                 desapilar(&pilaConectores);
             }
@@ -732,7 +621,6 @@ void resolverSalto(int postBloque, int esElse){
 
     //CASO OR
     if(strcmp(conector, "OR") == 0){
-
         //Si se llama post bloque actualizo la celda que me lleva al final del condicional; si es pre bloque SALTEO (desapilo y luego apilo de nuevo) la celda que me lleva
         //al fin del condicional (porque eso lo leo POST BLOQUE) y actualizo la celda que me lleva al body en caso de cumplirse la primera condición.
         if(postBloque){
@@ -740,14 +628,11 @@ void resolverSalto(int postBloque, int esElse){
             celda = desapilarCelda();
             actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
 
-            //desapilo el conector porque ya termine el condicional
-            //desapilar(&pilaConectores);
             if(postBloque == 1){ //para el caso de if else, en el cuerpo del verdadero (2) no tiene que desapilar el conector, solo después del cuerpo del else (1).
                 desapilar(&pilaConectores);
             }
             return;
         }else{
-
             //celda que me debería llevar despues al fin de todo el if
             int celda_aux = desapilarCelda();
 
@@ -756,9 +641,7 @@ void resolverSalto(int postBloque, int esElse){
             actualizarCeldaPolaca(celda_cond_true, listaPolaca.celdaActual);
 
             //vuelvo a apilar la celda que me lleva al fin del if
-            //TODO: definir cual de estos 2 apilar iría ->
             apilarCeldaAnterior();
-            //apilarCelda(celda_aux);
         }
     }
 }
