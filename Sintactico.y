@@ -308,7 +308,39 @@ funcion_especial:
 //complicado, Santi ya hizo unas reglas pero habría que ver si funcionan bien
 suma_los_ultimos:
     SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP lista_const CORCHETE_CL PAR_CL
-        {printf("   SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Suma_los_ultimos\n");}
+        {printf("   SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Suma_los_ultimos\n");printf("grinch1");
+        int pivote = atoi($3);
+        char* tipo_dato_fin_aux;
+        if(pivote < 1 || pivote > contListaAux){
+            printf("grinch1");
+            insertarPolaca("0");
+            t_lexema lex0;
+            strcpy(lex0.nombre,"_0");
+            strcpy(lex0.tipodato,"CTE_INTEGER");
+            strcpy(lex0.valor,"0");
+            strcpy(lex0.longitud,"0");
+            insertarEnListaSinDuplicados(&lista_simbolos, lex0);
+            printf("grinch2");
+            strcpy(tipo_dato_fin_aux,INT);
+        } else {
+            int tamAux = contListaAux-pivote+1;
+            char * tope1 = desapilar(&pilaCeldas);
+            insertarPolaca(tope1);
+            tamAux--;
+            contListaAux--;
+            while(tamAux!=0){
+                char * tope2 = desapilar(&pilaCeldas);
+                validarTipoExpresion();
+                insertarPolaca(tope2);
+                insertarPolaca("+");
+                tamAux--;
+                contListaAux--;
+            }
+            tipo_dato_fin_aux=desapilar(&pilaTipoDatoExpresion);
+        }
+        while(contListaAux!=0){desapilar(&pilaCeldas);desapilar(&pilaTipoDatoExpresion);contListaAux--;}
+        apilar(&pilaTipoDatoExpresion,tipo_dato_fin_aux);
+        }
 ;
 
 //complicado, Santi ya hizo unas reglas pero habría que ver si funcionan bien
@@ -322,7 +354,7 @@ get_penultimate_position:
         if(!pult){yyerror();};
         insertarPolaca(pult);
         contListaAux=contListaAux-2;
-        while(contListaAux!=0){desapilar(&pilaCeldas);desapilar(&pilaTipoDatoExpresion);contListaAux--;};
+        while(contListaAux!=0){desapilar(&pilaCeldas);desapilar(&pilaTipoDatoExpresion);contListaAux--;}
         apilar(&pilaTipoDatoExpresion,tipo_dato_aux);}
 ;
 

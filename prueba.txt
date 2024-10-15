@@ -5,4 +5,4 @@ init {
     p1, p2, p3 : String
 }
 
-var1 := getPenultimatePosition([1,2,4,3])
+var1 := sumaLosUltimos(6;[1,2,4,3])
