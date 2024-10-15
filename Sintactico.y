@@ -1,7 +1,6 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-//#include <conio.h>
 #include <string.h>
 #include "Lista.h"
 #include "Pila.h"
@@ -44,8 +43,6 @@ void validarComparadores();
 void resolverCondicionConector();
 
 void resolverSalto(int postBloque, int esElse);
-void resolverSaltoPreBloque();
-void resolverSaltoPosBloque();
 
 /* funciones de pila de celdas */
 int desapilarCelda();
@@ -57,8 +54,8 @@ t_lista lista_simbolos;
 
 t_polaca listaPolaca;
 
-t_pila pilaCeldas; // si
-t_pila pilaIds; // si
+t_pila pilaCeldas;
+t_pila pilaIds;
 t_pila pilaTipoDatoExpresion;
 t_pila pilaConectores;
 
@@ -175,20 +172,20 @@ tipo_dato:
 ;
 
 struct_condicional:
-    if ELSE {insertarPolaca("BI"); avanzarPolaca(); resolverSalto(2, 0);/*resolverSaltoPosBloque();*/ apilarCeldaAnterior();} LLAVE_OP bloque LLAVE_CL {resolverSalto(1, 1);/*resolverSaltoPosBloque();*/}
+    if ELSE {insertarPolaca("BI"); avanzarPolaca(); resolverSalto(2, 0); apilarCeldaAnterior();} LLAVE_OP bloque LLAVE_CL {resolverSalto(1, 1);}
         {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL ELSE LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
 
-    |if {resolverSalto(1, 0);/*resolverSaltoPosBloque();*/}
+    |if {resolverSalto(1, 0);}
        {printf("   IF PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
 
-    |WHILE PAR_OP {apilarCelda(); insertarEtiquetaEnPolaca();} condicional PAR_CL LLAVE_OP {resolverSalto(0, 0);/*resolverSaltoPreBloque();*/} 
-        bloque  LLAVE_CL {insertarPolaca("BI"); avanzarPolaca(); resolverSalto(1, 0);/*resolverSaltoPosBloque();*/; apilarCeldaAnterior(); 
+    |WHILE PAR_OP {apilarCelda(); insertarEtiquetaEnPolaca();} condicional PAR_CL LLAVE_OP {resolverSalto(0, 0);} 
+        bloque  LLAVE_CL {insertarPolaca("BI"); avanzarPolaca(); resolverSalto(1, 0); apilarCeldaAnterior(); 
                             int celda = desapilarCelda(); actualizarCeldaPolaca(celda, desapilarCelda());}
         {printf("   WHILE PAR_OP Condicional PAR_CL LLAVE_OP Bloque LLAVE_CL es Struct_condicional\n");}
 ;
 
 if:
-    IF PAR_OP condicional PAR_CL LLAVE_OP {resolverSalto(0, 0);/*resolverSaltoPreBloque()*/;} bloque LLAVE_CL
+    IF PAR_OP condicional PAR_CL LLAVE_OP {resolverSalto(0, 0);} bloque LLAVE_CL
 
 condicional:
     condicion                         {printf("   Condicion es Condicional\n"); apilar(&pilaConectores, "");}
@@ -235,7 +232,7 @@ factor:
     ID                                 {printf("   ID es Factor\n"); insertarPolaca($1); t_lexema lex = buscarIdEnTS($1); apilar(&pilaTipoDatoExpresion, lex.tipodato);}
     |OP_SUB PAR_OP expresion PAR_CL %prec MENOS_UNARIO //VER COMO HACER PARA NO PERDER EL SIGNO - (creo que está resuelto)
         {printf("   OP_SUB PAR_OP Expresion PAR_CL es Factor (Menos Unario)\n"); insertarPolaca("-1"); insertarPolaca("*");}
-    |OP_SUB ID %prec MENOS_UNARIO               {printf("   OP_SUB ID es Factor (Menos Unario)\n"); t_lexema lex = buscarIdEnTS($2); apilar(&pilaTipoDatoExpresion, lex.tipodato); insertarPolaca($2); if(strcmp(lex.tipodato, STRING) == 0){printf("Error semantico, las variables string no tienen signo\n"); exit(1);} insertarPolaca("-1"); insertarPolaca("*");}
+    |OP_SUB ID %prec MENOS_UNARIO               {printf("   OP_SUB ID es Factor (Menos Unario)\n"); t_lexema lex = buscarIdEnTS($2); apilar(&pilaTipoDatoExpresion, lex.tipodato); insertarPolaca($2); if(strcmp(lex.tipodato, STRING) == 0){printf("\nError semantico, las variables string no tienen signo\n"); exit(1);} insertarPolaca("-1"); insertarPolaca("*");}
     |CONST_INT                                  {printf("   CONST_INT es Factor\n"); insertarPolaca($1); apilar(&pilaTipoDatoExpresion, INT);}
     |CONST_REAL                                 {printf("   CONST_REAL es Factor\n"); insertarPolaca($1); apilar(&pilaTipoDatoExpresion, FLOAT);}
     |PAR_OP expresion PAR_CL                    {printf("   PAR_OP Expresion PAR_CL es Factor\n");}
@@ -304,7 +301,7 @@ int yyerror()
 void guardar_TS(){
     ts = fopen(tabla_simbolos, "wt");
     if (ts == NULL) {
-        printf("\nError al intentar guardar en la tabla de simbolos");
+        printf("\nError al intentar guardar en la tabla de simbolos\n");
         return;
     }
 
@@ -331,7 +328,7 @@ void actualizarTiposDeDato(){
         buscarEnlista(&lista_simbolos, nombre, &actual);
 
         if(strcmp(actual.tipodato, "")) {
-            printf("Variable %s ya declarada", nombre);
+            printf("\nVariable %s ya declarada\n", nombre);
             exit(1);
         }
 
@@ -344,7 +341,7 @@ t_lexema buscarIdEnTS(char* nombre){
     buscarEnlista(&lista_simbolos, nombre, &lex);
 
     if(strcmp(lex.tipodato, "") == 0){
-        printf("variable '%s' no definida inicialmente\n", nombre);
+        printf("\nVariable '%s' no definida inicialmente\n", nombre);
         exit(1);
     }
 
@@ -358,12 +355,12 @@ void validarTipoExpresion(){
 
     //con esta opción los 2 operadores tienen que ser del mismo tipo para avanzar con la expresión
     if(strcmp(tipo1, STRING) == 0 || strcmp(tipo2, STRING) == 0){
-        printf("no se pueden realizar operaciones entre strings\n");
+        printf("\nNo se pueden realizar operaciones entre strings\n");
         exit(1);
     }
 
     if(strcmp(tipo1, tipo2) != 0){
-        printf("distintos tipos de dato en calculo de expresion. Se intenta operar entre %s y %s\n", tipo1, tipo2);
+        printf("\nDistintos tipos de dato en calculo de expresion. Se intenta operar entre %s y %s\n", tipo1, tipo2);
         exit(1);
     }
 
@@ -376,13 +373,13 @@ void validarTipoAsigExp(char* nombre){
     t_lexema lex = buscarIdEnTS(nombre);
     
     if (strcmp(tipoExp, STRING) == 0) {
-        printf("error sintactico. no se puede utilizar string como expresion\n");
+        printf("\nError sintactico. no se puede utilizar string como expresion\n");
         exit(1);
     }
 
 
     if (strcmp(lex.tipodato, tipoExp) != 0) {
-        printf("distintos tipos de dato. '%s' es %s y se intenta asignar un %s\n", lex.nombre, lex.tipodato, tipoExp);
+        printf("\nDistintos tipos de dato. '%s' es %s y se intenta asignar un %s\n", lex.nombre, lex.tipodato, tipoExp);
         exit(1);
     }
 }
@@ -390,7 +387,7 @@ void validarTipoAsigExp(char* nombre){
 void validarTipoAsigString(char* nombre){
     t_lexema lex = buscarIdEnTS(nombre);
     if (strcmp(lex.tipodato, STRING) != 0) {
-        printf("distintos tipos de dato. '%s' es %s y se intenta asignar un %s\n", lex.nombre, lex.tipodato, STRING);
+        printf("\nDistintos tipos de dato. '%s' es %s y se intenta asignar un %s\n", lex.nombre, lex.tipodato, STRING);
         exit(1);
     }
 }
@@ -444,21 +441,18 @@ void insertarEtiquetaEnPolaca() {
 int desapilarCelda(){
     char *celdaStr = desapilar(&pilaCeldas);
 
-    printf("DESAPILO LA CELDA %s\n\n", celdaStr);
     return atoi(celdaStr);
 }
 
 void apilarCelda(){
     char celdaStr[100];
     itoa(listaPolaca.celdaActual, celdaStr, 10);
-    printf("APILO LA CELDA (%s)\n\n", celdaStr);
     apilar(&pilaCeldas, celdaStr);
 }
 
 void apilarCeldaAnterior(){
     char celdaStr[100];
     itoa(listaPolaca.celdaActual - 1, celdaStr, 10);
-    printf("APILO LA CELDA ANTERIOR (%s)\n\n", celdaStr);
     apilar(&pilaCeldas, celdaStr);
 }
 
@@ -568,69 +562,7 @@ void resolverSaltoIfSimple(){
     actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
 }
 
-void resolverSaltoPreBloque(){
-
-    //CASO BASICO IF SOLO
-    if(pilaVacia(&pilaConectores)){
-        //no hace nada
-        return;
-    }
-
-    char * conector = topePila(&pilaConectores);
-    //CASO AND
-    if(strcmp(conector, "AND") == 0){
-        //no hago nada
-        return;
-    }
-
-    //CASO OR
-    if(strcmp(conector, "OR") == 0){
-        //celda que me debería llevar despues al fin de todo el if
-        int celda_aux = desapilarCelda();
-
-        //actualizo la celda que me lleva si se cumple la primera condicion
-        int celda_cond_true = desapilarCelda();
-        actualizarCeldaPolaca(celda_cond_true, listaPolaca.celdaActual);
-
-        apilarCeldaAnterior();
-    }
-
-}
-
-void resolverSaltoPosBloque(){
-    int celda;
-    //CASO NORMAL IF SIMPLE
-    if(pilaVacia(&pilaConectores)){
-        celda = desapilarCelda();
-        actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
-        return;
-    }
-
-    //char * conector = topePila(&pilaConectores);
-    char * conector = desapilar(&pilaConectores);
-    //CASO AND
-    if(strcmp(conector, "AND") == 0){
-        //tengo que desapilar las dos celdas que me sacan del if
-        celda = desapilarCelda();
-        actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
-
-        celda = desapilarCelda();
-        actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
-        
-        return;
-    }
-
-    //CASO OR
-    if(strcmp(conector, "OR") == 0){
-        //celda que me debería llevar despues al fin de todo el if
-        celda = desapilarCelda();
-        actualizarCeldaPolaca(celda, listaPolaca.celdaActual);
-    }
-
-}
-
 void resolverSalto(int postBloque, int esElse){
-    printf("RESUELVO SALTO %d\n",postBloque);
     int celda;
 
     //CASO BASICO IF SOLO (creo que ya no haría falta porque siempre se apila algo, aunque sea "")
@@ -714,12 +646,12 @@ void validarComparadores() {
     char* tipo2 = desapilar(&pilaTipoDatoExpresion);
 
     if(!strcmp(tipo1, STRING) || !strcmp(tipo2, STRING)) {
-        printf("error en condicion. No se pueden realizar comparaciones con cadenas\n");
+        printf("\nError en condicion. No se pueden realizar comparaciones con cadenas\n");
         exit(1);
     }
 
     if(strcmp(tipo1, tipo2) != 0){
-        printf("error en condicion. Se intenta comparar operadores %s y %s\n", tipo1, tipo2);
+        printf("\nError en condicion. Se intenta comparar operadores %s y %s\n", tipo1, tipo2);
         exit(1);
     }
 }

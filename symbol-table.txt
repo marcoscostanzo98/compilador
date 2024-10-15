@@ -6,11 +6,3 @@ var2|int||
 p1|string||
 p2|string||
 p3|string||
-_1|CTE_INTEGER|1|0
-_5|CTE_INTEGER|5|0
-_10|CTE_INTEGER|10|0
-_2|CTE_INTEGER|2|0
-_3|CTE_INTEGER|3|0
-_2.2|CTE_FLOAT|2.2|0
-_4|CTE_INTEGER|4|0
-_6|CTE_INTEGER|6|0

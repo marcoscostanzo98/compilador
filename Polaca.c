@@ -15,14 +15,12 @@ int insertarEnPolaca (t_polaca *polaca, char *cadena){
 
     if( act == NULL )
     {
-        //printf("esta vacia y asigno el primero\n");
         polaca->lista = nuevoNodo;
         polaca->celdaActual++;
         return TRUE;
     }
 
     while( act->sig != NULL){
-        //printf("en polaca: %s\n", act->cadena);
         act = act->sig;
     }
 
@@ -30,26 +28,9 @@ int insertarEnPolaca (t_polaca *polaca, char *cadena){
     act->sig = nuevoNodo;
     polaca->celdaActual++;
 
-    //printf("celda actual: %d", polaca->celdaActual);
-    //printf("\n");
-
 	return TRUE;
 }
 
-/*
-int insertarEnPolacaOLD (t_polaca *polaca, char *cadena){
-    t_nodo_polaca *nuevoNodo = (t_nodo_polaca*)malloc(sizeof(t_nodo_polaca));
-    if (!nuevoNodo) return FALSE; // Error en asignacion de memoria
-    strcpy(nuevoNodo->cadena,cadena);
-
-    nuevoNodo->sig = polaca->lista;
-    polaca->lista = nuevoNodo;
-    polaca->celdaActual++;
-	return TRUE;
-}
-*/
-
-// ver si esto podría retornar un char* directamente en lugar del copy
 int extraerPrimeroDePolaca ( t_polaca *polaca, char *cadena){
     if (polacaVacia(polaca)) return FALSE; // La lista está vacía
     t_nodo_polaca *temp = polaca->lista;
@@ -64,7 +45,6 @@ int buscarYActualizarPolaca ( t_polaca *polaca, int numCelda, char* cadNueva){
     t_nodo_polaca *current = polaca->lista;
     int i;
     for (i = 0; current && i < numCelda; i++) {
-        //printf("en la celda num %d, contenido: %s\n", i, current->cadena);
         current = current->sig;
     }
 
