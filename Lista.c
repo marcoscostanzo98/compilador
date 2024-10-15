@@ -6,27 +6,6 @@
     *l = NULL;
 }
 
-int insertarEnListaAlFinal(t_lista *l, t_lexema lex)
-{
-    t_nodo *nue;
-    while(*l)
-    {
-        l = &(*l)->sig;
-    }
-
-    nue = (t_nodo*)malloc(sizeof(t_nodo));
-    if(!nue)
-    {
-        return 0;
-    }
-    
-    copiarLexema(&(nue->lexema), lex);
-    nue->sig = NULL;
-    *l = nue;
-
-    return 1;
-}
-
 int insertarEnListaSinDuplicados(t_lista *l, t_lexema lex)
 {
     t_nodo *nue;
@@ -66,20 +45,6 @@ int quitarPrimeroDeLista(t_lista *l, t_lexema *lex)
     copiarLexema(lex, aux->lexema);
     free(aux);
 
-    return 1;
-}
-
-int obtenerPrimeroDeLista(t_lista *l, t_lexema *lex)
-{
-    t_nodo *aux = *l;
-    if(!aux)
-    {
-        return 0;
-    }
-
-    *l = aux->sig;
-    copiarLexema(lex, aux->lexema);
-    
     return 1;
 }
 

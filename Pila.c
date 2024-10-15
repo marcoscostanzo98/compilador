@@ -67,17 +67,3 @@ char* topePila(t_pila *pila) {
     
     return pila->cima->dato;
 }
-
-// Retorna el tam de la pila
-int tamPila(t_pila *pila) {
-    return pila->tam;
-}
-
-// Libera la memoria de la pila
-void vaciarPila(t_pila *pila) {
-    while (!pilaVacia(pila)) {
-        free(desapilar(pila));
-    }
-    free(pila);
-}
-

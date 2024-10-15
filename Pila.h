@@ -23,8 +23,6 @@ int pilaVacia(t_pila *pila);
 void apilar(t_pila *pila, const char *dato);
 char* desapilar(t_pila *pila);
 char* topePila(t_pila *pila);
-int tamPila(t_pila *pila);
-void vaciarPila(t_pila *pila);
 
 #endif // PILA_H
 
