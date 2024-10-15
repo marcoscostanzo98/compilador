@@ -1,7 +1,6 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>
 #include <string.h>
 #include "y.tab.h"
 #include "Lista.h"
@@ -15,6 +14,8 @@
 #define TIPO_FLOAT  "CTE_FLOAT"
 #define TIPO_INT    "CTE_INTEGER"
 #define TIPO_STRING "CTE_STRING"
+
+FILE *yyin;
 
 void mostrar_token_inutil();
 void validar_longitud_str(char* str);

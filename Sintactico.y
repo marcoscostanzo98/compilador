@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>
+//#include <conio.h>
 #include <string.h>
 #include "Lista.h"
 #include "Pila.h"
@@ -11,7 +11,7 @@
 #define FLOAT "float"
 #define INT "int"
 
-FILE *yyin;
+extern FILE *yyin;
 FILE *ts;
 
 int yyerror();
@@ -62,6 +62,7 @@ t_pila pilaConectores;
 /* variables auxiliares */
 char tipoDatoInit[10];
 int contadorTag = 0;
+int contListaAux = 0;
 
 /* variables globales */
 char operadorLogicoAct[10];
@@ -213,7 +214,6 @@ operador_logico:
 asignacion:
     ID OP_ASIG expresion                {printf("   ID OP_ASIG Expresion es Asignacion\n"); validarTipoAsigExp($1); insertarPolaca($1); insertarPolaca(":=");}
     |ID OP_ASIG CONST_STR               {printf("   ID OP_ASIG CONST_STR es Asignacion\n"); validarTipoAsigString($1); insertarPolaca($3); insertarPolaca($1); insertarPolaca(":=");}
-    |ID OP_ASIG funcion_especial        {printf("   ID OP_ASIG Funcion_especial es Asignacion\n"); validarTipoAsigExp($1); insertarPolaca($1); insertarPolaca(":=");} //TODO: funcion_especial al final de todo debería apilar su tipo en pilaTipoDato
 ;
 
 expresion:
@@ -256,19 +256,58 @@ funcion_especial:
 
 suma_los_ultimos:
     SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP lista_const CORCHETE_CL PAR_CL
-        {printf("   SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Suma_los_ultimos\n");}
+        {printf("   SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Suma_los_ultimos\n");
+        int pivote = atoi($3);
+        char tipo_dato_fin_aux[10];
+        if(pivote < 1 || pivote > contListaAux){
+            insertarPolaca("0");
+            t_lexema lex0;
+            strcpy(lex0.nombre,"_0");
+            strcpy(lex0.tipodato,"CTE_INTEGER");
+            strcpy(lex0.valor,"0");
+            strcpy(lex0.longitud,"0");
+            insertarEnListaSinDuplicados(&lista_simbolos, lex0);
+            strcpy(tipo_dato_fin_aux,INT);
+        } else {
+            int tamAux = contListaAux-pivote+1;
+            char * tope1 = desapilar(&pilaCeldas);
+            insertarPolaca(tope1);
+            tamAux--;
+            contListaAux--;
+            while(tamAux!=0){
+                char * tope2 = desapilar(&pilaCeldas);
+                validarTipoExpresion();
+                insertarPolaca(tope2);
+                insertarPolaca("+");
+                tamAux--;
+                contListaAux--;
+            }
+            strcpy(tipo_dato_fin_aux, desapilar(&pilaTipoDatoExpresion));
+        }
+        while(contListaAux!=0){printf("holaaa\n"); desapilar(&pilaCeldas);desapilar(&pilaTipoDatoExpresion);contListaAux--;}
+        apilar(&pilaTipoDatoExpresion,tipo_dato_fin_aux);
+        }
 ;
 
 get_penultimate_position:
     GETPENULTIMATEPOSITION PAR_OP CORCHETE_OP lista_const CORCHETE_CL PAR_CL
-        {printf("   GETPENULTIMATEPOSITION PAR_OP CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Get_penultimate_position\n");}
+        {printf("   GETPENULTIMATEPOSITION PAR_OP CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Get_penultimate_position\n");
+        if(!desapilar(&pilaCeldas)){yyerror();};
+        desapilar(&pilaTipoDatoExpresion);
+        char* pult= desapilar(&pilaCeldas);
+        char* tipo_dato_aux=desapilar(&pilaTipoDatoExpresion);
+        if(!pult){yyerror();};
+        insertarPolaca(pult);
+        contListaAux=contListaAux-2;
+        while(contListaAux!=0){desapilar(&pilaCeldas);desapilar(&pilaTipoDatoExpresion);contListaAux--;}
+        apilar(&pilaTipoDatoExpresion,tipo_dato_aux);}
 ;
 
 lista_const:
-    lista_const COMA CONST_REAL        {printf("   Lista_const COMA CONST_REAL es Lista_const\n");}
-    |lista_const COMA CONST_INT        {printf("   Lista_const COMA CONST_INT es Lista_const\n");}
-    |CONST_INT                         {printf("   CONST_INT es Lista_const\n");}
-    |CONST_REAL                        {printf("   CONST_REAL es Lista_const\n");}
+    lista_const COMA CONST_REAL        {printf("   Lista_const COMA CONST_REAL es Lista_const\n");apilar(&pilaCeldas, $3);apilar(&pilaTipoDatoExpresion, FLOAT);contListaAux++;}
+    |lista_const COMA CONST_INT        {printf("   Lista_const COMA CONST_INT es Lista_const\n");apilar(&pilaCeldas, $3);apilar(&pilaTipoDatoExpresion, INT);contListaAux++;}
+    |CONST_INT                         {printf("   CONST_INT es Lista_const\n");apilar(&pilaCeldas, $1);apilar(&pilaTipoDatoExpresion, INT);contListaAux++;}
+    |CONST_REAL                        {printf("   CONST_REAL es Lista_const\n");apilar(&pilaCeldas, $1);apilar(&pilaTipoDatoExpresion, FLOAT);contListaAux++;}
 ;
 
 %%
@@ -673,3 +712,4 @@ void resolverCondicionConector(){
 
     apilar(&pilaConectores, conector);
 }
+
