@@ -279,7 +279,7 @@ factor:
     ID                                 {printf("   ID es Factor\n"); insertarPolaca($1); t_lexema lex = buscarIdEnTS($1); apilar(&pilaTipoDatoExpresion, lex.tipodato);}
     |OP_SUB PAR_OP expresion PAR_CL %prec MENOS_UNARIO //VER COMO HACER PARA NO PERDER EL SIGNO - (creo que está resuelto)
         {printf("   OP_SUB PAR_OP Expresion PAR_CL es Factor (Menos Unario)\n"); insertarPolaca("-1"); insertarPolaca("*");}
-    |OP_SUB ID %prec MENOS_UNARIO               {printf("   OP_SUB ID es Factor (Menos Unario)\n"); t_lexema lex = buscarIdEnTS($2); apilar(&pilaTipoDatoExpresion, lex.tipodato); insertarPolaca($2); insertarPolaca("-1"); insertarPolaca("*");}
+    |OP_SUB ID %prec MENOS_UNARIO               {printf("   OP_SUB ID es Factor (Menos Unario)\n"); t_lexema lex = buscarIdEnTS($2); apilar(&pilaTipoDatoExpresion, lex.tipodato); insertarPolaca($2); if(strcmp(lex.tipodato, STRING) == 0){printf("Error semantico, las variables string no tienen signo\n"); exit(1);} insertarPolaca("-1"); insertarPolaca("*");}
     |CONST_INT                                  {printf("   CONST_INT es Factor\n"); insertarPolaca($1); apilar(&pilaTipoDatoExpresion, INT);}
     |CONST_REAL                                 {printf("   CONST_REAL es Factor\n"); insertarPolaca($1); apilar(&pilaTipoDatoExpresion, FLOAT);}
     |PAR_OP expresion PAR_CL                    {printf("   PAR_OP Expresion PAR_CL es Factor\n");}
@@ -420,6 +420,11 @@ void validarTipoExpresion(){
 
     //con esta opción los 2 operadores tienen que ser del mismo tipo para avanzar con la expresión
     //ver si queremos pasarlo a float, eso lo hablamos entre todos despues
+    if(strcmp(tipo1, STRING) == 0 || strcmp(tipo2, STRING) == 0){
+        printf("no se pueden realizar operaciones entre strings\n");
+        exit(1);
+    }
+
     if(strcmp(tipo1, tipo2) != 0){
         printf("distintos tipos de dato en calculo de expresion. Se intenta operar entre %s y %s\n", tipo1, tipo2);
         exit(1);
@@ -441,6 +446,13 @@ void validarTipoAsigExp(char* nombre){
     */
 
     t_lexema lex = buscarIdEnTS(nombre);
+    
+    if (strcmp(lex.tipodato, STRING) == 0) {
+        printf("error sintactico. no se puede utilizar string como expresion\n");
+        exit(1);
+    }
+
+
     if (strcmp(lex.tipodato, tipoExp) != 0) {
         printf("distintos tipos de dato. '%s' es %s y se intenta asignar un %s\n", lex.nombre, lex.tipodato, tipoExp);
         exit(1);
@@ -508,6 +520,8 @@ void insertarEtiquetaEnPolaca() {
     sprintf(tag, "ET_%d", contadorTag++);
     insertarEnPolaca(&listaPolaca, tag);
 }
+
+
 
 //funciones de pila celdas
 int desapilarCelda(){
