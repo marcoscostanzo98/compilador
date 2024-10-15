@@ -34,6 +34,9 @@ void actualizarCeldaPolaca(int celda, int nuevoValor);
 void insertarIntEnPolaca(int num);
 void insertarEtiquetaEnPolaca();
 
+void resolverSumaLosUltimos(int pivote);
+void resolverGetUltimatePosition();
+
 /* funciones de los ifs */
 void insertarOperador();
 void negarOperador();
@@ -256,51 +259,12 @@ funcion_especial:
 
 suma_los_ultimos:
     SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP lista_const CORCHETE_CL PAR_CL
-        {printf("   SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Suma_los_ultimos\n");
-        int pivote = atoi($3);
-        char tipo_dato_fin_aux[10];
-        if(pivote < 1 || pivote > contListaAux){
-            insertarPolaca("0");
-            t_lexema lex0;
-            strcpy(lex0.nombre,"_0");
-            strcpy(lex0.tipodato,"CTE_INTEGER");
-            strcpy(lex0.valor,"0");
-            strcpy(lex0.longitud,"0");
-            insertarEnListaSinDuplicados(&lista_simbolos, lex0);
-            strcpy(tipo_dato_fin_aux,INT);
-        } else {
-            int tamAux = contListaAux-pivote+1;
-            char * tope1 = desapilar(&pilaCeldas);
-            insertarPolaca(tope1);
-            tamAux--;
-            contListaAux--;
-            while(tamAux!=0){
-                char * tope2 = desapilar(&pilaCeldas);
-                validarTipoExpresion();
-                insertarPolaca(tope2);
-                insertarPolaca("+");
-                tamAux--;
-                contListaAux--;
-            }
-            strcpy(tipo_dato_fin_aux, desapilar(&pilaTipoDatoExpresion));
-        }
-        while(contListaAux!=0){printf("holaaa\n"); desapilar(&pilaCeldas);desapilar(&pilaTipoDatoExpresion);contListaAux--;}
-        apilar(&pilaTipoDatoExpresion,tipo_dato_fin_aux);
-        }
+        {printf("   SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Suma_los_ultimos\n");resolverSumaLosUltimos(atoi($3));}
 ;
 
 get_penultimate_position:
     GETPENULTIMATEPOSITION PAR_OP CORCHETE_OP lista_const CORCHETE_CL PAR_CL
-        {printf("   GETPENULTIMATEPOSITION PAR_OP CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Get_penultimate_position\n");
-        if(!desapilar(&pilaCeldas)){yyerror();};
-        desapilar(&pilaTipoDatoExpresion);
-        char* pult= desapilar(&pilaCeldas);
-        char* tipo_dato_aux=desapilar(&pilaTipoDatoExpresion);
-        if(!pult){yyerror();};
-        insertarPolaca(pult);
-        contListaAux=contListaAux-2;
-        while(contListaAux!=0){desapilar(&pilaCeldas);desapilar(&pilaTipoDatoExpresion);contListaAux--;}
-        apilar(&pilaTipoDatoExpresion,tipo_dato_aux);}
+        {printf("   GETPENULTIMATEPOSITION PAR_OP CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Get_penultimate_position\n"); resolverGetUltimatePosition();}
 ;
 
 lista_const:
@@ -411,7 +375,7 @@ void validarTipoAsigExp(char* nombre){
 
     t_lexema lex = buscarIdEnTS(nombre);
     
-    if (strcmp(lex.tipodato, STRING) == 0) {
+    if (strcmp(tipoExp, STRING) == 0) {
         printf("error sintactico. no se puede utilizar string como expresion\n");
         exit(1);
     }
@@ -497,6 +461,66 @@ void apilarCeldaAnterior(){
     printf("APILO LA CELDA ANTERIOR (%s)\n\n", celdaStr);
     apilar(&pilaCeldas, celdaStr);
 }
+
+void resolverSumaLosUltimos(int pivote){
+    char tipo_dato_fin_aux[10];
+    if(pivote < 1 || pivote > contListaAux){
+        insertarPolaca("0");
+        t_lexema lex0;
+        strcpy(lex0.nombre,"_0");
+        strcpy(lex0.tipodato,"CTE_INTEGER");
+        strcpy(lex0.valor,"0");
+        strcpy(lex0.longitud,"0");
+        insertarEnListaSinDuplicados(&lista_simbolos, lex0);
+        strcpy(tipo_dato_fin_aux,INT);
+    } else {
+        int tamAux = contListaAux-pivote+1;
+        char * tope1 = desapilar(&pilaCeldas);
+        insertarPolaca(tope1);
+        tamAux--;
+        contListaAux--;
+        while(tamAux!=0){
+            char * tope2 = desapilar(&pilaCeldas);
+            validarTipoExpresion();
+            insertarPolaca(tope2);
+            insertarPolaca("+");
+            tamAux--;
+            contListaAux--;
+        }
+
+        strcpy(tipo_dato_fin_aux, desapilar(&pilaTipoDatoExpresion));
+    }
+
+    while(contListaAux!=0){
+        desapilar(&pilaCeldas);
+        desapilar(&pilaTipoDatoExpresion);
+        contListaAux--;
+    }
+
+    apilar(&pilaTipoDatoExpresion,tipo_dato_fin_aux);
+}
+
+void resolverGetUltimatePosition(){
+    if(!desapilar(&pilaCeldas))
+        yyerror();
+
+    desapilar(&pilaTipoDatoExpresion);
+    char* pult= desapilar(&pilaCeldas);
+    char* tipo_dato_aux=desapilar(&pilaTipoDatoExpresion);
+    if(!pult)
+        yyerror();
+    
+    insertarPolaca(pult);
+    contListaAux=contListaAux-2;
+    while(contListaAux!=0){
+        desapilar(&pilaCeldas);
+        desapilar(&pilaTipoDatoExpresion);
+        contListaAux--;
+    }
+
+    apilar(&pilaTipoDatoExpresion,tipo_dato_aux);
+}
+
 
 // funciones de ifs
 void insertarOperador(){
