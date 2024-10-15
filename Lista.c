@@ -32,7 +32,8 @@ int insertarEnListaSinDuplicados(t_lista *l, t_lexema lex)
     t_nodo *nue;
     while(*l)
     {
-        if (!strcmp((*l)->lexema.nombre, lex.nombre) && !strcmp((*l)->lexema.tipodato, lex.tipodato))
+        //if (!strcmp((*l)->lexema.nombre, lex.nombre) && !strcmp((*l)->lexema.tipodato, lex.tipodato))
+        if (!strcmp((*l)->lexema.nombre, lex.nombre))
         {
             return 0;
         }

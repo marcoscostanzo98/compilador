@@ -258,7 +258,6 @@ operador_logico:
 asignacion:
     ID OP_ASIG expresion                {printf("   ID OP_ASIG Expresion es Asignacion\n"); validarTipoAsigExp($1); insertarPolaca($1); insertarPolaca(":=");}
     |ID OP_ASIG CONST_STR               {printf("   ID OP_ASIG CONST_STR es Asignacion\n"); validarTipoAsigString($1); insertarPolaca($3); insertarPolaca($1); insertarPolaca(":=");}
-    |ID OP_ASIG funcion_especial        {printf("   ID OP_ASIG Funcion_especial es Asignacion\n"); validarTipoAsigExp($1); insertarPolaca($1); insertarPolaca(":=");} //TODO: funcion_especial al final de todo debería apilar su tipo en pilaTipoDato
 ;
 
 // listo
@@ -308,11 +307,10 @@ funcion_especial:
 //complicado, Santi ya hizo unas reglas pero habría que ver si funcionan bien
 suma_los_ultimos:
     SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP lista_const CORCHETE_CL PAR_CL
-        {printf("   SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Suma_los_ultimos\n");printf("grinch1");
+        {printf("   SUMALOSULTIMOS PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Suma_los_ultimos\n");
         int pivote = atoi($3);
-        char* tipo_dato_fin_aux;
+        char tipo_dato_fin_aux[10];
         if(pivote < 1 || pivote > contListaAux){
-            printf("grinch1");
             insertarPolaca("0");
             t_lexema lex0;
             strcpy(lex0.nombre,"_0");
@@ -320,7 +318,6 @@ suma_los_ultimos:
             strcpy(lex0.valor,"0");
             strcpy(lex0.longitud,"0");
             insertarEnListaSinDuplicados(&lista_simbolos, lex0);
-            printf("grinch2");
             strcpy(tipo_dato_fin_aux,INT);
         } else {
             int tamAux = contListaAux-pivote+1;
@@ -336,9 +333,9 @@ suma_los_ultimos:
                 tamAux--;
                 contListaAux--;
             }
-            tipo_dato_fin_aux=desapilar(&pilaTipoDatoExpresion);
+            strcpy(tipo_dato_fin_aux, desapilar(&pilaTipoDatoExpresion));
         }
-        while(contListaAux!=0){desapilar(&pilaCeldas);desapilar(&pilaTipoDatoExpresion);contListaAux--;}
+        while(contListaAux!=0){printf("holaaa\n"); desapilar(&pilaCeldas);desapilar(&pilaTipoDatoExpresion);contListaAux--;}
         apilar(&pilaTipoDatoExpresion,tipo_dato_fin_aux);
         }
 ;
