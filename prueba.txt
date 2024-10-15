@@ -8,3 +8,6 @@ init {
 si(getPenultimatePosition([1,5,10]) > sumaLosUltimos(2; [1, 2, 3])){
     a1 := 2.2
 }
+
+var1 := sumaLosUltimos(2; [1, 2, 3])
+var2 := sumaLosUltimos(1; [4, 5, 6])
