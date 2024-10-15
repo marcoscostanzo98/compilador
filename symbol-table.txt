@@ -1,16 +1,44 @@
 NOMBRE|TIPO|VALOR|LONGITUD
 a1|float||
 b1|float||
+w|float||
 var1|int||
 var2|int||
+x|int||
+y|int||
+z|int||
+a|int||
+b|int||
+c|int||
 p1|string||
 p2|string||
 p3|string||
 _1|CTE_INTEGER|1|0
-_5|CTE_INTEGER|5|0
-_10|CTE_INTEGER|10|0
 _2|CTE_INTEGER|2|0
+_3.0|CTE_FLOAT|3.0|0
+_a es mas grande que b|CTE_STRING|a es mas grande que b|21
+_27|CTE_INTEGER|27|0
+_500|CTE_INTEGER|500|0
+_34|CTE_INTEGER|34|0
 _3|CTE_INTEGER|3|0
-_2.2|CTE_FLOAT|2.2|0
+_99999.99|CTE_FLOAT|99999.99|0
+_99.0|CTE_FLOAT|99.0|0
+_0.9999|CTE_FLOAT|0.9999|0
+_@sdADaSjfla%dfg|CTE_STRING|@sdADaSjfla%dfg|15
+_asldk  fh sjf|CTE_STRING|asldk  fh sjf|13
+_a es mas chico o igual a b|CTE_STRING|a es mas chico o igual a b|26
+_a no es mas grande que b|CTE_STRING|a no es mas grande que b|24
+_a es mas chica que b o c|CTE_STRING|a es mas chica que b o c|24
+base|||
+_ewr|CTE_STRING|ewr|3
+_8|CTE_INTEGER|8|0
+_55|CTE_INTEGER|55|0
 _4|CTE_INTEGER|4|0
-_6|CTE_INTEGER|6|0
+_28|CTE_INTEGER|28|0
+_13|CTE_INTEGER|13|0
+_5|CTE_INTEGER|5|0
+_17|CTE_INTEGER|17|0
+_52|CTE_INTEGER|52|0
+_10|CTE_INTEGER|10|0
+_7|CTE_INTEGER|7|0
+_7 + 5 > 10 |CTE_STRING|7 + 5 > 10 |11
