@@ -1,7 +1,7 @@
 *- init.txt -*
 init {
-    a1, b1 : Float
-    variable1 : Int
+    a1, b1, w : Float
+    var1, var2, x, y, z, a, b, c : Int
     p1, p2, p3 : String
 }
 
@@ -9,31 +9,40 @@ init {
 *- entero mayor al permitido-*
 *- x := 33000 -*
 
-*- and.txt -*
-a := 1
+*- and -*
+a := 3
 b := 1
 c := 2
+x := 0
+y := 0
 
 si (a > b AND c > b)
 {
     escribir("a es mas grande que b")
 }
 
+si (a > b AND c > b)
+{
+    si (x == y){
+        escribir("a es mas grande que b")
+    }
+}
+
 
 *- arithmetic.txt -*
 x := 27 - c
-x := r + 500
+x := a + 500
 x := 34 * 3
-x := z / f
+x := a / b
 
 
 *- assignments.txt -*
-a := 99999.99
-a := 99.
-a := .9999
+w := 99999.99
+w := 99.
+w := .9999
 
-b := "@sdADaSjfla%dfg"
-b := "asldk  fh sjf"
+p1 := "@sdADaSjfla%dfg"
+p2 := "asldk  fh sjf"
 
 
 *- comment.txt -*
@@ -41,7 +50,10 @@ b := "asldk  fh sjf"
 
 
 *- if.txt -*
-si (a > b)
+var1 := 1
+var2 := 2
+
+si (var1 > var2)
 {
     escribir("a es mas grande que b")
 }
@@ -55,7 +67,7 @@ a := 1
 b := 1
 c := 2
 
-si (NOT a > b)
+si (NOT var1 > var2)
 {
     escribir("a no es mas grande que b")
 }
@@ -66,9 +78,18 @@ a := 1
 b := 1
 c := 2
 
-si (a > b OR c > b)
+si (var1 > var2 OR x > a)
 {
     escribir("a es mas chica que b o c")
+}
+
+si (var1 > var2)
+{
+    si(a >= b OR c >= b){
+        escribir("b es mas chico que a y c")
+    } sino {
+        escribir("lo opuesto")
+    }
 }
 
 
@@ -86,6 +107,26 @@ mientras (a > b)
     a := a + 1
 }
 
+mientras (a > b AND c > b)
+{
+    escribir("a es mas grande que b")
+    a := a + 1
+}
+
+mientras (a > b OR c < b)
+{
+    escribir("a es mas grande que b")
+    a := a + 1
+}
+
+mientras (a > b OR c < b)
+{
+    si (c == b){
+        escribir("a es mas grande que b")
+    }
+
+    a := a + 1
+}
 
 *- write.txt -*
 escribir("ewr")  *- "ewr" es una cte string -*
@@ -93,20 +134,34 @@ escribir(var1)  *- var1 es una variable numérica definida previamente -*
 
 
 *- funciones especiales -*
-x := getPenultimatePosition([3, 8.2, 2, 55.5])
+x := getPenultimatePosition([3, 8, 2, 55])
 
-escribir(getPenultimatePosition([3, 8.2, 2, 55.5]))
+escribir(getPenultimatePosition([3, 8, 2, 55]))
 
-y := sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])
+escribir(sumaLosUltimos(5; [28, 13, 4, 5, 17, 52]))
 
-escribir(sumaLosUltimos(5; [28, 13.5, 4, 5.5, 17, 52]))
+*- menos unario para el resultado de funciones especiales -*
+y := -sumaLosUltimos(4; [28, 13, 4, 5, 17, 52])
 
+y := -getPenultimatePosition([28, 13, 4, 5, 17, 52])
+
+*- aritmetica con funciones especiales-*
+z := sumaLosUltimos(4; [28, 13, 4, 52]) * getPenultimatePosition([1, 2, 3, 4])
+
+y := - getPenultimatePosition([3, 8, 2, 55]) -x
+
+*- casos de prueba sumaLosUltimos -*
+*- pivote menor a 1 -*
+z := sumaLosUltimos(0; [28, 13, 4, 52])
+
+*- pivote mayor a cantidad de elementos-*
+z := sumaLosUltimos(5; [28, 52])
+
+*- funcion especial usada en una condicion -*
 si (sumaLosUltimos(2; [10, 7, 5]) > 10) 
 {
-    escribir("7 + 5 > 10 ")
+    escribir("7 + 5 > 10")
 }
-
-j := - getPenultimatePosition([3, 8.2, 2, 55.5]) -x
 
 
 *- Comentario anidado -*
