@@ -404,11 +404,16 @@ void guardarPolaca(){
     }
     char elemPolaca[100];
     int celdaMax = listaPolaca.celdaActual;
+    int contador = 0;
 
     while(!polacaVacia(&listaPolaca)){
         extraerPrimeroDePolaca(&listaPolaca, elemPolaca);
         fwrite(elemPolaca, sizeof(char), strlen(elemPolaca), codigo_intermedio);
-        fwrite("|", sizeof(char), 1, codigo_intermedio);
+
+        contador++;
+        if (contador < celdaMax) {
+            fwrite("|", sizeof(char), 1, codigo_intermedio); 
+        }
     }
 
     fclose(codigo_intermedio);
