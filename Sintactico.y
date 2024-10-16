@@ -402,22 +402,22 @@ void guardarPolaca(){
         printf("\nError al intentar generar el codigo intermedio\n");
         return;
     }
-    char elemPolaca[100];
-    int celdaMax = listaPolaca.celdaActual;
-    int contador = 0;
 
+    if(polacaVacia(&listaPolaca)){
+        fclose(codigo_intermedio);
+        return;
+    }
+
+    char elemPolaca[100];
+
+    extraerPrimeroDePolaca(&listaPolaca, elemPolaca);
+    fprintf(codigo_intermedio, "%s", elemPolaca);
     while(!polacaVacia(&listaPolaca)){
         extraerPrimeroDePolaca(&listaPolaca, elemPolaca);
-        fwrite(elemPolaca, sizeof(char), strlen(elemPolaca), codigo_intermedio);
-
-        contador++;
-        if (contador < celdaMax) {
-            fwrite("|", sizeof(char), 1, codigo_intermedio); 
-        }
+        fprintf(codigo_intermedio, "|%s", elemPolaca);
     }
 
     fclose(codigo_intermedio);
-
     return;
 }
 
