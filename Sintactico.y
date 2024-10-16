@@ -25,7 +25,7 @@ t_lexema buscarIdEnTS(char* nombre);
 
 /* funciones de polaca */
 void insertarPolaca(char* cad);
-void imprimirPolaca();
+void guardarPolaca();
 void avanzarPolaca();
 void apilarCelda();
 void actualizarCeldaPolaca(int celda, int nuevoValor);
@@ -124,7 +124,7 @@ int negadorDeOperador;
 
 %%
 inicio: 
-    programa {printf("   Programa es Inicio\n"); guardar_TS(); imprimirPolaca();}
+    programa {printf("   Programa es Inicio\n"); guardar_TS(); guardarPolaca();}
 ;
 
 programa:
@@ -395,22 +395,25 @@ void insertarPolaca(char* cad){
     insertarEnPolaca(&listaPolaca, cad);
 }
 
-void imprimirPolaca(){
+void guardarPolaca(){
+    FILE *codigo_intermedio;
+    codigo_intermedio = fopen("intermediate-code.txt", "wt");
+    if (!codigo_intermedio) {
+        printf("\nError al intentar generar el codigo intermedio\n");
+        return;
+    }
     char elemPolaca[100];
     int celdaMax = listaPolaca.celdaActual;
 
     while(!polacaVacia(&listaPolaca)){
         extraerPrimeroDePolaca(&listaPolaca, elemPolaca);
-        printf("%5s | ", elemPolaca);
+        fwrite(elemPolaca, sizeof(char), strlen(elemPolaca), codigo_intermedio);
+        fwrite("|", sizeof(char), 1, codigo_intermedio);
     }
 
-    printf("\n");
+    fclose(codigo_intermedio);
 
-    for(int i = 0; i < celdaMax; i++){
-        printf("%5d | ", i);
-    }
-
-    printf("\n");
+    return;
 }
 
 void avanzarPolaca(){
