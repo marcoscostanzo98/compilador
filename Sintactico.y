@@ -76,7 +76,7 @@ int contListaAux = 0;
 char operadorLogicoAct[10];
 int negadorDeOperador;
 
-//VARIABLE PARA DEBUGGEAR, BORRAR:
+//VARIABLE PARA DEBUGGEAR, BORRAR CUANDO ENTREGUEMOS:
 int debugging = 0;
 
 %}
@@ -713,44 +713,49 @@ void generarAssembler(){
 }
 
 void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
-    fprintf(fAssembler, "include macros2.asm\n.MODEL LARGE\t;\n.386\n.STACK 200h;\n\n.DATA\n");
+    fprintf(fAssembler, "include macros2.asm\n.MODEL LARGE\t;\n.386\n.STACK 200h;\n\n.DATA\n"); //TODO: ver si necesitamos MAXTEXTSIZE como en el TP del cuatri pasado (MAXTEXTSIZE equ 40)
 
     t_lexema lexActual;
     char tipo[3];
     char valorStr[100];
-    int tieneValor, esCteString;
-    int ciclos = 1;
+    int tieneValor, esString;
+    int ciclos = 1; //BORRAR
     while(quitarPrimeroDeLista(listaTS, &lexActual)) {
-
-        esCteString = (strcmp(lexActual.tipodato, "CTE_STRING") == 0);
+        esString = (strcmp(lexActual.tipodato, "CTE_STRING") == 0 || strcmp(lexActual.tipodato, "string") == 0);
         tieneValor = strlen(lexActual.valor);
 
         if(debugging){
             printf("entra al while %d veces\n", ciclos++);
             printf("Lex actual: %s - %s - %s - %s\n", lexActual.nombre, lexActual.tipodato, lexActual.valor, lexActual.longitud);
-            printf("esCteString: %d. tieneValor: %d\n", esCteString, tieneValor);
+            printf("esString: %d. tieneValor: %d\n", esString, tieneValor);
         }
 
-        if(esCteString){
-            sprintf(valorStr, "\"%s\",'$',%s dup (?)", lexActual.valor, lexActual.longitud);
-
-            if(debugging){
-                printf("valorStr: %s\n", valorStr);
-                printf("\n");
+        if(esString){
+            if(!tieneValor){ //si es una variable
+                sprintf(valorStr, "40 dup (?),'$'"); //TODO: ver qué hace el '$' y si va antes o despues de 'dup(?)'. Lleva '?' como valor en caso de ser string?
+            } else {
+                sprintf(valorStr, "\"%s\",'$',%s dup (?)", lexActual.valor, lexActual.longitud);
             }
 
             //TODO: cuidado con los espacios o puntos en los nombres de variables.
-            
             reemplazarCaracteres(lexActual.nombre, ' ', '_');
             fprintf(fAssembler, "%s db %s\n", lexActual.nombre, valorStr); //TODO: ver si siempre sería db o podría ser de otros tamaños
-            continue;
+
+            if(debugging){
+                printf("valorStr: %s\n", valorStr);
+                printf("\n\n");
+            }
+
+            continue; //ya completé este lexema, paso al siguiente
         }
 
+        if(debugging){
+            printf("\n\n");
+        }
 
-        //si no es cte string:
+        //si no es cte string ni variable string:
         reemplazarCaracteres(lexActual.nombre, '.', '_'); //capaz con esto se resuelven las constantes float con un . en el nombre
-
-        fprintf(fAssembler, "%s dd %s\n", lexActual.nombre, tipo, tieneValor ? lexActual.valor : "?");
+        fprintf(fAssembler, "%s dd %s\n", lexActual.nombre, tieneValor ? lexActual.valor : "?");
     }
 
 }
