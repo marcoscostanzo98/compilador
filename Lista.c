@@ -87,6 +87,15 @@ void vaciarLista(t_lista *l)
     }
 }
 
+void duplicarLista(t_lista* orig, t_lista* dest)
+{
+    t_nodo* actual = *orig;
+    while (actual) {
+        insertarEnListaSinDuplicados(dest, actual->lexema);
+        actual = actual->sig;
+    }
+}
+
 void copiarLexema(t_lexema* dest, t_lexema orig)
 {
     strcpy(dest->nombre, orig.nombre);

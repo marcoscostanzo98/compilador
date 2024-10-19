@@ -47,6 +47,16 @@ int desapilarCelda();
 void apilarCelda();
 void apilarCeldaAnterior();
 
+/* funciones de assembler */
+void generarAssembler();
+void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS);
+void generarCuerpoAssembler(FILE* fAssembler, t_polaca* listaPolaca);
+void generarFinAssembler(FILE* fAssembler);
+
+/* funciones auxiliares */
+void reemplazarCaracteres(char *s, char viejo, char nuevo);
+
+
 char* tabla_simbolos = "symbol-table.txt";
 t_lista lista_simbolos;
 
@@ -65,6 +75,9 @@ int contListaAux = 0;
 /* variables globales */
 char operadorLogicoAct[10];
 int negadorDeOperador;
+
+//VARIABLE PARA DEBUGGEAR, BORRAR:
+int debugging = 0;
 
 %}
 
@@ -124,7 +137,7 @@ int negadorDeOperador;
 
 %%
 inicio: 
-    programa {printf("   Programa es Inicio\n"); guardar_TS(); guardarPolaca();}
+    programa {printf("   Programa es Inicio\n"); generarAssembler();}
 ;
 
 programa:
@@ -285,6 +298,9 @@ int main(int argc, char *argv[])
     } else{ 
         yyparse();
     }
+
+    guardar_TS();
+    guardarPolaca(); 
 	
     fclose(yyin);
     return 0;
@@ -664,3 +680,108 @@ void resolverCondicionConector(){
     apilar(&pilaConectores, conector);
 }
 
+
+// funciones de assembler
+void generarAssembler(){
+    FILE* fAssembler = fopen("final.asm", "w+");
+    if(!fAssembler ) {
+        printf("\nError al abrir el archivo final.asm\n");
+        exit(1);
+    }
+
+    //duplico la lista_simbolos para cargar las variables:
+    t_lista simbolosDup;
+    crearLista(&simbolosDup);
+    duplicarLista(&lista_simbolos, &simbolosDup);
+    t_polaca polacaDup;
+    crearPolaca(&polacaDup);
+
+    //duplico la polaca para poder iterarla:
+
+    //escribo la cabecera del assembler:
+    generarCabeceraAssembler(fAssembler, &simbolosDup);
+
+
+    //escribo el body del assembler:
+    generarCuerpoAssembler(fAssembler, &polacaDup);
+
+    //escribo el fin del assembler:
+    generarFinAssembler(fAssembler);
+
+    printf("\n\nAssembler generado exitosamente\n\n");
+    fclose(fAssembler);
+}
+
+void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
+    fprintf(fAssembler, "include macros2.asm\n.MODEL LARGE\t;\n.386\n.STACK 200h;\n\n.DATA\n");
+
+    t_lexema lexActual;
+    char tipo[3];
+    char valorStr[100];
+    int tieneValor, esCteString;
+    int ciclos = 1;
+    while(quitarPrimeroDeLista(listaTS, &lexActual)) {
+
+        esCteString = (strcmp(lexActual.tipodato, "CTE_STRING") == 0);
+        tieneValor = strlen(lexActual.valor);
+
+        if(debugging){
+            printf("entra al while %d veces\n", ciclos++);
+            printf("Lex actual: %s - %s - %s - %s\n", lexActual.nombre, lexActual.tipodato, lexActual.valor, lexActual.longitud);
+            printf("esCteString: %d. tieneValor: %d\n", esCteString, tieneValor);
+        }
+
+        /*
+        if(strcmp(lexActual.tipodato, "CTE_STRING") == 0){ //defino el tipo de la variable
+            strcpy(tipo, "db");
+        } else {
+            strcpy(tipo, "dd");
+        }
+        */
+
+        if(esCteString){
+            sprintf(valorStr, "\"%s\",'$',%s dup (?)", lexActual.valor, lexActual.longitud);
+
+            if(debugging){
+                printf("valorStr: %s\n", valorStr);
+                printf("\n");
+            }
+
+            //TODO: cuidado con los espacios o puntos en los nombres de variables.
+            
+            reemplazarCaracteres(lexActual.nombre, ' ', '_');
+            fprintf(fAssembler, "%s db %s\n", lexActual.nombre, valorStr); //TODO: ver si siempre sería db o podría ser de otros tamaños
+            continue;
+        }
+
+
+        //si no es cte string:
+        reemplazarCaracteres(lexActual.nombre, '.', '_'); //capaz con esto se resuelven las constantes float con un . en el nombre
+
+        fprintf(fAssembler, "%s dd %s\n", lexActual.nombre, tipo, tieneValor ? lexActual.valor : "?");
+    }
+
+}
+
+void generarCuerpoAssembler(FILE* fAssembler, t_polaca* listaPolaca){
+
+}
+
+void generarFinAssembler(FILE* fAssembler){
+
+}
+
+
+void reemplazarCaracteres(char *s, char viejo, char nuevo){
+    int reader = 0;
+
+    while (s[reader])
+    {
+        if (s[reader] == viejo)
+        {
+            s[reader] = nuevo;
+        }
+
+        reader++;
+    }
+}
