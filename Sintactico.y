@@ -731,14 +731,6 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
             printf("esCteString: %d. tieneValor: %d\n", esCteString, tieneValor);
         }
 
-        /*
-        if(strcmp(lexActual.tipodato, "CTE_STRING") == 0){ //defino el tipo de la variable
-            strcpy(tipo, "db");
-        } else {
-            strcpy(tipo, "dd");
-        }
-        */
-
         if(esCteString){
             sprintf(valorStr, "\"%s\",'$',%s dup (?)", lexActual.valor, lexActual.longitud);
 
