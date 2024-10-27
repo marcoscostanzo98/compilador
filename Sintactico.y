@@ -28,7 +28,7 @@ void insertarPolaca(char* cad);
 void guardarPolaca();
 
 void guardarPolaca2();
-void preprocesarPolaca(t_polaca polaca);
+void preprocesarPolaca(t_polaca* polaca);
 int esSalto(char* celda);
 
 void avanzarPolaca();
@@ -55,8 +55,11 @@ void apilarCeldaAnterior();
 /* funciones de assembler */
 void generarAssembler();
 void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS);
-void generarCuerpoAssembler(FILE* fAssembler, t_polaca* listaPolaca);
+void generarCuerpoAssembler(FILE* fAssembler);
 void generarFinAssembler(FILE* fAssembler);
+void operacionMatAsselmber(FILE* fAssembler, char* operador);
+
+void procesarCeldaPolaca(FILE* fAssembler, char* celda);
 
 /* funciones auxiliares */
 void reemplazarCaracteres(char *s, char viejo, char nuevo);
@@ -716,23 +719,26 @@ void generarAssembler(){
     //duplico la polaca para poder iterarla
     duplicarPolaca(&listaPolaca,&polacaDup);
 
-    preprocesarPolaca(polacaDup);
+    printf("LONGITUD POLACADUP: %d\n", polacaDup.celdaActual);
 
-/*
+    preprocesarPolaca(&polacaDup);
+
+    printf("LONGITUD POLACADUP: %d\n", polacaDup.celdaActual);
+
+
     //escribo la cabecera del assembler:
-    generarCabeceraAssembler(fAssembler, &simbolosDup);
+//    generarCabeceraAssembler(fAssembler, &simbolosDup);
 
 
     //escribo el body del assembler:
     generarCuerpoAssembler(fAssembler);
 
     //escribo el fin del assembler:
-    generarFinAssembler(fAssembler);
+//    generarFinAssembler(fAssembler);
 
     printf("\n\nAssembler generado exitosamente\n\n");
-*/
-    fclose(fAssembler);
 
+    fclose(fAssembler);
     guardarPolaca2();
 }
 
@@ -761,50 +767,40 @@ void guardarPolaca2(){
 
     fclose(codigo_intermedio);
 
-    printf("\n\nPOLACA PREPROCESADA\n\n");
-
     return;
 }
 
-void preprocesarPolaca(t_polaca polaca){
-    printf("\n\nPREPROCESANDO POLACA\n\n");
-
+void preprocesarPolaca(t_polaca* polaca){
     int celdaActual = 0, celdaSaltoInt;
     char buf[100], celda[100], celdaSalto[100];
 
-
-    printf("\ntam celda polaca: %d\n\n\n", polaca.celdaActual);
-    while(celdaActual != polaca.celdaActual) {
+    while(celdaActual != polaca->celdaActual) {
         //si la celda actual de la polaca es un salto, actualiza la celda del salto con un @ET_numCelda
-        strcpy(celda, obtenerDePolaca(&polaca, celdaActual));
-        printf("celda actual: %d, tiene: %s\n", celdaActual, celda);
-
+        strcpy(celda, obtenerDePolaca(polaca, celdaActual));
+        
         if(esSalto(celda)) {
             //actualiza act+1 con ET_[contenidoActual]
-            strcpy(celdaSalto, obtenerDePolaca(&polaca, celdaActual+1));
+            strcpy(celdaSalto, obtenerDePolaca(polaca, celdaActual+1));
             celdaSaltoInt = atoi(celdaSalto);
-            printf("celda a saltar: %d\n", celdaSaltoInt);
 
             sprintf(buf, "ET_%d", celdaSaltoInt);
-            buscarYActualizarPolaca(&polaca, celdaActual+1, buf);
+            buscarYActualizarPolaca(polaca, celdaActual+1, buf);
 
             //actualiza celda del salto con @ET_[celdaActual]: [contenidoActual]
-            if(celdaSaltoInt < polaca.celdaActual){
-                strcpy(celda, obtenerDePolaca(&polaca, celdaSaltoInt));
+            if(celdaSaltoInt < polaca->celdaActual){
+                strcpy(celda, obtenerDePolaca(polaca, celdaSaltoInt));
 
                 if(strstr(celda, "@ET_") == NULL){
                     sprintf(buf, "@ET_%d:%s", celdaSaltoInt, celda);
-                    buscarYActualizarPolaca(&polaca, celdaSaltoInt, buf);
+                    buscarYActualizarPolaca(polaca, celdaSaltoInt, buf);
                 }
             } else {
                 sprintf(buf, "@ET_%d:_FINAL_TAG", celdaSaltoInt);
-                insertarEnPolaca(&polaca, buf);
+                insertarEnPolaca(polaca, buf);
             }
         }
         celdaActual++;
     }
-
-    printf("\nbye\n");
 }
 
 int esSalto(char* celda) {
@@ -868,11 +864,10 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
 
 }
 
-/*
 // funciones del cuerpo de assembler
 void generarCuerpoAssembler(FILE* fAssembler){
     char celdaPolaca[100];
-    while(!extraerPrimeroDePolaca(&polacaDup, celdaPolaca)) {
+    while(extraerPrimeroDePolaca(&polacaDup, celdaPolaca)) {
         procesarCeldaPolaca(fAssembler, celdaPolaca);
     }
 }
@@ -880,6 +875,30 @@ void generarCuerpoAssembler(FILE* fAssembler){
 void procesarCeldaPolaca(FILE* fAssembler, char* celda) {
     //tengo que validar si la celda actual corresponde a una etiqueta que tengo que completar
 
+    //por un lado, puede ser la celda desde la que salto (ET_num)  --> se extrae cuando detecta un salto (BIAssembler o comparacionAssembler)
+
+    //por otro, la celda donde cae el salto (@ET_num:)
+    printf("CELDA: %s\n", celda);
+    if(strncmp(celda, "@ET_", 4) == 0){
+        //escribimos en el assembler ET_num:\n y sigue normal
+
+        //y le sacamos ese prefijo a la celda (@ET)
+
+        char* posPunto = strstr(celda, ":");
+
+        char nombreTag[36];
+
+        int cantACopiar = posPunto - celda;
+        strncpy(nombreTag, celda+1, cantACopiar); //acá tengo el ET_numero:, ahora tengo que escribirlo en el assembler
+        nombreTag[cantACopiar] = '\0';
+
+        fprintf(fAssembler, "%s\n", nombreTag);
+
+        celda = posPunto+1;
+        return;
+    }
+
+    fprintf(fAssembler, "\t%s\n", celda);
 //done
     if (esOperando(celda)) { //si está en la TS, es un operando
         apilar(&pilaOperandos, celda); //cte, ids, etc.
@@ -954,7 +973,7 @@ void operacionMatAsselmber(FILE* fAssembler, char* operador){
     char* op2 = desapilar(&pilaOperandos);
     char* result = newAuxiliar(); //genera un auxiliar y lo agrega a la TS (capaz no hace falta tenerlo en la TS)
 
-    fprintf(fAssembler, "\nFLD %s\nFLD %s\n%s\nFSTP %s", op1, op2, operador, result);
+    fprintf(fAssembler, "\tFLD %s\n\tFLD %s\n\t%s\n\tFSTP %s", op1, op2, operador, result);
     
     apilar(&pilaOperandos, result);
 }
@@ -1031,7 +1050,6 @@ char* convertirSalto(char* celda){
 void generarFinAssembler(FILE* fAssembler){
 
 }
-*/
 
 void reemplazarCaracteres(char *s, char viejo, char nuevo){
     int reader = 0;
