@@ -763,7 +763,6 @@ void generarAssembler(){
     printf("\n\nAssembler generado exitosamente\n\n");
 
     fclose(fAssembler);
-    fclose(fBodyAsm);
 }
 
 
@@ -1134,6 +1133,9 @@ void mergeArchivosAssembler(FILE* fAssembler, FILE* fBodyAsm){
         getline(&buf, &len, fBodyAsm);
         fprintf(fAssembler, "%s", buf);
     }
+
+    fclose(fBodyAsm);
+    remove("final.temp"); 
 }
 
 //funciones de fin de assembler
