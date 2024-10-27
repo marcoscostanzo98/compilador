@@ -773,12 +773,109 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
 
 }
 
+// funciones del cuerpo de assembler
 void generarCuerpoAssembler(FILE* fAssembler, t_polaca* listaPolaca){
-
+    char celdaPolaca[100];
+    while(!extraerPrimeroDePolaca(listaPolaca, celdaPolaca)) {
+        procesarCeldaPolaca(fAssembler, celdaPolaca);
+    }
 }
 
-void generarFinAssembler(FILE* fAssembler){
+void procesarCeldaPolaca(FILE* fAssembler, char* celda) {
+    //tengo que validar si la celda actual corresponde a una etiqueta que tengo que completar
 
+    if (esOperando(celda)) { //si está en la TS, es un operando
+        apilar(&pilaOperandos, celda); //cte, ids, etc.
+        return;
+    }
+
+    //para evitar todos los strcmp
+    char* operador = esOperadorMat(celda);
+    if (operador){
+        operacionMatAsselmber(fAssembler, operador); //+, -, *, /
+        return;
+    }
+
+    if(strcmp(celda, ":=") == 0){
+        asignacionAssembler(fAssembler); //:=
+        return;
+    }
+
+    if(strcmp(celda, "CMP") == 0){
+        comparacionAssembler(fAssembler); //resuelve los saltos condicionales desapilando también la celda que sigue
+        return;
+    }
+
+    if(strncmp(celda, "ET_", 3) == 0){
+        //TODO: ver como resolver las etiquetas
+        return;
+    }
+
+    if(strcmp(celda, "BI") == 0){
+        BIAssembler(fAssembler); //resuelve saltos incondicionales
+    }
+
+    if(strcmp(celda, "ESCRIBIR") == 0){
+        operacionEscribirAssembler(fAssembler);
+        return;
+    }
+
+    if(strcmp(celda, "LEER") == 0){
+        operacionLeerAssembler(fAssembler);
+        return;
+    }
+}
+
+char* esOperando(char* celda){
+    t_lexema lex;
+    return buscarEnlista(&lista_simbolos, celda, &lex); //TODO: ver si hacer global la lista de simbolos duplicada (o si usamos la normal)
+}
+
+char* esOperadorMat(char* celda){
+    char operador[2];
+    if ( strcmp(celda, "+")==0 ) {
+       return "FADD";
+    }
+    if ( strcmp(celda, "-")==0 )
+    {
+        return "FSUB";
+    }
+    if ( strcmp(celda, "*")==0 )
+    {
+        return "FMUL";
+    }
+    if ( strcmp(celda, "/")==0 )
+    {
+        return "FDIV";
+    }
+
+    return "";
+}
+
+void operacionMatAsselmber(FILE* fAssembler, char* operador){
+    char* op1 = desapilar(&pilaOperandos);
+    char* op2 = desapilar(&pilaOperandos);
+    char* result = newAuxiliar(); //genera un auxiliar y lo agrega a la TS (capaz no hace falta tenerlo en la TS)
+
+    fprintf(fAssembler, "\nFLD %s\nFLD %s\n%s\nFSTP %s", op1, op2, operador, result);
+    
+    apilar(&pilaOperandos, result);
+}
+
+char* newAuxiliar(){
+    char aux[20];
+    sprintf(aux, "@auxAssembler%d", auxActual++);
+    apilar(&pilaAuxAssembler, aux); //pila de elementos que van a ser agregados a la TS antes de escribir la cabecera
+    return aux;
+}
+
+void asignacionAssembler(FILE* fAssembler) {
+    
+}
+
+//funciones de fin de assembler
+void generarFinAssembler(FILE* fAssembler){
+    
 }
 
 
