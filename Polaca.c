@@ -59,3 +59,38 @@ int buscarYActualizarPolaca ( t_polaca *polaca, int numCelda, char* cadNueva){
 int polacaVacia(t_polaca *polaca){
   return polaca->lista == NULL;
 }
+
+int duplicarPolaca(t_polaca *polacaOriginal, t_polaca *polacaDuplicada) {
+    crearPolaca(polacaDuplicada); // Inicializa la nueva lista
+
+    if (polacaVacia(polacaOriginal)) return TRUE; // Si la original está vacía, no hay nada que copiar
+
+    t_nodo_polaca *actualOriginal = polacaOriginal->lista;
+    t_nodo_polaca *nuevoNodo, *ultimoNodoDuplicado = NULL;
+
+    while (actualOriginal) {
+        // Crear un nuevo nodo
+        nuevoNodo = (t_nodo_polaca*)malloc(sizeof(t_nodo_polaca));
+        if (!nuevoNodo) return FALSE; // Error de memoria
+
+        strcpy(nuevoNodo->cadena, actualOriginal->cadena);
+        nuevoNodo->sig = NULL;
+
+        // Enlazar el nuevo nodo a la lista duplicada
+        if (!polacaDuplicada->lista) {
+            polacaDuplicada->lista = nuevoNodo;
+        } else {
+            ultimoNodoDuplicado->sig = nuevoNodo;
+        }
+        
+        // Actualizar el último nodo en la lista duplicada
+        ultimoNodoDuplicado = nuevoNodo;
+
+        // Pasar al siguiente nodo en la lista original
+        actualOriginal = actualOriginal->sig;
+        polacaDuplicada->celdaActual++;
+    }
+    
+    return TRUE;
+}
+

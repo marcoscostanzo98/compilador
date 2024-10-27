@@ -71,6 +71,7 @@ t_pila pilaConectores;
 char tipoDatoInit[10];
 int contadorTag = 0;
 int contListaAux = 0;
+char* cadenaAuxAssembler = NULL;
 
 /* variables globales */
 char operadorLogicoAct[10];
@@ -683,6 +684,7 @@ void resolverCondicionConector(){
 
 // funciones de assembler
 void generarAssembler(){
+    
     FILE* fAssembler = fopen("final.asm", "w+");
     if(!fAssembler ) {
         printf("\nError al abrir el archivo final.asm\n");
@@ -693,10 +695,22 @@ void generarAssembler(){
     t_lista simbolosDup;
     crearLista(&simbolosDup);
     duplicarLista(&lista_simbolos, &simbolosDup);
-    t_polaca polacaDup;
-    crearPolaca(&polacaDup);
 
-    //duplico la polaca para poder iterarla:
+    //Reservamos espacio para el auxiliar de codigo 
+    int tamanio_inicial = 10000;
+    cadenaAuxAssembler = (char*)malloc(tamanio_inicial*sizeof(char));
+
+    if(cadenaAuxAssembler==NULL){
+        printf("\nError de asiignacion de memoria\n");
+        return;
+    }
+
+    cadenaAuxAssembler[0] = '\0'; //Inicializamos la cadena
+
+    //duplico la polaca para poder iterarla
+    t_polaca polacaDup;
+    duplicarPolaca(&listaPolaca,&polacaDup);
+
 
     //escribo la cabecera del assembler:
     generarCabeceraAssembler(fAssembler, &simbolosDup);
@@ -713,11 +727,11 @@ void generarAssembler(){
 }
 
 void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
-    fprintf(fAssembler, "include macros2.asm\n.MODEL LARGE\t;\n.386\n.STACK 200h;\n\n.DATA\n"); //TODO: ver si necesitamos MAXTEXTSIZE como en el TP del cuatri pasado (MAXTEXTSIZE equ 40)
+    fprintf(fAssembler, "include macros2.asm\n.MODEL LARGE\n.386\n.STACK 200h\n\n.DATA\n"); //TODO: ver si necesitamos MAXTEXTSIZE como en el TP del cuatri pasado (MAXTEXTSIZE equ 40)
 
     t_lexema lexActual;
     char tipo[3];
-    char valorStr[100];
+    char valorStr[256]; //Le aumente el tamanio porque tiraba warning de que se exedia cuando escribia el sprintf
     int tieneValor, esString;
     int ciclos = 1; //BORRAR
     while(quitarPrimeroDeLista(listaTS, &lexActual)) {
@@ -732,8 +746,7 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
 
         if(esString){
             if(!tieneValor){ //si es una variable
-                sprintf(valorStr, "40 dup (?),'$'"); //TODO: ver qué hace el '$' y si va antes o despues de 'dup(?)'. Lleva '?' como valor en caso de ser string?
-            } else {
+                sprintf(valorStr, "40 dup (?),'$'"); //El $ le indica en el assembler fin de linea. El ? reserva 40 bytes sin inicializar para el string por si cambia de tamanio
                 sprintf(valorStr, "\"%s\",'$',%s dup (?)", lexActual.valor, lexActual.longitud);
             }
 
