@@ -61,6 +61,8 @@ void operacionMatAsselmber(FILE* fAssembler, char* operador);
 void asignacionAssembler(FILE* fAssembler);
 void comparacionAssembler(FILE* fAssembler);
 void BIAssembler(FILE* fAssembler);
+void operacionEscribirAssembler(FILE* fAssembler);
+void operacionLeerAssembler(FILE* fAssembler);
 
 int esOperando(char* celda);
 char* esOperadorMat(char* celda);
@@ -945,7 +947,7 @@ void procesarCeldaPolaca(FILE* fAssembler, char* celda) {
     if(strcmp(celda, "BI") == 0){
         BIAssembler(fAssembler); //resuelve saltos incondicionales
     }
-/*
+
     if(strcmp(celda, "ESCRIBIR") == 0){
         operacionEscribirAssembler(fAssembler);
         return;
@@ -955,7 +957,6 @@ void procesarCeldaPolaca(FILE* fAssembler, char* celda) {
         operacionLeerAssembler(fAssembler);
         return;
     }
-*/
 }
 
 int esOperando(char* celda){
@@ -1057,18 +1058,6 @@ void comparacionAssembler(FILE* fAssembler){
     fprintf(fAssembler, "\tFLD %s\n\tFCOMP %s\n\tFSTSW AX\n\tSAHF\n\t%s %s\n", op1, op2, jump, tag);
 }
 
-void BIAssembler(FILE* fAssembler){
-    char celda[100];
-    //char tag[100];
-    char buffer[100];
-
-    extraerPrimeroDePolaca(&polacaDup, celda);
-    //sprintf(tag, "%s", celda);
-    //strcpy(tag, celda);
-
-    fprintf(fAssembler, "\tJMP %s\n", celda);
-}
-
 char* convertirSalto(char* celda){
     switch (celda[0]) {
         case 'B':
@@ -1091,6 +1080,57 @@ char* convertirSalto(char* celda){
     }
 
     return NULL;  // Retorna NULL si no coincide con ningún caso
+}
+
+void BIAssembler(FILE* fAssembler){
+    char celda[100];
+    //char tag[100];
+    char buffer[100];
+
+    extraerPrimeroDePolaca(&polacaDup, celda);
+    //sprintf(tag, "%s", celda);
+    //strcpy(tag, celda);
+
+    fprintf(fAssembler, "\tJMP %s\n", celda);
+}
+
+
+void operacionEscribirAssembler(FILE* fAssembler){
+    char buffer[100];
+    t_lexema lex;
+    char* variable = desapilar(&pilaOperandos);
+    buscarEnlista(&lista_simbolos, variable, &lex);
+
+    if( strcmp(lex.tipodato, "CTE_STRING")==0 || strcmp(lex.tipodato, "string")==0 ){
+        fprintf(fAssembler, "\tdisplayString %s\n\tnewLine\n", variable);
+        return;
+    }
+
+    if( strcmp(lex.tipodato, "int")==0 ){
+        fprintf(fAssembler, "\tDisplayFloat %s, 0\n\tnewLine\n", variable);
+        return;
+    }
+
+    if( strcmp(lex.tipodato, "float")==0 ){
+        fprintf(fAssembler, "\tDisplayFloat %s, 2\n\tnewLine\n", variable);
+        return;
+    }
+}
+
+void operacionLeerAssembler(FILE* fAssembler){
+    t_lexema lex;
+    char* variable = desapilar(&pilaOperandos);
+
+    buscarEnlista(&lista_simbolos, variable, &lex);
+    if( strcmp(lex.tipodato, "string")==0 ){
+        fprintf(fAssembler, "\tgetString %s\n\tnewLine\n", variable);
+        return;
+    }
+
+    if( strcmp(lex.tipodato, "Int")==0 || strcmp(lex.tipodato, "Float")==0 ){
+        fprintf(fAssembler, "\tGetFloat %s\n\tnewLine\n", variable); //TODO: ver si siempre leemos como float
+        return;
+    }
 }
 
 //funciones de fin de assembler
