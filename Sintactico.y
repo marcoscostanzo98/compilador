@@ -64,6 +64,8 @@ void BIAssembler(FILE* fAssembler);
 void operacionEscribirAssembler(FILE* fAssembler);
 void operacionLeerAssembler(FILE* fAssembler);
 
+void mergeArchivosAssembler(FILE* fAssembler, FILE* fBodyAsm);
+
 int esOperando(char* celda);
 char* esOperadorMat(char* celda);
 char* newAuxiliar();
@@ -710,10 +712,16 @@ void resolverCondicionConector(){
 void generarAssembler(){
     crearPila(&pilaOperandos);
     crearPila(&pilaAuxAssembler);
-    
-    FILE* fAssembler = fopen("final.asm", "w+");
-    if(!fAssembler ) {
+
+    FILE* fAssembler = fopen("final.asm", "wt+");
+    if(!fAssembler) {
         printf("\nError al abrir el archivo final.asm\n");
+        exit(1);
+    }
+
+    FILE* fBodyAsm = fopen("final.temp", "wt+");
+    if(!fBodyAsm) {
+        printf("\nError al abrir el archivo final.temp\n");
         exit(1);
     }
 
@@ -739,19 +747,23 @@ void generarAssembler(){
     preprocesarPolaca(&polacaDup);
     //guardarPolaca2(); para debuggear
 
-    //escribo la cabecera del assembler:
-//    generarCabeceraAssembler(fAssembler, &simbolosDup);
-
-
     //escribo el body del assembler:
-    generarCuerpoAssembler(fAssembler);
+    generarCuerpoAssembler(fBodyAsm);
+
+    //escribo la cabecera del assembler:
+    generarCabeceraAssembler(fAssembler, &simbolosDup);
+
+    mergeArchivosAssembler(fAssembler, fBodyAsm);
 
     //escribo el fin del assembler:
-//    generarFinAssembler(fAssembler);
+    generarFinAssembler(fAssembler);
+
+    
 
     printf("\n\nAssembler generado exitosamente\n\n");
 
     fclose(fAssembler);
+    fclose(fBodyAsm);
 }
 
 
@@ -840,7 +852,8 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
 
     t_lexema lexActual;
     char tipo[3];
-    char valorStr[256]; //Le aumente el tamanio porque tiraba warning de que se exedia cuando escribia el sprintf
+    char valorStr[256]; //Le aumente el tamanio porque tiraba warning de que se excedia cuando escribia el sprintf
+    char auxAsm[100];
     int tieneValor, esString;
     int ciclos = 1; //BORRAR
     while(quitarPrimeroDeLista(listaTS, &lexActual)) {
@@ -880,6 +893,12 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
         fprintf(fAssembler, "%s dd %s\n", lexActual.nombre, tieneValor ? lexActual.valor : "?");
     }
 
+    while(!pilaVacia(&pilaAuxAssembler)){
+        strcpy(auxAsm, desapilar(&pilaAuxAssembler));
+        fprintf(fAssembler, "%s dd ?\n", auxAsm);
+    }
+
+    fprintf(fAssembler, "\n.CODE\n\nSTART:\n\tMOV AX, @DATA\n\tMOV DS, AX\n\tMOV es,ax\n\n");
 }
 
 // funciones del cuerpo de assembler
@@ -892,11 +911,8 @@ void generarCuerpoAssembler(FILE* fAssembler){
 
 void procesarCeldaPolaca(FILE* fAssembler, char* celda) {
     //tengo que validar si la celda actual corresponde a una etiqueta que tengo que completar
-
     //por un lado, puede ser la celda desde la que salto (ET_num)  --> se extrae cuando detecta un salto (BIAssembler o comparacionAssembler)
-
     //por otro, la celda donde cae el salto (@ET_num:)
-    //printf("CELDA: %s\n", celda);
     if(strncmp(celda, "@ET_", 4) == 0){
         //escribimos en el assembler ET_num:\n y sigue normal
 
@@ -943,16 +959,16 @@ void procesarCeldaPolaca(FILE* fAssembler, char* celda) {
         //TODO: ver como resolver las etiquetas (IMPORTANTE, HABLARLO CON FRANCOCK PQ ESTE CASO NO SE SI LO CONTEMPLAMOS)
         return;
     }
-
+//done
     if(strcmp(celda, "BI") == 0){
         BIAssembler(fAssembler); //resuelve saltos incondicionales
     }
-
+//done pero faltaría la macro
     if(strcmp(celda, "ESCRIBIR") == 0){
         operacionEscribirAssembler(fAssembler);
         return;
     }
-
+//done pero faltaría la macro
     if(strcmp(celda, "LEER") == 0){
         operacionLeerAssembler(fAssembler);
         return;
@@ -1025,31 +1041,6 @@ void asignacionAssembler(FILE* fAssembler) {
     fprintf(fAssembler, "%s", buffer);
 }
 
-/*
-//VERSION VIEJA:
-void comparacionAssemblerOLD(FILE* fAssembler){
-    char buffer[100];
-    char celda[100];
-    char tag[100];
-    char* op1 = desapilar(&pilaOperandos);
-    char* op2 = desapilar(&pilaOperandos);
-
-    extraerPrimeroDePolaca(&polacaDup, celda); //sacamos el branch de la polaca
-
-    char* jump = convertirSalto(celda);
-
-    extraerCeldaAssembler(celda); //sacamos la celda a la que salta
-
-    sprintf(etiqueta, "ET_%s", celda); //genera la etiqueta, si ya
-    if(!buscar_lista_inter(&listaTags, etiqueta))
-        insertar_en_lista_inter(&listaTags, etiqueta); // Inserto etiqueta para que cuando llegue a su celda, la detecte y la escriba
-
-    sprintf(buffer, "\n\tFLD %s\n\tFCOMP %s\n\tFSTSW AX\n\tSAHF\n\t%s %s", opIzq, opDer, jump, etiqueta);
-    agregarTextoAssembler(buffer);
-}
-*/
-
-//VERSION NUEVA
 void comparacionAssembler(FILE* fAssembler){
     char celda[100];
     char tag[100];
@@ -1091,13 +1082,7 @@ char* convertirSalto(char* celda){
 
 void BIAssembler(FILE* fAssembler){
     char celda[100];
-    //char tag[100];
-    char buffer[100];
-
     extraerPrimeroDePolaca(&polacaDup, celda);
-    //sprintf(tag, "%s", celda);
-    //strcpy(tag, celda);
-
     fprintf(fAssembler, "\tJMP %s\n", celda);
 }
 
@@ -1140,9 +1125,28 @@ void operacionLeerAssembler(FILE* fAssembler){
     }
 }
 
+void mergeArchivosAssembler(FILE* fAssembler, FILE* fBodyAsm){
+    //posiciono el body al inicio
+    fseek(fBodyAsm, 0, SEEK_SET);
+    char* buf = NULL;
+    size_t len = 0;
+    while(!feof(fBodyAsm)){
+        getline(&buf, &len, fBodyAsm);
+        fprintf(fAssembler, "%s", buf);
+    }
+}
+
 //funciones de fin de assembler
 void generarFinAssembler(FILE* fAssembler){
+    fprintf(fAssembler, "\tMOV AX, 4C00h\n\tINT 21h\n");
 
+    //TODO: validar que sea esto lo correcto
+    fprintf(fAssembler, "\n\nSTRLEN PROC NEAR\n\tmov bx, 0\nSTRL01:\n\tcmp BYTE PTR [SI+BX],'$'\n\tje STREND\n\tinc BX\n\tjmp STRL01\nSTREND:\n\tret\nSTRLEN ENDP\n");
+
+    //TODO: validar que sea esto lo correcto
+	fprintf(fAssembler, "\nCOPIAR PROC NEAR\n\tcall STRLEN\n\tcmp bx,MAXTEXTSIZE\n\tjle COPIARSIZEOK\n\tmov bx,MAXTEXTSIZE\nCOPIARSIZEOK:\n\tmov cx,bx\n\tcld\n\trep movsb\n\tmov al,'$'\n\tmov BYTE PTR [DI],al\n\tret\nCOPIAR ENDP\n");
+
+	fprintf(fAssembler, "\nEND START\n");
 }
 
 void reemplazarCaracteres(char *s, char viejo, char nuevo){
