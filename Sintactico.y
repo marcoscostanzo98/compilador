@@ -990,8 +990,15 @@ void operacionMatAsselmber(FILE* fAssembler, char* operador){
     char* op2 = desapilar(&pilaOperandos);
     char* result = newAuxiliar(); //genera un auxiliar y lo agrega a la TS (capaz no hace falta tenerlo en la TS)
 
-    fprintf(fAssembler, "\tFLD %s\n\tFLD %s\n\t%s\n\tFSTP %s\n", op1, op2, operador, result);
-    
+    char buff[100];
+
+    if(strcmp(operador, "FDIV") == 0){
+        sprintf(buff, "FLD %s\n\tFLD %s", op2, op1);
+    } else {
+        sprintf(buff, "FLD %s\n\tFLD %s", op1, op2);
+    }
+
+    fprintf(fAssembler, "\t%s\n\t%s\n\tFSTP %s\n", buff, operador, result);
     apilar(&pilaOperandos, result);
 }
 
