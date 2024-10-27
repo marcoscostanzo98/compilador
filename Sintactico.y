@@ -26,6 +26,11 @@ t_lexema buscarIdEnTS(char* nombre);
 /* funciones de polaca */
 void insertarPolaca(char* cad);
 void guardarPolaca();
+
+void guardarPolaca2();
+void preprocesarPolaca(t_polaca polaca);
+int esSalto(char* celda);
+
 void avanzarPolaca();
 void apilarCelda();
 void actualizarCeldaPolaca(int celda, int nuevoValor);
@@ -61,6 +66,7 @@ char* tabla_simbolos = "symbol-table.txt";
 t_lista lista_simbolos;
 
 t_polaca listaPolaca;
+t_polaca polacaDup;
 
 t_pila pilaCeldas;
 t_pila pilaIds;
@@ -708,23 +714,112 @@ void generarAssembler(){
     cadenaAuxAssembler[0] = '\0'; //Inicializamos la cadena
 
     //duplico la polaca para poder iterarla
-    t_polaca polacaDup;
     duplicarPolaca(&listaPolaca,&polacaDup);
 
+    preprocesarPolaca(polacaDup);
 
+/*
     //escribo la cabecera del assembler:
     generarCabeceraAssembler(fAssembler, &simbolosDup);
 
 
     //escribo el body del assembler:
-    generarCuerpoAssembler(fAssembler, &polacaDup);
+    generarCuerpoAssembler(fAssembler);
 
     //escribo el fin del assembler:
     generarFinAssembler(fAssembler);
 
     printf("\n\nAssembler generado exitosamente\n\n");
+*/
     fclose(fAssembler);
+
+    guardarPolaca2();
 }
+
+
+void guardarPolaca2(){
+    FILE *codigo_intermedio;
+    codigo_intermedio = fopen("intermediate-code-test.txt", "wt");
+    if (!codigo_intermedio) {
+        printf("\nError al intentar generar el codigo intermedio\n");
+        return;
+    }
+
+    if(polacaVacia(&polacaDup)){
+        fclose(codigo_intermedio);
+        return;
+    }
+
+    char elemPolaca[100];
+
+    extraerPrimeroDePolaca(&polacaDup, elemPolaca);
+    fprintf(codigo_intermedio, "%s", elemPolaca);
+    while(!polacaVacia(&polacaDup)){
+        extraerPrimeroDePolaca(&polacaDup, elemPolaca);
+        fprintf(codigo_intermedio, "|%s", elemPolaca);
+    }
+
+    fclose(codigo_intermedio);
+
+    printf("\n\nPOLACA PREPROCESADA\n\n");
+
+    return;
+}
+
+void preprocesarPolaca(t_polaca polaca){
+    printf("\n\nPREPROCESANDO POLACA\n\n");
+
+    int celdaActual = 0, celdaSaltoInt;
+    char buf[100], celda[100], celdaSalto[100];
+
+
+    printf("\ntam celda polaca: %d\n\n\n", polaca.celdaActual);
+    while(celdaActual != polaca.celdaActual) {
+        //si la celda actual de la polaca es un salto, actualiza la celda del salto con un @ET_numCelda
+        strcpy(celda, obtenerDePolaca(&polaca, celdaActual));
+        printf("celda actual: %d, tiene: %s\n", celdaActual, celda);
+
+        if(esSalto(celda)) {
+            //actualiza act+1 con ET_[contenidoActual]
+            strcpy(celdaSalto, obtenerDePolaca(&polaca, celdaActual+1));
+            celdaSaltoInt = atoi(celdaSalto);
+            printf("celda a saltar: %d\n", celdaSaltoInt);
+
+            sprintf(buf, "ET_%d", celdaSaltoInt);
+            buscarYActualizarPolaca(&polaca, celdaActual+1, buf);
+
+            //actualiza celda del salto con @ET_[celdaActual]: [contenidoActual]
+            if(celdaSaltoInt < polaca.celdaActual){
+                strcpy(celda, obtenerDePolaca(&polaca, celdaSaltoInt));
+
+                if(strstr(celda, "@ET_") == NULL){
+                    sprintf(buf, "@ET_%d:%s", celdaSaltoInt, celda);
+                    buscarYActualizarPolaca(&polaca, celdaSaltoInt, buf);
+                }
+            } else {
+                sprintf(buf, "@ET_%d:_FINAL_TAG", celdaSaltoInt);
+                insertarEnPolaca(&polaca, buf);
+            }
+        }
+        celdaActual++;
+    }
+
+    printf("\nbye\n");
+}
+
+int esSalto(char* celda) {
+    if (!strcmp(celda, "BLE") ||
+        !strcmp(celda, "BEQ") ||
+        !strcmp(celda, "BNE") ||
+        !strcmp(celda, "BGT") ||
+        !strcmp(celda, "BLT") ||
+        !strcmp(celda, "BGE") ||
+        !strcmp(celda, "BI")) {
+        return 1;
+    }
+    return 0;
+}
+
 
 void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
     fprintf(fAssembler, "include macros2.asm\n.MODEL LARGE\n.386\n.STACK 200h\n\n.DATA\n"); //TODO: ver si necesitamos MAXTEXTSIZE como en el TP del cuatri pasado (MAXTEXTSIZE equ 40)
@@ -773,10 +868,11 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
 
 }
 
+/*
 // funciones del cuerpo de assembler
-void generarCuerpoAssembler(FILE* fAssembler, t_polaca* listaPolaca){
+void generarCuerpoAssembler(FILE* fAssembler){
     char celdaPolaca[100];
-    while(!extraerPrimeroDePolaca(listaPolaca, celdaPolaca)) {
+    while(!extraerPrimeroDePolaca(&polacaDup, celdaPolaca)) {
         procesarCeldaPolaca(fAssembler, celdaPolaca);
     }
 }
@@ -784,18 +880,19 @@ void generarCuerpoAssembler(FILE* fAssembler, t_polaca* listaPolaca){
 void procesarCeldaPolaca(FILE* fAssembler, char* celda) {
     //tengo que validar si la celda actual corresponde a una etiqueta que tengo que completar
 
+//done
     if (esOperando(celda)) { //si está en la TS, es un operando
         apilar(&pilaOperandos, celda); //cte, ids, etc.
         return;
     }
-
+//done
     //para evitar todos los strcmp
     char* operador = esOperadorMat(celda);
     if (operador){
         operacionMatAsselmber(fAssembler, operador); //+, -, *, /
         return;
     }
-
+//done
     if(strcmp(celda, ":=") == 0){
         asignacionAssembler(fAssembler); //:=
         return;
@@ -870,14 +967,71 @@ char* newAuxiliar(){
 }
 
 void asignacionAssembler(FILE* fAssembler) {
+    t_lexema lex;
+
+    char buffer[100];
+    char* variable = desapilar(&pilaOperandos);
+    char* valor = desapilar(&pilaOperandos);
+    buscarEnlista(&listaTS, valor, &lex);  
+
+    if( strcmp(lex.tipodato, "CTE_STRING")==0 || strcmp(lex.tipodato, "string")==0 )
+		sprintf(buffer, "\n\tMOV SI, OFFSET %s\n\tMOV DI, OFFSET %s\n\tCALL COPIAR", valor, variable);
+    else
+        sprintf(buffer, "\n\tFLD %s\n\tFSTP %s", valor, var);
     
+    fprintf(fAssembler, "%s", buffer);
+}
+
+void comparacionAssembler(FILE* fAssembler){
+    char buffer[100];
+    char celda[100];
+    char tag[100];
+    char* op1 = desapilar(&pilaOperandos);
+    char* op2 = desapilar(&pilaOperandos);
+
+    extraerPrimeroDePolaca(&polacaDup, celda); //sacamos el branch de la polaca
+
+    char* jump = convertirSalto(celda);
+
+    extraerCeldaAssembler(celda); //sacamos la celda a la que salta
+
+    sprintf(etiqueta, "ET_%s", celda); //genera la etiqueta, si ya
+    if(!buscar_lista_inter(&listaTags, etiqueta))
+        insertar_en_lista_inter(&listaTags, etiqueta); // Inserto etiqueta para que cuando llegue a su celda, la detecte y la escriba
+
+    sprintf(buffer, "\n\tFLD %s\n\tFCOMP %s\n\tFSTSW AX\n\tSAHF\n\t%s %s", opIzq, opDer, jump, etiqueta);
+    agregarTextoAssembler(buffer);
+}
+
+char* convertirSalto(char* celda){
+    switch (celda[0]) {
+        case 'B':
+            switch (celda[1]) {
+                case 'N':
+                    if (celda[2] == 'E' && celda[3] == '\0') return "JNE";
+                    break;
+                case 'E':
+                    if (celda[2] == 'Q' && celda[3] == '\0') return "JE";
+                    break;
+                case 'L':
+                    if (celda[2] == 'E' && celda[3] == '\0') return "JLE";
+                    if (celda[2] == 'T' && celda[3] == '\0') return "JL";
+                    break;
+                case 'G':
+                    if (celda[2] == 'T' && celda[3] == '\0') return "JG";
+                    if (celda[2] == 'E' && celda[3] == '\0') return "JGE";
+                    break;
+            }
+    }
+
+    return NULL;  // Retorna NULL si no coincide con ningún caso
 }
 
 //funciones de fin de assembler
 void generarFinAssembler(FILE* fAssembler){
-    
-}
 
+}
+*/
 
 void reemplazarCaracteres(char *s, char viejo, char nuevo){
     int reader = 0;

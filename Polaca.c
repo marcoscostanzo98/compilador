@@ -94,3 +94,18 @@ int duplicarPolaca(t_polaca *polacaOriginal, t_polaca *polacaDuplicada) {
     return TRUE;
 }
 
+char* obtenerDePolaca(t_polaca *polaca, int numCelda) {
+    if (numCelda < 0 || numCelda >= polaca->celdaActual) {
+        return NULL; // Fuera de rango
+    }
+
+    t_nodo_polaca *current = polaca->lista;
+    int i;
+
+    // Recorrer la lista hasta la celda deseada
+    for (i = 0; current && i < numCelda; i++) {
+        current = current->sig;
+    }
+
+    return current ? current->cadena : NULL; // Retorna el valor si se encuentra
+}
