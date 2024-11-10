@@ -22,14 +22,16 @@ void validarTipoAsigExp(char* nombre);
 void validarTipoAsigString(char* nombre);
 
 t_lexema buscarIdEnTS(char* nombre);
+t_lexema buscarValorEnTS(char* valor);
+
 
 /* funciones de polaca */
 void insertarPolaca(char* cad);
 void guardarPolaca();
 
 void guardarPolaca2();
-void preprocesarPolaca(t_polaca* polaca);
-int esSalto(char* celda);
+void preprocesarPolaca(t_polaca* polaca, t_lista* listaTS);
+int esSalto(const char* celda);
 
 void avanzarPolaca();
 void apilarCelda();
@@ -78,7 +80,7 @@ void procesarCeldaPolaca(FILE* fAssembler, char* celda);
 void reemplazarCaracteres(char *s, char viejo, char nuevo);
 void eliminarCaracteres(char *s, char c);
 char* agregarPrefijo(const char *s, char *prefijo);
-int esNumero(char* celda);
+int esNumero(const char* celda);
 int esCadena(const char* celda);
 
 char* tabla_simbolos = "symbol-table.txt";
@@ -363,7 +365,7 @@ void guardar_TS(){
     vaciarLista(&lista_simbolos);
 
     return;
-}
+} 
 
 // funciones de manejo de la tabla de simbolos
 void actualizarTiposDeDato(){
@@ -749,12 +751,11 @@ void generarAssembler(){
     //duplico la polaca para poder iterarla
     duplicarPolaca(&listaPolaca,&polacaDup);
 
-    preprocesarPolaca(&polacaDup);
+    preprocesarPolaca(&polacaDup, &simbolosDup);
 
-    if(debugging){ //TODO: BORRAR
-    }
 
     //guardarPolaca2(); //para debuggear
+    //fclose(fAssembler);
 
     //escribo el body del assembler:
     generarCuerpoAssembler(fBodyAsm);
@@ -799,29 +800,43 @@ void guardarPolaca2(){
     return;
 }
 
-void preprocesarPolaca(t_polaca* polaca){
+void preprocesarPolaca(t_polaca* polaca, t_lista* listaTS){
     int celdaActual = 0, celdaSaltoInt;
     char buf[100], celda[100], celdaSalto[100], celdaAnt[100];
 
+    t_lexema actual;
     while(celdaActual != polaca->celdaActual) {
         strcpy(celda, obtenerDePolaca(polaca, celdaActual));
 
-        if (esNumero(celda)) {
-            //le agrega el prefijo _ en caso de ser una constante entera o flotante
-            char* conGuionBajo = agregarPrefijo(celda, "_");
+        if (esNumero(celda)) { //CUIDADO, para .0 no funciona
+            //le agrega el prefijo _ en caso de ser una constante entera o flotante HAY QUE CAMBIAR EL - POR UN neg
+            //char* conGuionBajo = agregarPrefijo(celda, "_");
+            //printf("ConGuionBajo: %s\n", conGuionBajo);
+
+            buscarEnListaPorValor(listaTS, celda, &actual); //CUIDADO, para 0. y .0 no funciona
+
+            printf("VALOR ACTUAL (%s): %s\n\n", actual.nombre, actual.valor);
             
-            //strcpy(celda, conGuionBajo);
-            printf("ConGuionBajo: %s\n", conGuionBajo);
             if(celdaActual == 0 || !esSalto(celdaAnt)){
-                buscarYActualizarPolaca(polaca, celdaActual, conGuionBajo);
+                //buscarYActualizarPolaca(polaca, celdaActual, conGuionBajo);
+                buscarYActualizarPolaca(polaca, celdaActual, actual.nombre);
             }
 
-            free(conGuionBajo);
+//            free(conGuionBajo);
         } else if(esCadena(celda)) {
             strcpy(buf, celda);
             eliminarCaracteres(buf, '"');
+            buscarEnListaPorValor(listaTS, buf, &actual);
+
+            printf("VALOR ACTUAL (%s): %s\n\n", actual.nombre, actual.valor);
+/*
+            strcpy(buf, celda);
+            eliminarCaracteres(buf, '"');
+            reemplazarCaracteres(buf, ' ', '_');
             char* conGuionBajo = agregarPrefijo(buf, "_");
             buscarYActualizarPolaca(polaca, celdaActual, conGuionBajo);
+*/
+            buscarYActualizarPolaca(polaca, celdaActual, actual.nombre);
         }
         
         strcpy(celdaAnt, celda);
@@ -883,7 +898,12 @@ int esNumero(const char* celda) {
     }
     */
 
-    if((celda[0] >= '0' && celda[0] <= '9') || celda[0] == '-'){
+    int lenCelda = strlen(celda);
+
+    //if((celda[0] >= '0' && celda[0] <= '9') || celda[0] == '-'){
+
+    if((celda[0] >= '0' && celda[0] <= '9') || 
+        (celda[0] == '-' && lenCelda > 1)){
         return 1;
     }
 
@@ -910,7 +930,7 @@ int esSalto(const char* celda) {
 
 
 void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
-    fprintf(fAssembler, "include number.asm\ninclude macros2.asm\n.MODEL LARGE\n.386\n.STACK 200h\n\n.DATA\n"); //TODO: ver si necesitamos MAXTEXTSIZE como en el TP del cuatri pasado (MAXTEXTSIZE equ 40)
+    fprintf(fAssembler, "include macros2.asm\ninclude number.asm\n.MODEL LARGE\n.386\n.STACK 200h\n\nMAXTEXTSIZE equ 40\n\n.DATA\n"); //TODO: ver si necesitamos MAXTEXTSIZE como en el TP del cuatri pasado (MAXTEXTSIZE equ 40)
 
     t_lexema lexActual;
     char tipo[3];
@@ -921,7 +941,7 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
     while(quitarPrimeroDeLista(listaTS, &lexActual)) {
         esString = (strcmp(lexActual.tipodato, "CTE_STRING") == 0 || strcmp(lexActual.tipodato, "string") == 0);
         tieneValor = strlen(lexActual.valor);
-        tieneLongitud = strlen(lexActual.longitud);
+        tieneLongitud = atoi(lexActual.longitud);
 
         if(debugging){
             printf("entra al while %d veces\n", ciclos++);
@@ -930,15 +950,15 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
         }
 
         if(esString){
-            printf("TIENE VALOR: %d\n\n", tieneValor);
-            printf("TIENE LONGI: %d\n\n", tieneLongitud);
             if(!tieneLongitud){ //si es una variable
-                sprintf(valorStr, "40 dup (?),'$'"); //El $ le indica en el assembler fin de linea. El ? reserva 40 bytes sin inicializar para el string por si cambia de tamanio
-                sprintf(valorStr, "\"%s\",'$',%s dup (?)", lexActual.valor, lexActual.longitud);
+                sprintf(valorStr, "MAXTEXTSIZE dup (?),'$'"); //El $ le indica en el assembler fin de linea. El ? reserva 40 bytes sin inicializar para el string por si cambia de tamanio
+            } else {
+                sprintf(valorStr, "\"%s\",'$', %s dup (?)", lexActual.valor, lexActual.longitud);
             }
 
             //TODO: cuidado con los espacios o puntos en los nombres de variables.
-            reemplazarCaracteres(lexActual.nombre, ' ', '_');
+            //reemplazarCaracteres(lexActual.nombre, ' ', '_'); BORRAR
+
             fprintf(fAssembler, "%s db %s\n", lexActual.nombre, valorStr); //TODO: ver si siempre sería db o podría ser de otros tamaños
 
             if(debugging){
@@ -954,7 +974,7 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
         }
 
         //si no es cte string ni variable string:
-        reemplazarCaracteres(lexActual.nombre, '.', '_'); //capaz con esto se resuelven las constantes float con un . en el nombre
+        //reemplazarCaracteres(lexActual.nombre, '.', '_'); //capaz con esto se resuelven las constantes float con un . en el nombre
         fprintf(fAssembler, "%s dd %s\n", lexActual.nombre, tieneValor ? lexActual.valor : "?");
     }
 
@@ -963,7 +983,7 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
         fprintf(fAssembler, "%s dd ?\n", auxAsm);
     }
 
-    fprintf(fAssembler, "\n.CODE\n\nSTART:\n\tMOV AX, @DATA\n\tMOV DS, AX\n\tMOV es,ax\n\n");
+    fprintf(fAssembler, "\n.CODE\n.startup\n\nSTART:\n\tMOV AX, @DATA\n\tMOV DS, AX\n\tMOV es,ax\n\n");
 }
 
 // funciones del cuerpo de assembler
@@ -1093,7 +1113,7 @@ void operacionMatAsselmber(FILE* fAssembler, char* operador){
     tamPilaActual-=2;
     printf("\nTam pila actual: %d\n", tamPilaActual);
 
-
+    printf("HACE OPERACION MAT ASSEMBLER (%s %s %s)\n", op1, operador, op2);
     char* result = newAuxiliar(); //genera un auxiliar y lo agrega a la TS (capaz no hace falta tenerlo en la TS)
 
     char buff[100];
@@ -1202,12 +1222,12 @@ void operacionEscribirAssembler(FILE* fAssembler){
         return;
     }
 
-    if( strcmp(lex.tipodato, "int")==0 ){
+    if( strcmp(lex.tipodato, "int")==0 || strcmp(lex.tipodato, "CTE_INTEGER") == 0){
         fprintf(fAssembler, "\tDisplayFloat %s, 0\n\tnewLine\n", variable);
         return;
     }
 
-    if( strcmp(lex.tipodato, "float")==0 ){
+    if( strcmp(lex.tipodato, "float")==0 || strcmp(lex.tipodato, "CTE_FLOAT") == 0){
         fprintf(fAssembler, "\tDisplayFloat %s, 2\n\tnewLine\n", variable);
         return;
     }

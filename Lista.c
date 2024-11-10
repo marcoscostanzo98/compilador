@@ -63,6 +63,23 @@ int buscarEnlista(const t_lista *l, const char *nombre, t_lexema *lex)
     return 0;
 }
 
+int buscarEnListaPorValor(const t_lista *l, const char *valor, t_lexema *lex)
+{
+    while(*l && strcmp( (*l)->lexema.valor, valor) != 0)
+    {
+        l = &(*l)->sig;
+    }
+
+    if (*l)
+    {
+        copiarLexema(lex, (*l)->lexema);
+        return 1;
+    }
+    
+    return 0;
+}
+
+
 void buscarYactualizarTipoDato(t_lista* l, const char* nombre, const char* tipoDato)
 {
     t_nodo* actual = *l;    

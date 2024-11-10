@@ -1,1 +1,1 @@
--10|var1|:=|ET_0|var1|-4|CMP|BGE|23|1|x|:=|"var1 vale: "|ESCRIBIR|var1|ESCRIBIR|var1|1|+|var1|:=|BI|3|4|y|:=
+3.0|a1|:=|4.0|ESCRIBIR|0.9|ESCRIBIR|var1|ESCRIBIR|"richarlison"|p1|:=|p1|ESCRIBIR

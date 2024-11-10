@@ -30,8 +30,12 @@ void agregar_num_a_TS(char* lex, char* tipo);
 void agregar_id_a_TS(char* lex);
 
 void eliminar_caracteres(char *s, char c);
+void reemplazar_caracteres(char *s, char viejo, char nuevo);
 
 extern t_lista lista_simbolos;
+
+char nombre_cte_string[] = "cte_str";
+int contadorString = 1;
 
 %}
 
@@ -188,7 +192,8 @@ void agregar_a_TS(t_lexema lexema){
     insertarEnListaSinDuplicados(&lista_simbolos, lexema);
 }
 
-void agregar_string_a_TS(char* lex)
+/*
+void agregar_string_a_TSOLD(char* lex)
 {
     char lexCopy[100];
     strcpy(lexCopy, lex);
@@ -200,12 +205,45 @@ void agregar_string_a_TS(char* lex)
     strcpy(lexema.tipodato, TIPO_STRING);
     itoa(strlen(lexCopy), lexema.longitud, 10);
     strcpy(lexema.nombre, "_");
+
     strcat(lexema.nombre, lexCopy);
+    reemplazar_caracteres(lexema.nombre, ' ', '_');
+
+    
 
     //strcpy(yylval.str_val, lexema.nombre); //ESTO LO HACEMOS PARA QUE RETORNE ESO COMO LEXEMA
 
     agregar_a_TS(lexema);
+
+    contadorString++;
 }
+*/
+
+void agregar_string_a_TS(char* lex)
+{
+    char lexCopy[100];
+    char cont[100];
+    
+    strcpy(lexCopy, lex);
+
+    t_lexema lexema;
+
+    eliminar_caracteres(lexCopy, '"');
+    strcpy(lexema.valor, lexCopy);
+    strcpy(lexema.tipodato, TIPO_STRING);
+    itoa(strlen(lexCopy), lexema.longitud, 10);
+
+    strcpy(lexema.nombre, nombre_cte_string);
+    itoa(contadorString, cont, 10);
+    strcat(lexema.nombre, cont);    
+
+    //strcpy(yylval.str_val, lexema.nombre); //ESTO LO HACEMOS PARA QUE RETORNE ESO COMO LEXEMA
+
+    agregar_a_TS(lexema);
+
+    contadorString++;
+}
+
 
 void agregar_num_a_TS(char* lex, char* tipo)
 {
@@ -232,7 +270,12 @@ void agregar_num_a_TS(char* lex, char* tipo)
     strcpy(lexema.nombre, "_");
     strcat(lexema.nombre, lexCopy);
 
+    reemplazar_caracteres(lexema.nombre, '-', 'n');
+    reemplazar_caracteres(lexema.nombre, '.', '_');
+
     //strcpy(yylval.str_val, lexema.nombre); //ESTO LO HACEMOS PARA QUE RETORNE ESO COMO LEXEMA
+
+    strcpy(yylval.str_val, lexema.valor); //esto lo hacemos para escribir directamente en la RI 0.X o X.0
 
     agregar_a_TS(lexema);
 }
@@ -264,4 +307,18 @@ void eliminar_caracteres(char *s, char c)
     }
 
     s[writer]=0;
+}
+
+void reemplazar_caracteres(char *s, char viejo, char nuevo){
+    int reader = 0;
+
+    while (s[reader])
+    {
+        if (s[reader] == viejo)
+        {
+            s[reader] = nuevo;
+        }
+
+        reader++;
+    }
 }
