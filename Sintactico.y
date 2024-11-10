@@ -813,8 +813,15 @@ void preprocesarPolaca(t_polaca* polaca, t_lista* listaTS){
             //char* conGuionBajo = agregarPrefijo(celda, "_");
             //printf("ConGuionBajo: %s\n", conGuionBajo);
 
-            buscarEnListaPorValor(listaTS, celda, &actual); //CUIDADO, para 0. y .0 no funciona
+            printf("CELDA TIENE: %s\n", celda);
 
+            int res = buscarEnListaPorValor(listaTS, celda, &actual); //CUIDADO, para 0. y .0 no funciona
+/*
+            if (!res) {
+                printf("NO LO ENCUENTRA");
+                exit(1);
+            }
+*/
             printf("VALOR ACTUAL (%s): %s\n\n", actual.nombre, actual.valor);
             
             if(celdaActual == 0 || !esSalto(celdaAnt)){
@@ -975,19 +982,7 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
         }
 
         //si no es cte string ni variable string:
-        //reemplazarCaracteres(lexActual.nombre, '.', '_'); //capaz con esto se resuelven las constantes float con un . en el nombre
-        strcpy(valorStr, lexActual.valor);
- 
-        if(!tieneValor){
-            fprintf(fAssembler, "%s dd %s\n", lexActual.nombre, "?");
-        } else {
-            punto = strstr(valorStr, ".");
-            if(punto == NULL) {
-                strcat(valorStr, ".0");
-            }
-   
-            fprintf(fAssembler, "%s dd %s\n", lexActual.nombre, valorStr);
-        }
+        fprintf(fAssembler, "%s dd %s\n", lexActual.nombre, tieneValor ? lexActual.valor : "?");
     }
 
     while(!pilaVacia(&pilaAuxAssembler)){
@@ -1186,7 +1181,7 @@ void comparacionAssembler(FILE* fAssembler){
 
     extraerPrimeroDePolaca(&polacaDup, tag); //sacamos la celda a la que salta
 
-    fprintf(fAssembler, "\tFLD %s\n\tFCOMP %s\n\tFSTSW AX\n\tSAHF\n\t%s %s\n", op1, op2, jump, tag);
+    fprintf(fAssembler, "\tFLD %s\n\tFCOMP %s\n\tFSTSW ax\n\tSAHF\n\t%s %s\n", op1, op2, jump, tag);
 }
 
 char* convertirSalto(char* celda){
@@ -1200,12 +1195,12 @@ char* convertirSalto(char* celda){
                     if (celda[2] == 'Q' && celda[3] == '\0') return "JE";
                     break;
                 case 'L':
-                    if (celda[2] == 'E' && celda[3] == '\0') return "JLE";
-                    if (celda[2] == 'T' && celda[3] == '\0') return "JL";
+                    if (celda[2] == 'E' && celda[3] == '\0') return "JBE";
+                    if (celda[2] == 'T' && celda[3] == '\0') return "JB";
                     break;
                 case 'G':
-                    if (celda[2] == 'T' && celda[3] == '\0') return "JG";
-                    if (celda[2] == 'E' && celda[3] == '\0') return "JGE";
+                    if (celda[2] == 'T' && celda[3] == '\0') return "JA";
+                    if (celda[2] == 'E' && celda[3] == '\0') return "JAE";
                     break;
             }
     }
