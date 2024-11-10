@@ -76,7 +76,10 @@ void procesarCeldaPolaca(FILE* fAssembler, char* celda);
 
 /* funciones auxiliares */
 void reemplazarCaracteres(char *s, char viejo, char nuevo);
-
+void eliminarCaracteres(char *s, char c);
+char* agregarPrefijo(const char *s, char *prefijo);
+int esNumero(char* celda);
+int esCadena(const char* celda);
 
 char* tabla_simbolos = "symbol-table.txt";
 t_lista lista_simbolos;
@@ -105,6 +108,8 @@ int negadorDeOperador;
 
 //VARIABLE PARA DEBUGGEAR, BORRAR CUANDO ENTREGUEMOS:
 int debugging = 0;
+
+int tamPilaActual = 0;
 
 %}
 
@@ -745,7 +750,11 @@ void generarAssembler(){
     duplicarPolaca(&listaPolaca,&polacaDup);
 
     preprocesarPolaca(&polacaDup);
-    //guardarPolaca2(); para debuggear
+
+    if(debugging){ //TODO: BORRAR
+    }
+
+    //guardarPolaca2(); //para debuggear
 
     //escribo el body del assembler:
     generarCuerpoAssembler(fBodyAsm);
@@ -758,10 +767,7 @@ void generarAssembler(){
     //escribo el fin del assembler:
     generarFinAssembler(fAssembler);
 
-    
-
     printf("\n\nAssembler generado exitosamente\n\n");
-
     fclose(fAssembler);
 }
 
@@ -795,12 +801,39 @@ void guardarPolaca2(){
 
 void preprocesarPolaca(t_polaca* polaca){
     int celdaActual = 0, celdaSaltoInt;
-    char buf[100], celda[100], celdaSalto[100];
+    char buf[100], celda[100], celdaSalto[100], celdaAnt[100];
+
+    while(celdaActual != polaca->celdaActual) {
+        strcpy(celda, obtenerDePolaca(polaca, celdaActual));
+
+        if (esNumero(celda)) {
+            //le agrega el prefijo _ en caso de ser una constante entera o flotante
+            char* conGuionBajo = agregarPrefijo(celda, "_");
+            
+            //strcpy(celda, conGuionBajo);
+            printf("ConGuionBajo: %s\n", conGuionBajo);
+            if(celdaActual == 0 || !esSalto(celdaAnt)){
+                buscarYActualizarPolaca(polaca, celdaActual, conGuionBajo);
+            }
+
+            free(conGuionBajo);
+        } else if(esCadena(celda)) {
+            strcpy(buf, celda);
+            eliminarCaracteres(buf, '"');
+            char* conGuionBajo = agregarPrefijo(buf, "_");
+            buscarYActualizarPolaca(polaca, celdaActual, conGuionBajo);
+        }
+        
+        strcpy(celdaAnt, celda);
+        celdaActual++;
+    }
+
+    celdaActual = 0;
 
     while(celdaActual != polaca->celdaActual) {
         //si la celda actual de la polaca es un salto, actualiza la celda del salto con un @ET_numCelda
         strcpy(celda, obtenerDePolaca(polaca, celdaActual));
-        
+
         if(esSalto(celda)) {
             //actualiza act+1 con ET_[contenidoActual]
             strcpy(celdaSalto, obtenerDePolaca(polaca, celdaActual+1));
@@ -828,11 +861,41 @@ void preprocesarPolaca(t_polaca* polaca){
                 insertarEnPolaca(polaca, buf);
             }
         }
+
         celdaActual++;
     }
+
+    printf("fin de procesamientoooooooooooo\n\n\n\n");
 }
 
-int esSalto(char* celda) {
+int esNumero(const char* celda) {
+    /*
+    char* aux = celda;
+
+    char* dosPuntos = strstr(celda, ":");
+
+    if(dosPuntos) {
+        aux = dosPuntos + 1;
+    }
+
+    if((aux[0] >= '0' && aux[0] <= '9') || aux[0] == '-'){
+        return 1;
+    }
+    */
+
+    if((celda[0] >= '0' && celda[0] <= '9') || celda[0] == '-'){
+        return 1;
+    }
+
+    return 0;
+}
+
+int esCadena(const char* celda){
+    int len = strlen(celda);
+    return celda[0] == '"' && celda[len-1] == '"';
+}
+
+int esSalto(const char* celda) {
     if (!strcmp(celda, "BLE") ||
         !strcmp(celda, "BEQ") ||
         !strcmp(celda, "BNE") ||
@@ -847,17 +910,18 @@ int esSalto(char* celda) {
 
 
 void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
-    fprintf(fAssembler, "include macros2.asm\n.MODEL LARGE\n.386\n.STACK 200h\n\n.DATA\n"); //TODO: ver si necesitamos MAXTEXTSIZE como en el TP del cuatri pasado (MAXTEXTSIZE equ 40)
+    fprintf(fAssembler, "include number.asm\ninclude macros2.asm\n.MODEL LARGE\n.386\n.STACK 200h\n\n.DATA\n"); //TODO: ver si necesitamos MAXTEXTSIZE como en el TP del cuatri pasado (MAXTEXTSIZE equ 40)
 
     t_lexema lexActual;
     char tipo[3];
     char valorStr[256]; //Le aumente el tamanio porque tiraba warning de que se excedia cuando escribia el sprintf
     char auxAsm[100];
-    int tieneValor, esString;
+    int tieneValor, esString, tieneLongitud;
     int ciclos = 1; //BORRAR
     while(quitarPrimeroDeLista(listaTS, &lexActual)) {
         esString = (strcmp(lexActual.tipodato, "CTE_STRING") == 0 || strcmp(lexActual.tipodato, "string") == 0);
         tieneValor = strlen(lexActual.valor);
+        tieneLongitud = strlen(lexActual.longitud);
 
         if(debugging){
             printf("entra al while %d veces\n", ciclos++);
@@ -866,7 +930,9 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
         }
 
         if(esString){
-            if(!tieneValor){ //si es una variable
+            printf("TIENE VALOR: %d\n\n", tieneValor);
+            printf("TIENE LONGI: %d\n\n", tieneLongitud);
+            if(!tieneLongitud){ //si es una variable
                 sprintf(valorStr, "40 dup (?),'$'"); //El $ le indica en el assembler fin de linea. El ? reserva 40 bytes sin inicializar para el string por si cambia de tamanio
                 sprintf(valorStr, "\"%s\",'$',%s dup (?)", lexActual.valor, lexActual.longitud);
             }
@@ -912,6 +978,8 @@ void procesarCeldaPolaca(FILE* fAssembler, char* celda) {
     //tengo que validar si la celda actual corresponde a una etiqueta que tengo que completar
     //por un lado, puede ser la celda desde la que salto (ET_num)  --> se extrae cuando detecta un salto (BIAssembler o comparacionAssembler)
     //por otro, la celda donde cae el salto (@ET_num:)
+    t_lexema lexemaActual;
+
     if(strncmp(celda, "@ET_", 4) == 0){
         //escribimos en el assembler ET_num:\n y sigue normal
 
@@ -932,8 +1000,13 @@ void procesarCeldaPolaca(FILE* fAssembler, char* celda) {
 
 //done
     if (esOperando(celda)) { //si está en la TS, es un operando
-        printf("es un operando\n");
+        printf("\"%s\" es un operando\n", celda);
+
         apilar(&pilaOperandos, celda); //cte, ids, etc.
+
+        tamPilaActual++;
+
+        printf("\nTam pila actual: %d\n", tamPilaActual);
         return;
     }
 //done
@@ -976,6 +1049,19 @@ void procesarCeldaPolaca(FILE* fAssembler, char* celda) {
 
 int esOperando(char* celda){
     t_lexema lex;
+
+    /*
+    char celdaCpy[100];
+
+    if((celda[0] >= '0' && celda[0] <= '9') || celda[0] == '-'){
+        //agregamos el _ para buscar las constantes en la TS
+        strcpy(celdaCpy, "_");
+        strcat(celdaCpy, celda);
+    } else {
+        strcpy(celdaCpy, celda);
+    }
+    */
+
     return buscarEnlista(&lista_simbolos, celda, &lex); //TODO: ver si hacer global la lista de simbolos duplicada (o si usamos la normal)
 }
 
@@ -1003,6 +1089,11 @@ char* esOperadorMat(char* celda){
 void operacionMatAsselmber(FILE* fAssembler, char* operador){
     char* op1 = desapilar(&pilaOperandos);
     char* op2 = desapilar(&pilaOperandos);
+    
+    tamPilaActual-=2;
+    printf("\nTam pila actual: %d\n", tamPilaActual);
+
+
     char* result = newAuxiliar(); //genera un auxiliar y lo agrega a la TS (capaz no hace falta tenerlo en la TS)
 
     char buff[100];
@@ -1015,6 +1106,9 @@ void operacionMatAsselmber(FILE* fAssembler, char* operador){
 
     fprintf(fAssembler, "\t%s\n\t%s\n\tFSTP %s\n", buff, operador, result);
     apilar(&pilaOperandos, result);
+    tamPilaActual++;
+    printf("\nTam pila actual: %d\n", tamPilaActual);
+
 }
 
 char* newAuxiliar(){
@@ -1029,7 +1123,13 @@ void asignacionAssembler(FILE* fAssembler) {
 
     char buffer[100];
     char* variable = desapilar(&pilaOperandos);
+    tamPilaActual--;
+    printf("\nTam pila actual: %d\n", tamPilaActual);
+
     char* valor = desapilar(&pilaOperandos);
+    tamPilaActual--;
+    printf("\nTam pila actual: %d\n", tamPilaActual);
+
     buscarEnlista(&lista_simbolos, valor, &lex); //capaz necesitamos la copia de la lista de simbolos
 
     if( strcmp(lex.tipodato, "CTE_STRING")==0 || strcmp(lex.tipodato, "string")==0 )
@@ -1045,6 +1145,8 @@ void comparacionAssembler(FILE* fAssembler){
     char tag[100];
     char* op1 = desapilar(&pilaOperandos);
     char* op2 = desapilar(&pilaOperandos);
+    tamPilaActual-=2;
+    printf("\nTam pila actual: %d\n", tamPilaActual);
 
     extraerPrimeroDePolaca(&polacaDup, celda); //sacamos el branch de la polaca
 
@@ -1090,6 +1192,9 @@ void operacionEscribirAssembler(FILE* fAssembler){
     char buffer[100];
     t_lexema lex;
     char* variable = desapilar(&pilaOperandos);
+    tamPilaActual--;
+    printf("\nTam pila actual: %d\n", tamPilaActual);
+
     buscarEnlista(&lista_simbolos, variable, &lex);
 
     if( strcmp(lex.tipodato, "CTE_STRING")==0 || strcmp(lex.tipodato, "string")==0 ){
@@ -1111,6 +1216,8 @@ void operacionEscribirAssembler(FILE* fAssembler){
 void operacionLeerAssembler(FILE* fAssembler){
     t_lexema lex;
     char* variable = desapilar(&pilaOperandos);
+    tamPilaActual--;
+    printf("\nTam pila actual: %d\n", tamPilaActual);
 
     buscarEnlista(&lista_simbolos, variable, &lex);
     if( strcmp(lex.tipodato, "string")==0 ){
@@ -1164,3 +1271,36 @@ void reemplazarCaracteres(char *s, char viejo, char nuevo){
         reader++;
     }
 }
+
+/*
+void eliminarCaracteres(char *s, char c) {
+    char *pr = s, *pw = s;
+    while (*pr) {
+        *pw = *pr++;
+        if(*pw != c){
+            pw++;
+        }
+//        pw += (*pw != c);
+    }
+    *pw = '\0';
+}
+*/
+
+void eliminarCaracteres(char* str, char c) {
+    int i, j = 0;
+    int len = strlen(str);
+
+    for (i = 0; i < len; i++) {
+        if (str[i] != c) {
+            str[j++] = str[i];
+        }
+    }
+    str[j] = '\0';
+}
+
+char* agregarPrefijo(const char *s, char *prefijo){
+    char *conPrefijo = malloc(strlen(s)+strlen(prefijo)+1);
+    strcpy(conPrefijo, prefijo);
+    strcat(conPrefijo, s);
+}
+

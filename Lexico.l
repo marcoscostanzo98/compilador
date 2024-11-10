@@ -202,7 +202,7 @@ void agregar_string_a_TS(char* lex)
     strcpy(lexema.nombre, "_");
     strcat(lexema.nombre, lexCopy);
 
-    strcpy(yylval.str_val, lexema.nombre); //ESTO LO HACEMOS PARA QUE RETORNE ESO COMO LEXEMA
+    //strcpy(yylval.str_val, lexema.nombre); //ESTO LO HACEMOS PARA QUE RETORNE ESO COMO LEXEMA
 
     agregar_a_TS(lexema);
 }
@@ -232,7 +232,7 @@ void agregar_num_a_TS(char* lex, char* tipo)
     strcpy(lexema.nombre, "_");
     strcat(lexema.nombre, lexCopy);
 
-    strcpy(yylval.str_val, lexema.nombre); //ESTO LO HACEMOS PARA QUE RETORNE ESO COMO LEXEMA
+    //strcpy(yylval.str_val, lexema.nombre); //ESTO LO HACEMOS PARA QUE RETORNE ESO COMO LEXEMA
 
     agregar_a_TS(lexema);
 }

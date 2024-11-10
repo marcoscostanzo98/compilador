@@ -63,5 +63,9 @@ y.tab.c
 y.output
 y.tab.h
 compilador
+intermediate-code copy.txt
+intermediate-code-test copy.txt
+intermediate-code-test.txt
+prueba copy.txt
 
 .vscode/
