@@ -248,6 +248,7 @@ void agregar_string_a_TS(char* lex)
 void agregar_num_a_TS(char* lex, char* tipo)
 {
     char lexCopy[100];
+    char nombre[100];
     t_lexema lexema;
 
     if (!strcmp(tipo, TIPO_FLOAT))
@@ -260,15 +261,23 @@ void agregar_num_a_TS(char* lex, char* tipo)
             strcpy(lexCopy, lex);
             strcat(lexCopy, "0");
         }
+
+        strcpy(nombre, lexCopy);
+
     } else {
         strcpy(lexCopy, lex);
+        strcat(lexCopy, ".0"); //esto no está bien, porque no queremos modificar el nombre
+        strcpy(nombre, lex);
     }
 
     strcpy(lexema.valor, lexCopy);
     strcpy(lexema.tipodato, tipo);
     strcpy(lexema.longitud, "0");
     strcpy(lexema.nombre, "_");
-    strcat(lexema.nombre, lexCopy);
+    strcat(lexema.nombre, nombre);
+
+
+    //strcat(lexema.nombre, lexCopy);
 
     reemplazar_caracteres(lexema.nombre, '-', 'n');
     reemplazar_caracteres(lexema.nombre, '.', '_');
