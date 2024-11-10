@@ -5,27 +5,22 @@ init {
     p1, p2, p3 : String
 }
 
-
-var2 := 0
-
-var2 := -1
-
-b1 := .1
-b1 := 1.
-b1 := .0
-b1 := 0.
+var1 := 10
+var2 := 11
+x := 12
+si(x > var1 OR x > var2){
+    si(x > var1 AND x > var2) {
+        escribir("x es el mayor")    
+    } sino {
+        escribir("x no es el mayor AND")
+    }
+}sino{
+    escribir("x no es el mayor OR")
+}
 
 var1 := 10
-si(var1 > 11){
-    escribir("MAYOR wtf")
-}sino{
-    escribir("MENOR")
-}
 
-a1 := -10.3
-mientras(a1 <= 0.0) {
-    escribir(a1)
-    a1 := a1 + 1.0
-}
-
+escribir("a:BI")
+escribir("@ET_1:BI")
+escribir("ET_1")
 escribir("SALI")

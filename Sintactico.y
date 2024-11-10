@@ -923,15 +923,40 @@ int esCadena(const char* celda){
 }
 
 int esSalto(const char* celda) {
-    if (!strcmp(celda, "BLE") ||
-        !strcmp(celda, "BEQ") ||
-        !strcmp(celda, "BNE") ||
-        !strcmp(celda, "BGT") ||
-        !strcmp(celda, "BLT") ||
-        !strcmp(celda, "BGE") ||
-        !strcmp(celda, "BI")) {
+
+    if(celda[0] == '"') //esta validación se hace para evitar que casos con constantes strings como "a:BI" sean consideradas saltos
+        return 0;
+    
+
+    char* celdaAux = strstr(celda, ":"); //esto se hace para aquellos casos donde le celda donde cae un salto tenga a su vez otro salto
+    if(celdaAux){
+        celdaAux++;
+    } else {
+        celdaAux = (char*)celda;
+    }
+
+    if (!strcmp(celdaAux, "BLE") ||
+        !strcmp(celdaAux, "BEQ") ||
+        !strcmp(celdaAux, "BNE") ||
+        !strcmp(celdaAux, "BGT") ||
+        !strcmp(celdaAux, "BLT") ||
+        !strcmp(celdaAux, "BGE") ||
+        !strcmp(celdaAux, "BI")) {
         return 1;
     }
+    
+    /*
+    if (strstr(celda, "BLE") ||
+        strstr(celda, "BEQ") ||
+        strstr(celda, "BNE") ||
+        strstr(celda, "BGT") ||
+        strstr(celda, "BLT") ||
+        strstr(celda, "BGE") ||
+        strstr(celda, "BI")) {
+        return 1;
+    }
+    */
+
     return 0;
 }
 

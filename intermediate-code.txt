@@ -1,1 +1,1 @@
-0.0|var2|:=|-1.0|var2|:=|0.1|b1|:=|1.0|b1|:=|0.0|b1|:=|0.0|b1|:=|10.0|var1|:=|var1|11.0|CMP|BLE|30|"MAYOR wtf"|ESCRIBIR|BI|32|"MENOR"|ESCRIBIR|-10.3|a1|:=|ET_0|a1|0.0|CMP|BGT|50|a1|ESCRIBIR|a1|1.0|+|a1|:=|BI|35|"SALI"|ESCRIBIR
+10.0|var1|:=|11.0|var2|:=|12.0|x|:=|x|var1|CMP|BLE|16|BI|21|x|var2|CMP|BLE|39|x|var1|CMP|BLE|35|x|var2|CMP|BLE|35|"x es el mayor"|ESCRIBIR|BI|37|"x no es el mayor AND"|ESCRIBIR|BI|41|"x no es el mayor OR"|ESCRIBIR|10.0|var1|:=|"a:BI"|ESCRIBIR|"@ET_1:BI"|ESCRIBIR|"ET_1"|ESCRIBIR|"SALI"|ESCRIBIR

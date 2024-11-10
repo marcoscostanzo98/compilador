@@ -21,18 +21,16 @@ c dd ?
 p1 db MAXTEXTSIZE dup (?),'$'
 p2 db MAXTEXTSIZE dup (?),'$'
 p3 db MAXTEXTSIZE dup (?),'$'
-_0 dd 0.0
-_n1 dd -1.0
-_0_1 dd 0.1
-_1_0 dd 1.0
-_0_0 dd 0.0
 _10 dd 10.0
 _11 dd 11.0
-cte_str1 db "MAYOR wtf",'$', 9 dup (?)
-cte_str2 db "MENOR",'$', 5 dup (?)
-_n10_3 dd -10.3
-cte_str3 db "SALI",'$', 4 dup (?)
-@auxAssembler0 dd ?
+_12 dd 12.0
+cte_str1 db "x es el mayor",'$', 13 dup (?)
+cte_str2 db "x no es el mayor AND",'$', 20 dup (?)
+cte_str3 db "x no es el mayor OR",'$', 19 dup (?)
+cte_str4 db "a:BI",'$', 4 dup (?)
+cte_str5 db "@ET_1:BI",'$', 8 dup (?)
+cte_str6 db "ET_1",'$', 4 dup (?)
+cte_str7 db "SALI",'$', 4 dup (?)
 
 .CODE
 .startup
@@ -42,51 +40,56 @@ START:
 	MOV DS, AX
 	MOV es,ax
 
-	FLD _0
-	FSTP var2
-	FLD _n1
-	FSTP var2
-	FLD _0_1
-	FSTP b1
-	FLD _1_0
-	FSTP b1
-	FLD _0
-	FSTP b1
-	FLD _0
-	FSTP b1
 	FLD _10
 	FSTP var1
-	FLD var1
-	FCOMP _11
+	FLD _11
+	FSTP var2
+	FLD _12
+	FSTP x
+	FLD x
+	FCOMP var1
 	FSTSW ax
 	SAHF
-	JBE ET_30
+	JBE ET_16
+	JMP ET_21
+ET_16:
+	FLD x
+	FCOMP var2
+	FSTSW ax
+	SAHF
+	JBE ET_39
+ET_21:
+	FLD x
+	FCOMP var1
+	FSTSW ax
+	SAHF
+	JBE ET_35
+	FLD x
+	FCOMP var2
+	FSTSW ax
+	SAHF
+	JBE ET_35
 	displayString cte_str1
 	newLine
-	JMP ET_32
-ET_30:
+	JMP ET_37
+ET_35:
 	displayString cte_str2
 	newLine
-ET_32:
-	FLD _n10_3
-	FSTP a1
-ET_35:
-	FLD a1
-	FCOMP _0
-	FSTSW ax
-	SAHF
-	JA ET_50
-	DisplayFloat a1, 2
-	newLine
-	FLD _1_0
-	FLD a1
-	FADD
-	FSTP @auxAssembler0
-	FLD @auxAssembler0
-	FSTP a1
-	JMP ET_35
-ET_50:
+ET_37:
+	JMP ET_41
+ET_39:
 	displayString cte_str3
+	newLine
+ET_41:
+	FLD _10
+	FSTP var1
+	displayString cte_str4
+	newLine
+	displayString cte_str5
+	newLine
+	displayString cte_str6
+	newLine
+	displayString cte_str7
 	newLine
 	MOV AX, 4C00h
 	INT 21h
