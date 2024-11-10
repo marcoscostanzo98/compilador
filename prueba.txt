@@ -5,12 +5,20 @@ init {
     p1, p2, p3 : String
 }
 
-a1 := 3.0
 
-escribir(4.)
-escribir(.9)
-escribir(var1)
 
-p1 := "richarlison"
 
-escribir(p1)
+var1 := 10
+si(var1 > 11){
+    escribir("MAYOR")
+}sino{
+    escribir("MENOR")
+}
+
+
+mientras(var1 <= 0) {
+    escribir(var1)
+    var1 := var1 + 1
+}
+
+escribir("SALI")

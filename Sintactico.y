@@ -936,6 +936,7 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
     char tipo[3];
     char valorStr[256]; //Le aumente el tamanio porque tiraba warning de que se excedia cuando escribia el sprintf
     char auxAsm[100];
+    char* punto;
     int tieneValor, esString, tieneLongitud;
     int ciclos = 1; //BORRAR
     while(quitarPrimeroDeLista(listaTS, &lexActual)) {
@@ -975,7 +976,18 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
 
         //si no es cte string ni variable string:
         //reemplazarCaracteres(lexActual.nombre, '.', '_'); //capaz con esto se resuelven las constantes float con un . en el nombre
-        fprintf(fAssembler, "%s dd %s\n", lexActual.nombre, tieneValor ? lexActual.valor : "?");
+        strcpy(valorStr, lexActual.valor);
+ 
+        if(!tieneValor){
+            fprintf(fAssembler, "%s dd %s\n", lexActual.nombre, "?");
+        } else {
+            punto = strstr(valorStr, ".");
+            if(punto == NULL) {
+                strcat(valorStr, ".0");
+            }
+   
+            fprintf(fAssembler, "%s dd %s\n", lexActual.nombre, valorStr);
+        }
     }
 
     while(!pilaVacia(&pilaAuxAssembler)){
@@ -1118,7 +1130,7 @@ void operacionMatAsselmber(FILE* fAssembler, char* operador){
 
     char buff[100];
 
-    if(strcmp(operador, "FDIV") == 0){
+    if(strcmp(operador, "FDIV") == 0 || strcmp(operador, "FSUB") == 0){
         sprintf(buff, "FLD %s\n\tFLD %s", op2, op1);
     } else {
         sprintf(buff, "FLD %s\n\tFLD %s", op1, op2);
@@ -1163,8 +1175,8 @@ void asignacionAssembler(FILE* fAssembler) {
 void comparacionAssembler(FILE* fAssembler){
     char celda[100];
     char tag[100];
-    char* op1 = desapilar(&pilaOperandos);
     char* op2 = desapilar(&pilaOperandos);
+    char* op1 = desapilar(&pilaOperandos);
     tamPilaActual-=2;
     printf("\nTam pila actual: %d\n", tamPilaActual);
 
