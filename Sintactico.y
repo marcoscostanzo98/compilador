@@ -509,11 +509,11 @@ void apilarCeldaAnterior(){
 void resolverSumaLosUltimos(int pivote){
     char tipo_dato_fin_aux[10];
     if(pivote < 1 || pivote > contListaAux){
-        insertarPolaca("0");
+        insertarPolaca("0.0");
         t_lexema lex0;
         strcpy(lex0.nombre,"_0");
         strcpy(lex0.tipodato,"CTE_INTEGER");
-        strcpy(lex0.valor,"0");
+        strcpy(lex0.valor,"0.0");
         strcpy(lex0.longitud,"0");
         insertarEnListaSinDuplicados(&lista_simbolos, lex0);
         strcpy(tipo_dato_fin_aux,INT);
@@ -816,12 +816,14 @@ void preprocesarPolaca(t_polaca* polaca, t_lista* listaTS){
             printf("CELDA TIENE: %s\n", celda);
 
             int res = buscarEnListaPorValor(listaTS, celda, &actual); //CUIDADO, para 0. y .0 no funciona
+
 /*
             if (!res) {
-                printf("NO LO ENCUENTRA");
+                printf("NO LO ENCUENTRA\n");
                 exit(1);
             }
 */
+
             printf("VALOR ACTUAL (%s): %s\n\n", actual.nombre, actual.valor);
             
             if(celdaActual == 0 || !esSalto(celdaAnt)){
@@ -1263,6 +1265,9 @@ void operacionEscribirAssembler(FILE* fAssembler){
         fprintf(fAssembler, "\tDisplayFloat %s, 2\n\tnewLine\n", variable);
         return;
     }
+
+    //este caso sería cuando lo que voy a escribir no está en la TS sino que es un resultado de una operación
+    fprintf(fAssembler, "\tDisplayFloat %s, 2\n\tnewLine\n", variable);
 }
 
 void operacionLeerAssembler(FILE* fAssembler){

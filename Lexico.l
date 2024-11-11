@@ -266,7 +266,7 @@ void agregar_num_a_TS(char* lex, char* tipo)
 
     } else {
         strcpy(lexCopy, lex);
-        strcat(lexCopy, ".0"); //esto no está bien, porque no queremos modificar el nombre
+        strcat(lexCopy, ".0");
         strcpy(nombre, lex);
     }
 

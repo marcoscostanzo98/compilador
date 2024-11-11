@@ -13,13 +13,18 @@ c|int||
 p1|string||
 p2|string||
 p3|string||
-_10|CTE_INTEGER|10.0|0
-_11|CTE_INTEGER|11.0|0
-_12|CTE_INTEGER|12.0|0
-cte_str1|CTE_STRING|x es el mayor|13
-cte_str2|CTE_STRING|x no es el mayor AND|20
-cte_str3|CTE_STRING|x no es el mayor OR|19
-cte_str4|CTE_STRING|a:BI|4
-cte_str5|CTE_STRING|@ET_1:BI|8
-cte_str6|CTE_STRING|ET_1|4
-cte_str7|CTE_STRING|SALI|4
+_0|CTE_INTEGER|0.0|0
+_4|CTE_INTEGER|4.0|0
+_1|CTE_INTEGER|1.0|0
+_3_3|CTE_FLOAT|3.3|0
+_1_2|CTE_FLOAT|1.2|0
+_5_3|CTE_FLOAT|5.3|0
+_3|CTE_INTEGER|3.0|0
+_2|CTE_INTEGER|2.0|0
+cte_str1|CTE_STRING|ANTES DEL IF|12
+_5|CTE_INTEGER|5.0|0
+cte_str2|CTE_STRING|mayor que|9
+cte_str3|CTE_STRING|DESPUES DEL IF|14
+_1_1|CTE_FLOAT|1.1|0
+_7_0|CTE_FLOAT|7.0|0
+cte_str4|CTE_STRING|esto es un string|17

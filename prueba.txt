@@ -1,26 +1,40 @@
 *- init.txt -*
+
 init {
     a1, b1, w : Float
     var1, var2, x, y, z, a, b, c : Int
     p1, p2, p3 : String
 }
 
-var1 := 10
-var2 := 11
-x := 12
-si(x > var1 OR x > var2){
-    si(x > var1 AND x > var2) {
-        escribir("x es el mayor")    
-    } sino {
-        escribir("x no es el mayor AND")
+x := 0
+y := 0
+
+mientras(x < 4){
+    y := 0
+    mientras(y < x) {
+        y := y + 1
+        escribir(y)
     }
-}sino{
-    escribir("x no es el mayor OR")
+
+    x := x + 1
 }
 
-var1 := 10
+b1 := 3.3
+a1 := 1.2 * 5.3 / b1
 
-escribir("a:BI")
-escribir("@ET_1:BI")
-escribir("ET_1")
-escribir("SALI")
+escribir(3+2)
+escribir("ANTES DEL IF")
+
+si(sumaLosUltimos(2; [1, 2, 3]) > getPenultimatePosition([1,2,3,4,5])) {
+    escribir(sumaLosUltimos(2; [1, 2, 3]))
+    escribir("mayor que")
+    escribir(getPenultimatePosition([1,2,3,4,5]))
+}
+
+escribir("DESPUES DEL IF")
+escribir(1.1 * 7.)
+
+
+p1 := "esto es un string"
+
+escribir(p1)
