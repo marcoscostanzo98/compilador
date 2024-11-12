@@ -35,6 +35,7 @@ cte_str2 db "mayor que",'$', 9 dup (?)
 cte_str3 db "DESPUES DEL IF",'$', 14 dup (?)
 _1_1 dd 1.1
 _7_0 dd 7.0
+_10 dd 10.0
 cte_str4 db "ingresar un string:",'$', 19 dup (?)
 cte_str5 db "ingresar un float:",'$', 18 dup (?)
 cte_str6 db "ingresar un int:",'$', 16 dup (?)
@@ -139,6 +140,14 @@ ET_68:
 	FSTP @auxAssembler7
 	DisplayFloat @auxAssembler7, 2
 	newLine
+	FLD _0
+	FSTP x
+ET_77:
+	FLD x
+	FCOMP _10
+	FSTSW ax
+	SAHF
+	JAE ET_106
 	MOV SI, OFFSET cte_str4
 	MOV DI, OFFSET p1
 	CALL COPIAR
@@ -160,6 +169,16 @@ ET_68:
 	newLine
 	DisplayFloat var2, 0
 	newLine
+	JMP ET_77
+ET_106:
+	FLD a1
+	FCOMP b1
+	FSTSW ax
+	SAHF
+	JBE ET_113
+	DisplayFloat a1, 2
+	newLine
+ET_113:
 	MOV AX, 4C00h
 	INT 21h
 

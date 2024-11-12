@@ -34,18 +34,25 @@ si(sumaLosUltimos(2; [1, 2, 3]) > getPenultimatePosition([1,2,3,4,5])) {
 escribir("DESPUES DEL IF")
 escribir(1.1 * 7.)
 
+x := 0
 
-p1 := "ingresar un string:"
+mientras(x < 10) {
+    p1 := "ingresar un string:"
 
-escribir(p1)
+    escribir(p1)
 
-leer(p1)
-escribir(p1)
+    leer(p1)
+    escribir(p1)
 
-escribir("ingresar un float:")
-leer(a1)
-escribir(a1)
+    escribir("ingresar un float:")
+    leer(a1)
+    escribir(a1)
 
-escribir("ingresar un int:")
-leer(var2)
-escribir(var2)
+    escribir("ingresar un int:")
+    leer(var2)
+    escribir(var2)
+}
+
+si(a1 > b1) {
+    escribir(a1)
+}

@@ -192,33 +192,6 @@ void agregar_a_TS(t_lexema lexema){
     insertarEnListaSinDuplicados(&lista_simbolos, lexema);
 }
 
-/*
-void agregar_string_a_TSOLD(char* lex)
-{
-    char lexCopy[100];
-    strcpy(lexCopy, lex);
-
-    t_lexema lexema;
-
-    eliminar_caracteres(lexCopy, '"');
-    strcpy(lexema.valor, lexCopy);
-    strcpy(lexema.tipodato, TIPO_STRING);
-    itoa(strlen(lexCopy), lexema.longitud, 10);
-    strcpy(lexema.nombre, "_");
-
-    strcat(lexema.nombre, lexCopy);
-    reemplazar_caracteres(lexema.nombre, ' ', '_');
-
-    
-
-    //strcpy(yylval.str_val, lexema.nombre); //ESTO LO HACEMOS PARA QUE RETORNE ESO COMO LEXEMA
-
-    agregar_a_TS(lexema);
-
-    contadorString++;
-}
-*/
-
 void agregar_string_a_TS(char* lex)
 {
     char lexCopy[100];
@@ -236,8 +209,6 @@ void agregar_string_a_TS(char* lex)
     strcpy(lexema.nombre, nombre_cte_string);
     itoa(contadorString, cont, 10);
     strcat(lexema.nombre, cont);    
-
-    //strcpy(yylval.str_val, lexema.nombre); //ESTO LO HACEMOS PARA QUE RETORNE ESO COMO LEXEMA
 
     agregar_a_TS(lexema);
 
@@ -277,12 +248,8 @@ void agregar_num_a_TS(char* lex, char* tipo)
     strcat(lexema.nombre, nombre);
 
 
-    //strcat(lexema.nombre, lexCopy);
-
     reemplazar_caracteres(lexema.nombre, '-', 'n');
     reemplazar_caracteres(lexema.nombre, '.', '_');
-
-    //strcpy(yylval.str_val, lexema.nombre); //ESTO LO HACEMOS PARA QUE RETORNE ESO COMO LEXEMA
 
     strcpy(yylval.str_val, lexema.valor); //esto lo hacemos para escribir directamente en la RI 0.X o X.0
 

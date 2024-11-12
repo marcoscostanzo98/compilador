@@ -27,6 +27,7 @@ cte_str2|CTE_STRING|mayor que|9
 cte_str3|CTE_STRING|DESPUES DEL IF|14
 _1_1|CTE_FLOAT|1.1|0
 _7_0|CTE_FLOAT|7.0|0
+_10|CTE_INTEGER|10.0|0
 cte_str4|CTE_STRING|ingresar un string:|19
 cte_str5|CTE_STRING|ingresar un float:|18
 cte_str6|CTE_STRING|ingresar un int:|16
