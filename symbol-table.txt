@@ -13,34 +13,46 @@ c|int||
 p1|string||
 p2|string||
 p3|string||
-_3|CTE_INTEGER|3|0
-_1|CTE_INTEGER|1|0
-_2|CTE_INTEGER|2|0
-_0|CTE_INTEGER|0|0
-_a es mas grande que b|CTE_STRING|a es mas grande que b|21
-_27|CTE_INTEGER|27|0
-_500|CTE_INTEGER|500|0
-_34|CTE_INTEGER|34|0
-_99999.99|CTE_FLOAT|99999.99|0
-_99.0|CTE_FLOAT|99.0|0
-_0.9999|CTE_FLOAT|0.9999|0
-_@sdADaSjfla%dfg|CTE_STRING|@sdADaSjfla%dfg|15
-_asldk  fh sjf|CTE_STRING|asldk  fh sjf|13
-_a es mas chico o igual a b|CTE_STRING|a es mas chico o igual a b|26
-_a no es mas grande que b|CTE_STRING|a no es mas grande que b|24
-_a es mas chica que b o c|CTE_STRING|a es mas chica que b o c|24
-_b es mas chico que a y c|CTE_STRING|b es mas chico que a y c|24
-_lo opuesto|CTE_STRING|lo opuesto|10
+_3|CTE_INTEGER|3.0|0
+_1|CTE_INTEGER|1.0|0
+_2|CTE_INTEGER|2.0|0
+_0|CTE_INTEGER|0.0|0
+cte_str1|CTE_STRING|a es mas grande que b - 3|25
+cte_str2|CTE_STRING|a es mas grande que b - 2|25
+_27|CTE_INTEGER|27.0|0
+_500|CTE_INTEGER|500.0|0
+_34|CTE_INTEGER|34.0|0
+_99999_99|CTE_FLOAT|99999.99|0
+_99_0|CTE_FLOAT|99.0|0
+_0_9999|CTE_FLOAT|0.9999|0
+cte_str3|CTE_STRING|@sdADaSjfla%dfg|15
+cte_str4|CTE_STRING|asldk  fh sjf|13
+cte_str5|CTE_STRING|a es mas grande que b -1|24
+cte_str6|CTE_STRING|a es mas chico o igual a b|26
+cte_str7|CTE_STRING|a no es mas grande que b|24
+cte_str8|CTE_STRING|a es mas chica que b o c|24
+cte_str9|CTE_STRING|b es mas chico que a y c|24
+cte_str10|CTE_STRING|lo opuesto|10
 base|||
-_ewr|CTE_STRING|ewr|3
-_8|CTE_INTEGER|8|0
-_55|CTE_INTEGER|55|0
-_5|CTE_INTEGER|5|0
-_28|CTE_INTEGER|28|0
-_13|CTE_INTEGER|13|0
-_4|CTE_INTEGER|4|0
-_17|CTE_INTEGER|17|0
-_52|CTE_INTEGER|52|0
-_10|CTE_INTEGER|10|0
-_7|CTE_INTEGER|7|0
-_7 + 5 > 10|CTE_STRING|7 + 5 > 10|10
+cte_str11|CTE_STRING|a es mas grande que b 1|23
+cte_str12|CTE_STRING|a es mas grande que b 2|23
+cte_str13|CTE_STRING|a es mas grande que b 3|23
+cte_str14|CTE_STRING|a es mas grande que b 4|23
+cte_str15|CTE_STRING|ewr|3
+_8|CTE_INTEGER|8.0|0
+_55|CTE_INTEGER|55.0|0
+_5|CTE_INTEGER|5.0|0
+_28|CTE_INTEGER|28.0|0
+_13|CTE_INTEGER|13.0|0
+_4|CTE_INTEGER|4.0|0
+_17|CTE_INTEGER|17.0|0
+_52|CTE_INTEGER|52.0|0
+_10|CTE_INTEGER|10.0|0
+_7|CTE_INTEGER|7.0|0
+cte_str16|CTE_STRING|7 + 5 > 10|10
+_20|CTE_INTEGER|20.0|0
+cte_str17|CTE_STRING|Ambas condiciones se cumplen|28
+_11|CTE_INTEGER|11.0|0
+cte_str18|CTE_STRING|Solo la primera se cumple|25
+_30|CTE_INTEGER|30.0|0
+cte_str19|CTE_STRING|Solo la segunda se cumple|25

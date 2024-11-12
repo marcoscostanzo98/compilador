@@ -22,3 +22,5 @@ int insertarEnPolaca (t_polaca *polaca, char *cadena);
 int extraerPrimeroDePolaca ( t_polaca *polaca, char *cadena);
 int buscarYActualizarPolaca ( t_polaca *polaca, int numCelda, char* cadNueva);
 int polacaVacia(t_polaca *polaca);
+int duplicarPolaca(t_polaca *polacaOriginal, t_polaca *polacaDuplicada); 
+char* obtenerDePolaca(t_polaca *polaca, int numCelda);

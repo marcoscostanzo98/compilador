@@ -30,8 +30,12 @@ void agregar_num_a_TS(char* lex, char* tipo);
 void agregar_id_a_TS(char* lex);
 
 void eliminar_caracteres(char *s, char c);
+void reemplazar_caracteres(char *s, char viejo, char nuevo);
 
 extern t_lista lista_simbolos;
+
+char nombre_cte_string[] = "cte_str";
+int contadorString = 1;
 
 %}
 
@@ -191,6 +195,8 @@ void agregar_a_TS(t_lexema lexema){
 void agregar_string_a_TS(char* lex)
 {
     char lexCopy[100];
+    char cont[100];
+    
     strcpy(lexCopy, lex);
 
     t_lexema lexema;
@@ -199,15 +205,21 @@ void agregar_string_a_TS(char* lex)
     strcpy(lexema.valor, lexCopy);
     strcpy(lexema.tipodato, TIPO_STRING);
     itoa(strlen(lexCopy), lexema.longitud, 10);
-    strcpy(lexema.nombre, "_");
-    strcat(lexema.nombre, lexCopy);
+
+    strcpy(lexema.nombre, nombre_cte_string);
+    itoa(contadorString, cont, 10);
+    strcat(lexema.nombre, cont);    
 
     agregar_a_TS(lexema);
+
+    contadorString++;
 }
+
 
 void agregar_num_a_TS(char* lex, char* tipo)
 {
     char lexCopy[100];
+    char nombre[100];
     t_lexema lexema;
 
     if (!strcmp(tipo, TIPO_FLOAT))
@@ -220,15 +232,26 @@ void agregar_num_a_TS(char* lex, char* tipo)
             strcpy(lexCopy, lex);
             strcat(lexCopy, "0");
         }
+
+        strcpy(nombre, lexCopy);
+
     } else {
         strcpy(lexCopy, lex);
+        strcat(lexCopy, ".0");
+        strcpy(nombre, lex);
     }
 
     strcpy(lexema.valor, lexCopy);
     strcpy(lexema.tipodato, tipo);
     strcpy(lexema.longitud, "0");
     strcpy(lexema.nombre, "_");
-    strcat(lexema.nombre, lexCopy);
+    strcat(lexema.nombre, nombre);
+
+
+    reemplazar_caracteres(lexema.nombre, '-', 'n');
+    reemplazar_caracteres(lexema.nombre, '.', '_');
+
+    strcpy(yylval.str_val, lexema.valor); //esto lo hacemos para escribir directamente en la RI 0.X o X.0
 
     agregar_a_TS(lexema);
 }
@@ -260,4 +283,18 @@ void eliminar_caracteres(char *s, char c)
     }
 
     s[writer]=0;
+}
+
+void reemplazar_caracteres(char *s, char viejo, char nuevo){
+    int reader = 0;
+
+    while (s[reader])
+    {
+        if (s[reader] == viejo)
+        {
+            s[reader] = nuevo;
+        }
+
+        reader++;
+    }
 }

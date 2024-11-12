@@ -28,9 +28,14 @@ int quitarPrimeroDeLista(t_lista *l, t_lexema *lex);
 
 int buscarEnlista(const t_lista *l, const char *nombre, t_lexema *lex);
 
+int buscarEnListaPorValor(const t_lista *l, const char *valor, t_lexema *lex);
+
+
 void buscarYactualizarTipoDato(t_lista* l, const char* nombre, const char* tipoDato);
 
 void vaciarLista(t_lista *l);
+
+void duplicarLista(t_lista* dest, t_lista* orig);
 
 void copiarLexema(t_lexema* dest, t_lexema orig);
 

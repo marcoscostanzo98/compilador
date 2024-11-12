@@ -101,31 +101,33 @@ leer(base) *- base es una variable -*
 a := 1
 b := 3
 
-mientras (a > b)
+mientras (a < b)
 {
     escribir("a es mas grande que b")
     a := a + 1
 }
 
-mientras (a > b AND c > b)
+mientras (a < b AND c < b)
 {
     escribir("a es mas grande que b")
     a := a + 1
 }
 
-mientras (a > b OR c < b)
+mientras (a < b OR c < b)
 {
     escribir("a es mas grande que b")
     a := a + 1
+    c := c + 1
 }
 
-mientras (a > b OR c < b)
+mientras (a < b OR c < b)
 {
     si (c == b){
         escribir("a es mas grande que b")
     }
 
     a := a + 1
+    c := c + 1
 }
 
 *- write.txt -*
@@ -168,6 +170,10 @@ si (sumaLosUltimos(2; [10, 7, 5]) > 10)
     *- comentario *- comentario interno -* externo -*
 
 
+x := 0
+y := 5
+z := 0
+
 *- ciclos anidados -*
 mientras (NOT x > y)
 {
@@ -177,4 +183,31 @@ mientras (NOT x > y)
     }
 
     y := y - 1
+    x := x + 1
+}
+
+
+*- sentencias complejas -*
+x := 1
+y := 10
+z := 20
+
+mientras(x < y OR z > y)
+{
+	si(y > x)
+	{
+		si(y < z)
+		{
+			escribir("Ambas condiciones se cumplen")
+			z := z - 11
+		}sino{
+			escribir("Solo la primera se cumple")
+			z := 30
+			x := x + 10
+		}
+	}sino{
+		escribir("Solo la segunda se cumple")
+		z := 1
+		x := 11
+	}
 }
