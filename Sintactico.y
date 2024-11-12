@@ -96,12 +96,12 @@ t_pila pilaConectores;
 
 t_pila pilaOperandos;
 t_pila pilaAuxAssembler;
-int auxActual = 0;
 
 /* variables auxiliares */
 char tipoDatoInit[10];
 int contadorTag = 0;
 int contListaAux = 0;
+int auxActual = 0;
 
 /* variables globales */
 char operadorLogicoAct[10];
