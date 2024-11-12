@@ -1282,7 +1282,7 @@ void operacionLeerAssembler(FILE* fAssembler){
         return;
     }
 
-    if( strcmp(lex.tipodato, "Int")==0 || strcmp(lex.tipodato, "Float")==0 ){
+    if( strcmp(lex.tipodato, "int")==0 || strcmp(lex.tipodato, "float")==0 ){
         fprintf(fAssembler, "\tGetFloat %s\n\tnewLine\n", variable); //TODO: ver si siempre leemos como float
         return;
     }

@@ -35,6 +35,17 @@ escribir("DESPUES DEL IF")
 escribir(1.1 * 7.)
 
 
-p1 := "esto es un string"
+p1 := "ingresar un string:"
 
 escribir(p1)
+
+leer(p1)
+escribir(p1)
+
+escribir("ingresar un float:")
+leer(a1)
+escribir(a1)
+
+escribir("ingresar un int:")
+leer(var2)
+escribir(var2)

@@ -35,7 +35,9 @@ cte_str2 db "mayor que",'$', 9 dup (?)
 cte_str3 db "DESPUES DEL IF",'$', 14 dup (?)
 _1_1 dd 1.1
 _7_0 dd 7.0
-cte_str4 db "esto es un string",'$', 17 dup (?)
+cte_str4 db "ingresar un string:",'$', 19 dup (?)
+cte_str5 db "ingresar un float:",'$', 18 dup (?)
+cte_str6 db "ingresar un int:",'$', 16 dup (?)
 @auxAssembler7 dd ?
 @auxAssembler6 dd ?
 @auxAssembler5 dd ?
@@ -141,6 +143,22 @@ ET_68:
 	MOV DI, OFFSET p1
 	CALL COPIAR
 	displayString p1
+	newLine
+	getString p1
+	newLine
+	displayString p1
+	newLine
+	displayString cte_str5
+	newLine
+	GetFloat a1
+	newLine
+	DisplayFloat a1, 2
+	newLine
+	displayString cte_str6
+	newLine
+	GetFloat var2
+	newLine
+	DisplayFloat var2, 0
 	newLine
 	MOV AX, 4C00h
 	INT 21h
