@@ -211,3 +211,18 @@ mientras(x < y OR z > y)
 		x := 11
 	}
 }
+
+*- Negative Calculation -*
+a1 := 4.1
+b1 := -1.5
+
+w := negativeCalculation(3.5, -2.0, a1, b1, -3.0) *- Resultado: -9.0 -*
+
+
+a1 := -1.7
+
+w := negativeCalculation(-4.0, 2.3, a1, 5.6) *- Resultado: -5.7 -*
+
+
+*- Sum First Primes -*
+x := sumFirstPrimes(5) *- w = 2 + 3 + 5 + 7 + 11 = 28 -*

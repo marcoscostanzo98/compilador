@@ -5,6 +5,7 @@
 #include "Lista.h"
 #include "Pila.h"
 #include "Polaca.h"
+#include "Cola.h"
 
 #define STRING "string"
 #define FLOAT "float"
@@ -20,6 +21,7 @@ void actualizarTiposDeDato();
 void validarTipoExpresion();
 void validarTipoAsigExp(char* nombre);
 void validarTipoAsigString(char* nombre);
+void validarFloat(char* nombre);
 
 t_lexema buscarIdEnTS(char* nombre);
 t_lexema buscarValorEnTS(char* valor);
@@ -40,6 +42,8 @@ void insertarEtiquetaEnPolaca();
 
 void resolverSumaLosUltimos(int pivote);
 void resolverGetUltimatePosition();
+void resolverNegativeCalculation();
+void resolverSumFirstPrimes(int cant);
 
 /* funciones de los ifs */
 void insertarOperador();
@@ -65,6 +69,7 @@ void comparacionAssembler(FILE* fAssembler);
 void BIAssembler(FILE* fAssembler);
 void operacionEscribirAssembler(FILE* fAssembler);
 void operacionLeerAssembler(FILE* fAssembler);
+void negativeCalculationAssembler(FILE* fAssembler);
 
 void mergeArchivosAssembler(FILE* fAssembler, FILE* fBodyAsm);
 
@@ -82,6 +87,7 @@ void eliminarCaracteres(char *s, char c);
 char* agregarPrefijo(const char *s, char *prefijo);
 int esNumero(const char* celda);
 int esCadena(const char* celda);
+int esPrimo(int nro);
 
 char* tabla_simbolos = "symbol-table.txt";
 t_lista lista_simbolos;
@@ -97,11 +103,17 @@ t_pila pilaConectores;
 t_pila pilaOperandos;
 t_pila pilaAuxAssembler;
 
+t_cola colaContadores;
+
 /* variables auxiliares */
 char tipoDatoInit[10];
 int contadorTag = 0;
 int contListaAux = 0;
 int auxActual = 0;
+int contListaMixtaTotalAux = 0;
+int contListaMixtaRealAux = 0;
+int contListaMixtaIdAux = 0;
+int etiquetaGlobalId = 0;
 
 /* variables globales */
 char operadorLogicoAct[10];
@@ -153,6 +165,8 @@ int negadorDeOperador;
 %token WRITE
 %token GETPENULTIMATEPOSITION
 %token SUMALOSULTIMOS
+%token NEGATIVECALCULATION
+%token SUMFIRSTPRIMES
 
 
 /* START SYMBOL */
@@ -291,6 +305,8 @@ escribir:
 funcion_especial:
     suma_los_ultimos            {printf("   Suma_los_ultimos es Funcion_especial\n");}
     |get_penultimate_position   {printf("   Get_penultimate_position es Funcion_especial\n");}
+    |negative_calculation       {printf("   Negative_calculation es Funcion_especial\n");}
+    |sum_first_primes           {printf("   Sum_first_primes es Funcion_especial\n");}
 ;
 
 suma_los_ultimos:
@@ -303,11 +319,27 @@ get_penultimate_position:
         {printf("   GETPENULTIMATEPOSITION PAR_OP CORCHETE_OP Lista_const CORCHETE_CL PAR_CL es Get_penultimate_position\n"); resolverGetUltimatePosition();}
 ;
 
+negative_calculation:
+    NEGATIVECALCULATION PAR_OP lista_mixta PAR_CL
+        {printf("   NEGATIVECALCULATION PAR_OP Lista_mixta PAR_CL es Negative_calculation\n"); resolverNegativeCalculation();}
+;
+
+sum_first_primes:
+    SUMFIRSTPRIMES PAR_OP CONST_INT PAR_CL
+        {printf("   SUMFIRSTPRIMES PAR_OP CONST_INT PAR_CL es Sum_first_primes\n");apilar(&pilaCeldas, $3);apilar(&pilaTipoDatoExpresion, INT);resolverSumFirstPrimes(atoi($3));}
+
 lista_const:
     lista_const COMA CONST_REAL        {printf("   Lista_const COMA CONST_REAL es Lista_const\n");apilar(&pilaCeldas, $3);apilar(&pilaTipoDatoExpresion, FLOAT);contListaAux++;}
     |lista_const COMA CONST_INT        {printf("   Lista_const COMA CONST_INT es Lista_const\n");apilar(&pilaCeldas, $3);apilar(&pilaTipoDatoExpresion, INT);contListaAux++;}
     |CONST_INT                         {printf("   CONST_INT es Lista_const\n");apilar(&pilaCeldas, $1);apilar(&pilaTipoDatoExpresion, INT);contListaAux++;}
     |CONST_REAL                        {printf("   CONST_REAL es Lista_const\n");apilar(&pilaCeldas, $1);apilar(&pilaTipoDatoExpresion, FLOAT);contListaAux++;}
+;
+
+lista_mixta:
+    lista_mixta COMA CONST_REAL        {printf("   Lista_mixta COMA CONST_REAL es Lista_mixta\n");apilar(&pilaCeldas, $3);apilar(&pilaTipoDatoExpresion, FLOAT);contListaMixtaRealAux++;contListaMixtaTotalAux++;}
+    |lista_mixta COMA ID               {printf("   Lista_ids COMA ID es Lista_ids\n"); apilar(&pilaIds, $3);contListaMixtaIdAux++;contListaMixtaTotalAux++;validarFloat($3);}
+    |CONST_REAL                        {printf("   CONST_REAL es Lista_mixta\n");apilar(&pilaCeldas, $1);apilar(&pilaTipoDatoExpresion, FLOAT);contListaMixtaRealAux++;contListaMixtaTotalAux++;}
+    |ID                                {printf("   ID es Lista_ids\n"); apilar(&pilaIds, $1);contListaMixtaIdAux++;contListaMixtaTotalAux++;validarFloat($1);}
 ;
 
 %%
@@ -320,6 +352,7 @@ int main(int argc, char *argv[])
     crearPila(&pilaTipoDatoExpresion);
     crearPila(&pilaConectores);
     crearPolaca(&listaPolaca);
+    crearCola(&colaContadores);
 
     if((yyin = fopen(argv[1], "rt")) == NULL){
         printf("\nNo se puede abrir el archivo de prueba: %s\n", argv[1]);
@@ -430,6 +463,14 @@ void validarTipoAsigString(char* nombre){
     t_lexema lex = buscarIdEnTS(nombre);
     if (strcmp(lex.tipodato, STRING) != 0) {
         printf("\nDistintos tipos de dato. '%s' es %s y se intenta asignar un %s\n", lex.nombre, lex.tipodato, STRING);
+        exit(1);
+    }
+}
+
+void validarFloat(char* nombre){
+    t_lexema lex = buscarIdEnTS(nombre);
+    if (strcmp(lex.tipodato, FLOAT) != 0) {
+        printf("\nTipos de datos incorrectos para funcion negativeCalculation. Se esperaba 'float' y se recibio %s\n", lex.tipodato);
         exit(1);
     }
 }
@@ -559,6 +600,82 @@ void resolverGetUltimatePosition(){
     apilar(&pilaTipoDatoExpresion,tipo_dato_aux);
 }
 
+void resolverNegativeCalculation() {
+    // int totalElementos = contListaMixtaTotalAux;
+    int cantNegativos = 0;
+    //t_lexema lexema;
+    char nuevaCeldaStr[100];
+
+    // Añadimos a la cola: real, id y total
+    t_listaMixtaContadores cont = {contListaMixtaRealAux, contListaMixtaIdAux, contListaMixtaTotalAux};
+    encolar(&colaContadores, cont);
+
+    while(contListaMixtaRealAux > 0) {
+        char* valorStr = desapilar(&pilaCeldas);
+        char* tipo = desapilar(&pilaTipoDatoExpresion);
+        contListaMixtaRealAux--;
+
+        insertarPolaca(valorStr);
+        if(atof(valorStr) < 0){
+            cantNegativos++;
+        }
+    }
+    
+    while(contListaMixtaIdAux > 0) {
+        char* id = desapilar(&pilaIds);
+        //lexema = buscarIdEnTS(id);
+        contListaMixtaIdAux--;
+        insertarPolaca(id);
+    }
+
+    /*itoa(totalElementos, nuevaCeldaStr, 10);
+    insertarPolaca(nuevaCeldaStr);*/
+
+    insertarPolaca("NEG_CALC");
+
+    /*if(cantNegativos > 0) {
+        itoa(cantNegativos, nuevaCeldaStr, 10);
+        insertarPolaca(nuevaCeldaStr);
+        insertarPolaca("KNOW_NEGS");
+    }*/
+
+    // Reseteamos valores
+    contListaMixtaRealAux = 0;
+    contListaMixtaIdAux = 0;
+    contListaMixtaTotalAux = 0;
+
+    apilar(&pilaTipoDatoExpresion,FLOAT);
+}
+
+void resolverSumFirstPrimes(int cant){
+    int suma = 0;
+    int contador = 0;
+    int candidato = 2; // primer nro primo
+    char nuevaCeldaStr[100];
+    char nombreAux[50];
+
+    while(contador < cant){
+        if(esPrimo(candidato)){
+            suma += candidato;
+            contador++;
+        }
+        candidato++;
+    }
+
+    t_lexema lex;
+    sprintf(nombreAux, "_%d", suma);
+    strcpy(lex.nombre,nombreAux);
+    strcpy(lex.tipodato,"CTE_INTEGER");
+    sprintf(nombreAux, "%d.0", suma);
+    strcpy(lex.valor,nombreAux);
+    strcpy(lex.longitud,"0");
+    insertarEnListaSinDuplicados(&lista_simbolos, lex);
+
+    itoa(suma, nuevaCeldaStr, 10);
+    strcat(nuevaCeldaStr, ".0");
+    insertarPolaca(nuevaCeldaStr);
+    apilar(&pilaTipoDatoExpresion,INT);
+}
 
 // funciones de ifs
 void insertarOperador(){
@@ -723,6 +840,9 @@ void generarAssembler(){
 
     preprocesarPolaca(&polacaDup, &simbolosDup);
 
+    // TODO: borrar
+    // mostrarPolaca(&polacaDup);
+
     //escribo el body del assembler:
     generarCuerpoAssembler(fBodyAsm);
 
@@ -767,17 +887,21 @@ void guardarPolaca2(){
 }
 
 void preprocesarPolaca(t_polaca* polaca, t_lista* listaTS){
-    int celdaActual = 0, celdaSaltoInt;
-    char buf[100], celda[100], celdaSalto[100], celdaAnt[100];
+    int celdaActual = 0, celdaSaltoInt, encontrado = 0;
+    char buf[100], celda[100], celdaSalto[100], celdaAnt[100], aux[100];
 
     t_lexema actual;
     while(celdaActual != polaca->celdaActual) { //iteramos para cambiar las celdas con valores (que no sean saltos) a sus respectivos nombres de la tabla de símbolos
         strcpy(celda, obtenerDePolaca(polaca, celdaActual));
 
         if (esNumero(celda)) {
-            buscarEnListaPorValor(listaTS, celda, &actual);
+            encontrado = buscarEnListaPorValor(listaTS, celda, &actual);
+            // TODO: borrar
+            // printf("Buscamos %s. Encontrado = %d\n,", celda, encontrado);
             
             if(celdaActual == 0 || !esSalto(celdaAnt)){
+                // TODO: borrar
+                // printf("Entro, soy %s\n", actual.nombre);
                 buscarYActualizarPolaca(polaca, celdaActual, actual.nombre);
             }
         } else if(esCadena(celda)) {
@@ -836,6 +960,18 @@ int esNumero(const char* celda) {
 int esCadena(const char* celda){
     int len = strlen(celda);
     return celda[0] == '"' && celda[len-1] == '"';
+}
+
+int esPrimo(int nro){
+    if (nro <= 1) return 0;
+    if (nro <= 3) return 1;
+    if (nro % 2 == 0 || nro % 3 == 0) return 0;
+    for (int i = 5; i * i <= nro; i += 6) {
+        if (nro % i == 0 || nro % (i + 2) == 0) {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 int esSalto(const char* celda) {
@@ -900,6 +1036,10 @@ void generarCabeceraAssembler(FILE* fAssembler, t_lista* listaTS){
         strcpy(auxAsm, desapilar(&pilaAuxAssembler));
         fprintf(fAssembler, "%s dd ?\n", auxAsm);
     }
+
+    // TODO: borrar
+    // Guardo un 2 para ver si es par o impar la cantidad de negativos
+    // fprintf(fAssembler, "%two dd 2\n", auxAsm);
 
     fprintf(fAssembler, "\n.CODE\n.startup\n\nSTART:\n\tMOV AX, @DATA\n\tMOV DS, AX\n\tMOV es,ax\n\n");
 }
@@ -974,6 +1114,11 @@ void procesarCeldaPolaca(FILE* fAssembler, char* celda) {
         operacionLeerAssembler(fAssembler);
         return;
     }
+
+    if(strcmp(celda, "NEG_CALC") == 0){
+        negativeCalculationAssembler(fAssembler);
+        return;
+    }
 }
 
 int esOperando(char* celda){
@@ -1030,6 +1175,9 @@ void asignacionAssembler(FILE* fAssembler) {
     char buffer[100];
     char* variable = desapilar(&pilaOperandos);
     char* valor = desapilar(&pilaOperandos);
+
+    // TODO: borrar
+    // printf("Variable: %s, valor %s\n", variable, valor);
 
     buscarEnlista(&lista_simbolos, valor, &lex);
 
@@ -1127,6 +1275,110 @@ void operacionLeerAssembler(FILE* fAssembler){
         fprintf(fAssembler, "\tGetFloat %s\n\tnewLine\n", variable);
         return;
     }
+}
+
+void negativeCalculationAssembler(FILE* fAssembler) {
+    int cantidadADesapilar;
+    char* elemPilaOperandos;
+    char auxContadorLiteral[50];
+    char auxSumaLiteral[50];
+    char auxMultiLiteral[50];
+    char auxResultadoLiteral[50];
+
+    t_listaMixtaContadores listaCont;
+    desencolar(&colaContadores, &listaCont);
+    cantidadADesapilar = listaCont.contTotal;
+    
+    // TODO: borrar
+    // printf("lista cont: real: %d, id: %d, total: %d\n", listaCont.contReal, listaCont.contId, listaCont.contTotal);
+    
+    // Crear y gestionar variables auxiliares correctamente
+    char* auxContador = newAuxiliar();  // Se apila en pilaAuxAssembler
+    strcpy(auxContadorLiteral, auxContador);
+    char* auxSuma = newAuxiliar();      // Se apila en pilaAuxAssembler
+    strcpy(auxSumaLiteral, auxSuma);
+    char* auxMulti = newAuxiliar();     // Se apila en pilaAuxAssembler
+    strcpy(auxMultiLiteral, auxMulti);
+    char* auxResultado = newAuxiliar(); // Se apila en pilaAuxAssembler
+    strcpy(auxResultadoLiteral, auxResultado);
+
+    // Inicialización con gestión correcta de pila auxiliar
+    fprintf(fAssembler, "\t; Inicialización con variables auxiliares\n");
+    fprintf(fAssembler, "\tFLDZ\n");
+    fprintf(fAssembler, "\tFSTP %s\t; auxContadorLiteral = 0\n", auxContadorLiteral);
+    
+    fprintf(fAssembler, "\tFLDZ\n");
+    fprintf(fAssembler, "\tFSTP %s\t; auxSumaLiteral = 0\n", auxSumaLiteral);
+    
+    fprintf(fAssembler, "\tFLD1\n");
+    fprintf(fAssembler, "\tFSTP %s\t; auxMultiLiteral = 1\n", auxMultiLiteral);
+
+    while(cantidadADesapilar > 0) {
+        elemPilaOperandos = desapilar(&pilaOperandos);
+        
+        fprintf(fAssembler, "\t; Procesando %s\n", elemPilaOperandos);
+        fprintf(fAssembler, "\tFLD %s\n", elemPilaOperandos);
+        
+        // Verificación de negativo con gestión de pila
+        fprintf(fAssembler, "\tFTST\n");
+        fprintf(fAssembler, "\tFSTSW AX\n");
+        fprintf(fAssembler, "\tSAHF\n");
+        fprintf(fAssembler, "\tJAE positivo_%d_%d\n", etiquetaGlobalId, cantidadADesapilar);
+        
+        // Actualización de contador
+        fprintf(fAssembler, "\tFLD %s\n", auxContadorLiteral);
+        fprintf(fAssembler, "\tFLD1\n");
+        fprintf(fAssembler, "\tFADDP ST(1), ST(0)\n");
+        fprintf(fAssembler, "\tFSTP %s\n", auxContadorLiteral);
+        
+        // Actualización de suma
+        fprintf(fAssembler, "\tFLD %s\n", auxSumaLiteral);
+        fprintf(fAssembler, "\tFLD %s\n", elemPilaOperandos);
+        fprintf(fAssembler, "\tFADDP ST(1), ST(0)\n");
+        fprintf(fAssembler, "\tFSTP %s\n", auxSumaLiteral);
+        
+        // Actualización de multiplicación
+        fprintf(fAssembler, "\tFLD %s\n", auxMultiLiteral);
+        fprintf(fAssembler, "\tFLD %s\n", elemPilaOperandos);
+        fprintf(fAssembler, "\tFMULP ST(1), ST(0)\n");
+        fprintf(fAssembler, "\tFSTP %s\n", auxMultiLiteral);
+        
+        fprintf(fAssembler, "positivo_%d_%d:\n", etiquetaGlobalId, cantidadADesapilar);
+        cantidadADesapilar--;
+    }
+
+    // Decisión final con gestión de pila
+    fprintf(fAssembler, "\t; Verificación de paridad\n");
+    fprintf(fAssembler, "\tFLD %s\n", auxContadorLiteral);
+    // TODO: borrar
+    // fprintf(fAssembler, "\tFLD two\n");
+    fprintf(fAssembler, "\tFLD1\n");          // Cargamos 1.0
+    fprintf(fAssembler, "\tFLD1\n");          // Otro 1.0 para hacer 2.0
+    fprintf(fAssembler, "\tFADDP ST(1), ST(0); ST(0) = 2.0\n");
+
+    fprintf(fAssembler, "\tFPREM\n");
+
+    fprintf(fAssembler, "\tFTST\n");
+    fprintf(fAssembler, "\tFSTSW AX\n");
+    fprintf(fAssembler, "\tSAHF\n");
+    fprintf(fAssembler, "\tJZ usar_suma_%d\n", etiquetaGlobalId);
+    
+    // Caso impar
+    fprintf(fAssembler, "\tFLD %s\n", auxMultiLiteral);
+    fprintf(fAssembler, "\tJMP guardar_resultado_%d\n", etiquetaGlobalId);
+    
+    // Caso par
+    fprintf(fAssembler, "usar_suma_%d:\n", etiquetaGlobalId);
+    fprintf(fAssembler, "\tFLD %s\n", auxSumaLiteral);
+    
+    // Guardado final
+    fprintf(fAssembler, "guardar_resultado_%d:\n", etiquetaGlobalId);
+    fprintf(fAssembler, "\tFSTP %s\n", auxResultadoLiteral);
+    
+    // Apilamos el resultado en pilaOperandos
+    apilar(&pilaOperandos, auxResultadoLiteral);
+
+    etiquetaGlobalId++;
 }
 
 void mergeArchivosAssembler(FILE* fAssembler, FILE* fBodyAsm){

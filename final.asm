@@ -25,8 +25,8 @@ _3 dd 3.0
 _1 dd 1.0
 _2 dd 2.0
 _0 dd 0.0
-cte_str1 db "a es mas grande que b - 3",'$', 25 dup (?)
-cte_str2 db "a es mas grande que b - 2",'$', 25 dup (?)
+cte_str1 db "a es mas grande que b",'$', 21 dup (?)
+cte_str2 db "a es mas grande que b",'$', 21 dup (?)
 _27 dd 27.0
 _500 dd 500.0
 _34 dd 34.0
@@ -35,17 +35,17 @@ _99_0 dd 99.0
 _0_9999 dd 0.9999
 cte_str3 db "@sdADaSjfla%dfg",'$', 15 dup (?)
 cte_str4 db "asldk  fh sjf",'$', 13 dup (?)
-cte_str5 db "a es mas grande que b -1",'$', 24 dup (?)
+cte_str5 db "a es mas grande que b",'$', 21 dup (?)
 cte_str6 db "a es mas chico o igual a b",'$', 26 dup (?)
 cte_str7 db "a no es mas grande que b",'$', 24 dup (?)
 cte_str8 db "a es mas chica que b o c",'$', 24 dup (?)
 cte_str9 db "b es mas chico que a y c",'$', 24 dup (?)
 cte_str10 db "lo opuesto",'$', 10 dup (?)
 base dd ?
-cte_str11 db "a es mas grande que b 1",'$', 23 dup (?)
-cte_str12 db "a es mas grande que b 2",'$', 23 dup (?)
-cte_str13 db "a es mas grande que b 3",'$', 23 dup (?)
-cte_str14 db "a es mas grande que b 4",'$', 23 dup (?)
+cte_str11 db "a es mas grande que b",'$', 21 dup (?)
+cte_str12 db "a es mas grande que b",'$', 21 dup (?)
+cte_str13 db "a es mas grande que b",'$', 21 dup (?)
+cte_str14 db "a es mas grande que b",'$', 21 dup (?)
 cte_str15 db "ewr",'$', 3 dup (?)
 _8 dd 8.0
 _55 dd 55.0
@@ -64,6 +64,23 @@ _11 dd 11.0
 cte_str18 db "Solo la primera se cumple",'$', 25 dup (?)
 _30 dd 30.0
 cte_str19 db "Solo la segunda se cumple",'$', 25 dup (?)
+_4_1 dd 4.1
+_n1_5 dd -1.5
+_3_5 dd 3.5
+_n2_0 dd -2.0
+_n3_0 dd -3.0
+_n1_7 dd -1.7
+_n4_0 dd -4.0
+_2_3 dd 2.3
+_5_6 dd 5.6
+@auxAssembler31 dd ?
+@auxAssembler30 dd ?
+@auxAssembler29 dd ?
+@auxAssembler28 dd ?
+@auxAssembler27 dd ?
+@auxAssembler26 dd ?
+@auxAssembler25 dd ?
+@auxAssembler24 dd ?
 @auxAssembler23 dd ?
 @auxAssembler22 dd ?
 @auxAssembler21 dd ?
@@ -135,7 +152,7 @@ ET_27:
 	FSTSW ax
 	SAHF
 	JNE ET_44
-	displayString cte_str2
+	displayString cte_str1
 	newLine
 ET_44:
 	FLD _27
@@ -183,7 +200,7 @@ ET_44:
 	FSTSW ax
 	SAHF
 	JBE ET_94
-	displayString cte_str5
+	displayString cte_str1
 	newLine
 	JMP ET_96
 ET_94:
@@ -261,7 +278,7 @@ ET_166:
 	FSTSW ax
 	SAHF
 	JAE ET_181
-	displayString cte_str11
+	displayString cte_str1
 	newLine
 	FLD _1
 	FLD a
@@ -281,7 +298,7 @@ ET_181:
 	FSTSW ax
 	SAHF
 	JAE ET_201
-	displayString cte_str12
+	displayString cte_str1
 	newLine
 	FLD _1
 	FLD a
@@ -304,7 +321,7 @@ ET_209:
 	SAHF
 	JAE ET_228
 ET_214:
-	displayString cte_str13
+	displayString cte_str1
 	newLine
 	FLD _1
 	FLD a
@@ -338,7 +355,7 @@ ET_241:
 	FSTSW ax
 	SAHF
 	JNE ET_248
-	displayString cte_str14
+	displayString cte_str1
 	newLine
 ET_248:
 	FLD _1
@@ -523,6 +540,235 @@ ET_407:
 ET_415:
 	JMP ET_363
 ET_417:
+	FLD _4_1
+	FSTP a1
+	FLD _n1_5
+	FSTP b1
+	; Inicialización con variables auxiliares
+	FLDZ
+	FSTP @auxAssembler24	; auxContadorLiteral = 0
+	FLDZ
+	FSTP @auxAssembler25	; auxSumaLiteral = 0
+	FLD1
+	FSTP @auxAssembler26	; auxMultiLiteral = 1
+	; Procesando a1
+	FLD a1
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_0_5
+	FLD @auxAssembler24
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler24
+	FLD @auxAssembler25
+	FLD a1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler25
+	FLD @auxAssembler26
+	FLD a1
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler26
+positivo_0_5:
+	; Procesando b1
+	FLD b1
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_0_4
+	FLD @auxAssembler24
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler24
+	FLD @auxAssembler25
+	FLD b1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler25
+	FLD @auxAssembler26
+	FLD b1
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler26
+positivo_0_4:
+	; Procesando _3_5
+	FLD _3_5
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_0_3
+	FLD @auxAssembler24
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler24
+	FLD @auxAssembler25
+	FLD _3_5
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler25
+	FLD @auxAssembler26
+	FLD _3_5
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler26
+positivo_0_3:
+	; Procesando _n2_0
+	FLD _n2_0
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_0_2
+	FLD @auxAssembler24
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler24
+	FLD @auxAssembler25
+	FLD _n2_0
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler25
+	FLD @auxAssembler26
+	FLD _n2_0
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler26
+positivo_0_2:
+	; Procesando _n3_0
+	FLD _n3_0
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_0_1
+	FLD @auxAssembler24
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler24
+	FLD @auxAssembler25
+	FLD _n3_0
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler25
+	FLD @auxAssembler26
+	FLD _n3_0
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler26
+positivo_0_1:
+	; Verificación de paridad
+	FLD @auxAssembler24
+	FLD1
+	FLD1
+	FADDP ST(1), ST(0); ST(0) = 2.0
+	FPREM
+	FTST
+	FSTSW AX
+	SAHF
+	JZ usar_suma_0
+	FLD @auxAssembler26
+	JMP guardar_resultado_0
+usar_suma_0:
+	FLD @auxAssembler25
+guardar_resultado_0:
+	FSTP @auxAssembler27
+	FLD @auxAssembler27
+	FSTP w
+	FLD _n1_7
+	FSTP a1
+	; Inicialización con variables auxiliares
+	FLDZ
+	FSTP @auxAssembler28	; auxContadorLiteral = 0
+	FLDZ
+	FSTP @auxAssembler29	; auxSumaLiteral = 0
+	FLD1
+	FSTP @auxAssembler30	; auxMultiLiteral = 1
+	; Procesando a1
+	FLD a1
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_1_4
+	FLD @auxAssembler28
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler28
+	FLD @auxAssembler29
+	FLD a1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler29
+	FLD @auxAssembler30
+	FLD a1
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler30
+positivo_1_4:
+	; Procesando _n4_0
+	FLD _n4_0
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_1_3
+	FLD @auxAssembler28
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler28
+	FLD @auxAssembler29
+	FLD _n4_0
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler29
+	FLD @auxAssembler30
+	FLD _n4_0
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler30
+positivo_1_3:
+	; Procesando _2_3
+	FLD _2_3
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_1_2
+	FLD @auxAssembler28
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler28
+	FLD @auxAssembler29
+	FLD _2_3
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler29
+	FLD @auxAssembler30
+	FLD _2_3
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler30
+positivo_1_2:
+	; Procesando _5_6
+	FLD _5_6
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_1_1
+	FLD @auxAssembler28
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler28
+	FLD @auxAssembler29
+	FLD _5_6
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler29
+	FLD @auxAssembler30
+	FLD _5_6
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler30
+positivo_1_1:
+	; Verificación de paridad
+	FLD @auxAssembler28
+	FLD1
+	FLD1
+	FADDP ST(1), ST(0); ST(0) = 2.0
+	FPREM
+	FTST
+	FSTSW AX
+	SAHF
+	JZ usar_suma_1
+	FLD @auxAssembler30
+	JMP guardar_resultado_1
+usar_suma_1:
+	FLD @auxAssembler29
+guardar_resultado_1:
+	FSTP @auxAssembler31
+	FLD @auxAssembler31
+	FSTP w
+	FLD _28
+	FSTP x
 	MOV AX, 4C00h
 	INT 21h
 

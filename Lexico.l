@@ -94,6 +94,8 @@ READ                    "leer"
 WRITE                   "escribir"
 GETPENULTIMATEPOSITION  "getPenultimatePosition"
 SUMALOSULTIMOS          "sumaLosUltimos"
+NEGATIVECALCULATION     "negativeCalculation"
+SUMFIRSTPRIMES          "sumFirstPrimes"
 
 /* Comentarios */
 COMENTARIO_ANIDADO  "*-".*{COMENTARIO}.*"-*"
@@ -134,6 +136,8 @@ COMENTARIO          "*-".*"-*"
 {WRITE}                     {return WRITE;}
 {GETPENULTIMATEPOSITION}    {return GETPENULTIMATEPOSITION;}
 {SUMALOSULTIMOS}            {return SUMALOSULTIMOS;}
+{NEGATIVECALCULATION}       {return NEGATIVECALCULATION;}
+{SUMFIRSTPRIMES}            {return SUMFIRSTPRIMES;}
 
 
 {ID}                    {obtenerLexema(yytext); agregar_id_a_TS(yytext); return ID;}

@@ -7,7 +7,7 @@ flex Lexico.l
 bison -dyv -Wcounterexamples Sintactico.y
 
 # Step 3: Compile the generated C files along with your source files
-gcc lex.yy.c y.tab.c Lista.c Pila.c Polaca.c -o compilador
+gcc lex.yy.c y.tab.c Lista.c Pila.c Polaca.c Cola.c -o compilador
 
 # Step 4: Run the compiler with the input file (only if compilation was successful)
 if [ -f compilador ]; then
