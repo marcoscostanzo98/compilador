@@ -1284,6 +1284,7 @@ void negativeCalculationAssembler(FILE* fAssembler) {
     char auxSumaLiteral[50];
     char auxMultiLiteral[50];
     char auxResultadoLiteral[50];
+    char tempIntLabel[50];
 
     t_listaMixtaContadores listaCont;
     desencolar(&colaContadores, &listaCont);
@@ -1301,6 +1302,8 @@ void negativeCalculationAssembler(FILE* fAssembler) {
     strcpy(auxMultiLiteral, auxMulti);
     char* auxResultado = newAuxiliar(); // Se apila en pilaAuxAssembler
     strcpy(auxResultadoLiteral, auxResultado);
+    char* tempInt = newAuxiliar();
+    strcpy(tempIntLabel, tempInt);
 
     // Inicialización con gestión correcta de pila auxiliar
     fprintf(fAssembler, "\t; Inicialización con variables auxiliares\n");
@@ -1324,55 +1327,96 @@ void negativeCalculationAssembler(FILE* fAssembler) {
         fprintf(fAssembler, "\tFSTSW AX\n");
         fprintf(fAssembler, "\tSAHF\n");
         fprintf(fAssembler, "\tJAE positivo_%d_%d\n", etiquetaGlobalId, cantidadADesapilar);
-        
+
+        // TODO: borrar
+        /*fprintf(fAssembler, "\t; Debugg\n");
+        fprintf(fAssembler, "\tnewLine\n");
+        fprintf(fAssembler, "\tDisplayFloat %s, 2\n", elemPilaOperandos);
+        fprintf(fAssembler, "\tnewLine\n");*/
+
         // Actualización de contador
         fprintf(fAssembler, "\tFLD %s\n", auxContadorLiteral);
         fprintf(fAssembler, "\tFLD1\n");
         fprintf(fAssembler, "\tFADDP ST(1), ST(0)\n");
         fprintf(fAssembler, "\tFSTP %s\n", auxContadorLiteral);
+
+        // TODO: borrar
+        /*fprintf(fAssembler, "\t; Debugg\n");
+        fprintf(fAssembler, "\tnewLine\n");
+        fprintf(fAssembler, "\tDisplayFloat %s, 2\n", auxContadorLiteral);
+        fprintf(fAssembler, "\tnewLine\n");*/
         
         // Actualización de suma
         fprintf(fAssembler, "\tFLD %s\n", auxSumaLiteral);
         fprintf(fAssembler, "\tFLD %s\n", elemPilaOperandos);
         fprintf(fAssembler, "\tFADDP ST(1), ST(0)\n");
         fprintf(fAssembler, "\tFSTP %s\n", auxSumaLiteral);
+
+        // TODO: borrar
+        /*fprintf(fAssembler, "\t; Debugg\n");
+        fprintf(fAssembler, "\tnewLine\n");
+        fprintf(fAssembler, "\tDisplayFloat %s, 2\n", auxSumaLiteral);
+        fprintf(fAssembler, "\tnewLine\n");*/
         
         // Actualización de multiplicación
         fprintf(fAssembler, "\tFLD %s\n", auxMultiLiteral);
         fprintf(fAssembler, "\tFLD %s\n", elemPilaOperandos);
         fprintf(fAssembler, "\tFMULP ST(1), ST(0)\n");
         fprintf(fAssembler, "\tFSTP %s\n", auxMultiLiteral);
+
+        // TODO: borrar
+        /*fprintf(fAssembler, "\t; Debugg\n");
+        fprintf(fAssembler, "\tnewLine\n");
+        fprintf(fAssembler, "\tDisplayFloat %s, 2\n", auxMultiLiteral);
+        fprintf(fAssembler, "\tnewLine\n");*/
         
         fprintf(fAssembler, "positivo_%d_%d:\n", etiquetaGlobalId, cantidadADesapilar);
         cantidadADesapilar--;
     }
 
-    // Decisión final con gestión de pila
-    fprintf(fAssembler, "\t; Verificación de paridad\n");
-    fprintf(fAssembler, "\tFLD %s\n", auxContadorLiteral);
     // TODO: borrar
-    // fprintf(fAssembler, "\tFLD two\n");
-    fprintf(fAssembler, "\tFLD1\n");          // Cargamos 1.0
-    fprintf(fAssembler, "\tFLD1\n");          // Otro 1.0 para hacer 2.0
-    fprintf(fAssembler, "\tFADDP ST(1), ST(0); ST(0) = 2.0\n");
+    /*fprintf(fAssembler, "\t; Debugg\n");
+    fprintf(fAssembler, "\tDisplayFloat %s, 2\n", auxContadorLiteral);
+    fprintf(fAssembler, "\tnewLine\n");
+    fprintf(fAssembler, "\tnewLine\n");
+    fprintf(fAssembler, "\tDisplayFloat %s, 2\n", auxSumaLiteral);
+    fprintf(fAssembler, "\tnewLine\n");
+    fprintf(fAssembler, "\tnewLine\n");
+    fprintf(fAssembler, "\tDisplayFloat %s, 2\n", auxMultiLiteral);
+    fprintf(fAssembler, "\tnewLine\n");
+    fprintf(fAssembler, "\tnewLine\n");*/
 
-    fprintf(fAssembler, "\tFPREM\n");
-
+    // Verificación de paridad. Lógica aplicada:
+    /*
+        Dividir contador por 2 → Redondear → Multiplicar por 2 → Restar original
+        Si resultado = 0 → par (sumar)
+        Si resultado ≠ 0 → impar (multiplicar)
+    */
+    fprintf(fAssembler, "\t; --- Verificación matemática de paridad ---\n");
+    fprintf(fAssembler, "\tFLD %s\n", auxContadorLiteral);
+    fprintf(fAssembler, "\tFLD1\n");
+    fprintf(fAssembler, "\tFLD1\n");
+    fprintf(fAssembler, "\tFADDP ST(1), ST(0)\n");
+    fprintf(fAssembler, "\tFDIVP ST(1), ST(0)\n");
+    fprintf(fAssembler, "\tFRNDINT\n");
+    fprintf(fAssembler, "\tFLD1\n");
+    fprintf(fAssembler, "\tFLD1\n");
+    fprintf(fAssembler, "\tFADDP ST(1), ST(0)\n");
+    fprintf(fAssembler, "\tFMULP ST(1), ST(0)\n");
+    fprintf(fAssembler, "\tFSUB %s\n", auxContadorLiteral);
     fprintf(fAssembler, "\tFTST\n");
     fprintf(fAssembler, "\tFSTSW AX\n");
     fprintf(fAssembler, "\tSAHF\n");
-    fprintf(fAssembler, "\tJZ usar_suma_%d\n", etiquetaGlobalId);
-    
-    // Caso impar
-    fprintf(fAssembler, "\tFLD %s\n", auxMultiLiteral);
-    fprintf(fAssembler, "\tJMP guardar_resultado_%d\n", etiquetaGlobalId);
-    
-    // Caso par
-    fprintf(fAssembler, "usar_suma_%d:\n", etiquetaGlobalId);
+    fprintf(fAssembler, "\tJNZ impar_%d\n", etiquetaGlobalId);
+
+    fprintf(fAssembler, "par_%d:\n", etiquetaGlobalId);
     fprintf(fAssembler, "\tFLD %s\n", auxSumaLiteral);
-    
-    // Guardado final
-    fprintf(fAssembler, "guardar_resultado_%d:\n", etiquetaGlobalId);
+    fprintf(fAssembler, "\tJMP guardar_%d\n", etiquetaGlobalId);
+
+    fprintf(fAssembler, "impar_%d:\n", etiquetaGlobalId);
+    fprintf(fAssembler, "\tFLD %s\n", auxMultiLiteral);
+
+    fprintf(fAssembler, "guardar_%d:\n", etiquetaGlobalId);
     fprintf(fAssembler, "\tFSTP %s\n", auxResultadoLiteral);
     
     // Apilamos el resultado en pilaOperandos

@@ -73,6 +73,38 @@ _n1_7 dd -1.7
 _n4_0 dd -4.0
 _2_3 dd 2.3
 _5_6 dd 5.6
+_1_2 dd 1.2
+_3_4 dd 3.4
+_7_8 dd 7.8
+_n1_0 dd -1.0
+_2_0 dd 2.0
+_5_0 dd 5.0
+_7_0 dd 7.0
+_n5_5 dd -5.5
+_129 dd 129.0
+_639 dd 639.0
+@auxAssembler53 dd ?
+@auxAssembler52 dd ?
+@auxAssembler51 dd ?
+@auxAssembler50 dd ?
+@auxAssembler49 dd ?
+@auxAssembler48 dd ?
+@auxAssembler47 dd ?
+@auxAssembler46 dd ?
+@auxAssembler45 dd ?
+@auxAssembler44 dd ?
+@auxAssembler43 dd ?
+@auxAssembler42 dd ?
+@auxAssembler41 dd ?
+@auxAssembler40 dd ?
+@auxAssembler39 dd ?
+@auxAssembler38 dd ?
+@auxAssembler37 dd ?
+@auxAssembler36 dd ?
+@auxAssembler35 dd ?
+@auxAssembler34 dd ?
+@auxAssembler33 dd ?
+@auxAssembler32 dd ?
 @auxAssembler31 dd ?
 @auxAssembler30 dd ?
 @auxAssembler29 dd ?
@@ -646,51 +678,60 @@ positivo_0_2:
 	FMULP ST(1), ST(0)
 	FSTP @auxAssembler26
 positivo_0_1:
-	; Verificación de paridad
+	; --- Verificación matemática de paridad ---
 	FLD @auxAssembler24
 	FLD1
 	FLD1
-	FADDP ST(1), ST(0); ST(0) = 2.0
-	FPREM
+	FADDP ST(1), ST(0)
+	FDIVP ST(1), ST(0)
+	FRNDINT
+	FLD1
+	FLD1
+	FADDP ST(1), ST(0)
+	FMULP ST(1), ST(0)
+	FSUB @auxAssembler24
 	FTST
 	FSTSW AX
 	SAHF
-	JZ usar_suma_0
-	FLD @auxAssembler26
-	JMP guardar_resultado_0
-usar_suma_0:
+	JNZ impar_0
+par_0:
 	FLD @auxAssembler25
-guardar_resultado_0:
+	JMP guardar_0
+impar_0:
+	FLD @auxAssembler26
+guardar_0:
 	FSTP @auxAssembler27
 	FLD @auxAssembler27
 	FSTP w
+	DisplayFloat w, 2
+	newLine
 	FLD _n1_7
 	FSTP a1
 	; Inicialización con variables auxiliares
 	FLDZ
-	FSTP @auxAssembler28	; auxContadorLiteral = 0
+	FSTP @auxAssembler29	; auxContadorLiteral = 0
 	FLDZ
-	FSTP @auxAssembler29	; auxSumaLiteral = 0
+	FSTP @auxAssembler30	; auxSumaLiteral = 0
 	FLD1
-	FSTP @auxAssembler30	; auxMultiLiteral = 1
+	FSTP @auxAssembler31	; auxMultiLiteral = 1
 	; Procesando a1
 	FLD a1
 	FTST
 	FSTSW AX
 	SAHF
 	JAE positivo_1_4
-	FLD @auxAssembler28
-	FLD1
-	FADDP ST(1), ST(0)
-	FSTP @auxAssembler28
 	FLD @auxAssembler29
-	FLD a1
+	FLD1
 	FADDP ST(1), ST(0)
 	FSTP @auxAssembler29
 	FLD @auxAssembler30
 	FLD a1
-	FMULP ST(1), ST(0)
+	FADDP ST(1), ST(0)
 	FSTP @auxAssembler30
+	FLD @auxAssembler31
+	FLD a1
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler31
 positivo_1_4:
 	; Procesando _n4_0
 	FLD _n4_0
@@ -698,18 +739,18 @@ positivo_1_4:
 	FSTSW AX
 	SAHF
 	JAE positivo_1_3
-	FLD @auxAssembler28
-	FLD1
-	FADDP ST(1), ST(0)
-	FSTP @auxAssembler28
 	FLD @auxAssembler29
-	FLD _n4_0
+	FLD1
 	FADDP ST(1), ST(0)
 	FSTP @auxAssembler29
 	FLD @auxAssembler30
 	FLD _n4_0
-	FMULP ST(1), ST(0)
+	FADDP ST(1), ST(0)
 	FSTP @auxAssembler30
+	FLD @auxAssembler31
+	FLD _n4_0
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler31
 positivo_1_3:
 	; Procesando _2_3
 	FLD _2_3
@@ -717,18 +758,18 @@ positivo_1_3:
 	FSTSW AX
 	SAHF
 	JAE positivo_1_2
-	FLD @auxAssembler28
-	FLD1
-	FADDP ST(1), ST(0)
-	FSTP @auxAssembler28
 	FLD @auxAssembler29
-	FLD _2_3
+	FLD1
 	FADDP ST(1), ST(0)
 	FSTP @auxAssembler29
 	FLD @auxAssembler30
 	FLD _2_3
-	FMULP ST(1), ST(0)
+	FADDP ST(1), ST(0)
 	FSTP @auxAssembler30
+	FLD @auxAssembler31
+	FLD _2_3
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler31
 positivo_1_2:
 	; Procesando _5_6
 	FLD _5_6
@@ -736,39 +777,451 @@ positivo_1_2:
 	FSTSW AX
 	SAHF
 	JAE positivo_1_1
-	FLD @auxAssembler28
-	FLD1
-	FADDP ST(1), ST(0)
-	FSTP @auxAssembler28
 	FLD @auxAssembler29
-	FLD _5_6
+	FLD1
 	FADDP ST(1), ST(0)
 	FSTP @auxAssembler29
 	FLD @auxAssembler30
 	FLD _5_6
-	FMULP ST(1), ST(0)
+	FADDP ST(1), ST(0)
 	FSTP @auxAssembler30
+	FLD @auxAssembler31
+	FLD _5_6
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler31
 positivo_1_1:
-	; Verificación de paridad
-	FLD @auxAssembler28
+	; --- Verificación matemática de paridad ---
+	FLD @auxAssembler29
 	FLD1
 	FLD1
-	FADDP ST(1), ST(0); ST(0) = 2.0
-	FPREM
+	FADDP ST(1), ST(0)
+	FDIVP ST(1), ST(0)
+	FRNDINT
+	FLD1
+	FLD1
+	FADDP ST(1), ST(0)
+	FMULP ST(1), ST(0)
+	FSUB @auxAssembler29
 	FTST
 	FSTSW AX
 	SAHF
-	JZ usar_suma_1
+	JNZ impar_1
+par_1:
 	FLD @auxAssembler30
-	JMP guardar_resultado_1
-usar_suma_1:
-	FLD @auxAssembler29
-guardar_resultado_1:
-	FSTP @auxAssembler31
+	JMP guardar_1
+impar_1:
 	FLD @auxAssembler31
+guardar_1:
+	FSTP @auxAssembler32
+	FLD @auxAssembler32
 	FSTP w
+	DisplayFloat w, 2
+	newLine
+	; Inicialización con variables auxiliares
+	FLDZ
+	FSTP @auxAssembler34	; auxContadorLiteral = 0
+	FLDZ
+	FSTP @auxAssembler35	; auxSumaLiteral = 0
+	FLD1
+	FSTP @auxAssembler36	; auxMultiLiteral = 1
+	; Procesando _1_2
+	FLD _1_2
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_2_4
+	FLD @auxAssembler34
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler34
+	FLD @auxAssembler35
+	FLD _1_2
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler35
+	FLD @auxAssembler36
+	FLD _1_2
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler36
+positivo_2_4:
+	; Procesando _3_4
+	FLD _3_4
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_2_3
+	FLD @auxAssembler34
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler34
+	FLD @auxAssembler35
+	FLD _3_4
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler35
+	FLD @auxAssembler36
+	FLD _3_4
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler36
+positivo_2_3:
+	; Procesando _5_6
+	FLD _5_6
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_2_2
+	FLD @auxAssembler34
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler34
+	FLD @auxAssembler35
+	FLD _5_6
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler35
+	FLD @auxAssembler36
+	FLD _5_6
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler36
+positivo_2_2:
+	; Procesando _7_8
+	FLD _7_8
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_2_1
+	FLD @auxAssembler34
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler34
+	FLD @auxAssembler35
+	FLD _7_8
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler35
+	FLD @auxAssembler36
+	FLD _7_8
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler36
+positivo_2_1:
+	; --- Verificación matemática de paridad ---
+	FLD @auxAssembler34
+	FLD1
+	FLD1
+	FADDP ST(1), ST(0)
+	FDIVP ST(1), ST(0)
+	FRNDINT
+	FLD1
+	FLD1
+	FADDP ST(1), ST(0)
+	FMULP ST(1), ST(0)
+	FSUB @auxAssembler34
+	FTST
+	FSTSW AX
+	SAHF
+	JNZ impar_2
+par_2:
+	FLD @auxAssembler35
+	JMP guardar_2
+impar_2:
+	FLD @auxAssembler36
+guardar_2:
+	FSTP @auxAssembler37
+	FLD @auxAssembler37
+	FSTP w
+	DisplayFloat w, 2
+	newLine
+	; Inicialización con variables auxiliares
+	FLDZ
+	FSTP @auxAssembler39	; auxContadorLiteral = 0
+	FLDZ
+	FSTP @auxAssembler40	; auxSumaLiteral = 0
+	FLD1
+	FSTP @auxAssembler41	; auxMultiLiteral = 1
+	; Procesando _n1_0
+	FLD _n1_0
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_3_4
+	FLD @auxAssembler39
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler39
+	FLD @auxAssembler40
+	FLD _n1_0
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler40
+	FLD @auxAssembler41
+	FLD _n1_0
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler41
+positivo_3_4:
+	; Procesando _n2_0
+	FLD _n2_0
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_3_3
+	FLD @auxAssembler39
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler39
+	FLD @auxAssembler40
+	FLD _n2_0
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler40
+	FLD @auxAssembler41
+	FLD _n2_0
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler41
+positivo_3_3:
+	; Procesando _n3_0
+	FLD _n3_0
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_3_2
+	FLD @auxAssembler39
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler39
+	FLD @auxAssembler40
+	FLD _n3_0
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler40
+	FLD @auxAssembler41
+	FLD _n3_0
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler41
+positivo_3_2:
+	; Procesando _n4_0
+	FLD _n4_0
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_3_1
+	FLD @auxAssembler39
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler39
+	FLD @auxAssembler40
+	FLD _n4_0
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler40
+	FLD @auxAssembler41
+	FLD _n4_0
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler41
+positivo_3_1:
+	; --- Verificación matemática de paridad ---
+	FLD @auxAssembler39
+	FLD1
+	FLD1
+	FADDP ST(1), ST(0)
+	FDIVP ST(1), ST(0)
+	FRNDINT
+	FLD1
+	FLD1
+	FADDP ST(1), ST(0)
+	FMULP ST(1), ST(0)
+	FSUB @auxAssembler39
+	FTST
+	FSTSW AX
+	SAHF
+	JNZ impar_3
+par_3:
+	FLD @auxAssembler40
+	JMP guardar_3
+impar_3:
+	FLD @auxAssembler41
+guardar_3:
+	FSTP @auxAssembler42
+	FLD @auxAssembler42
+	FSTP w
+	DisplayFloat w, 2
+	newLine
+	; Inicialización con variables auxiliares
+	FLDZ
+	FSTP @auxAssembler44	; auxContadorLiteral = 0
+	FLDZ
+	FSTP @auxAssembler45	; auxSumaLiteral = 0
+	FLD1
+	FSTP @auxAssembler46	; auxMultiLiteral = 1
+	; Procesando _2
+	FLD _2
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_4_4
+	FLD @auxAssembler44
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler44
+	FLD @auxAssembler45
+	FLD _2
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler45
+	FLD @auxAssembler46
+	FLD _2
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler46
+positivo_4_4:
+	; Procesando _5
+	FLD _5
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_4_3
+	FLD @auxAssembler44
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler44
+	FLD @auxAssembler45
+	FLD _5
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler45
+	FLD @auxAssembler46
+	FLD _5
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler46
+positivo_4_3:
+	; Procesando _n3_0
+	FLD _n3_0
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_4_2
+	FLD @auxAssembler44
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler44
+	FLD @auxAssembler45
+	FLD _n3_0
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler45
+	FLD @auxAssembler46
+	FLD _n3_0
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler46
+positivo_4_2:
+	; Procesando _7
+	FLD _7
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_4_1
+	FLD @auxAssembler44
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler44
+	FLD @auxAssembler45
+	FLD _7
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler45
+	FLD @auxAssembler46
+	FLD _7
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler46
+positivo_4_1:
+	; --- Verificación matemática de paridad ---
+	FLD @auxAssembler44
+	FLD1
+	FLD1
+	FADDP ST(1), ST(0)
+	FDIVP ST(1), ST(0)
+	FRNDINT
+	FLD1
+	FLD1
+	FADDP ST(1), ST(0)
+	FMULP ST(1), ST(0)
+	FSUB @auxAssembler44
+	FTST
+	FSTSW AX
+	SAHF
+	JNZ impar_4
+par_4:
+	FLD @auxAssembler45
+	JMP guardar_4
+impar_4:
+	FLD @auxAssembler46
+guardar_4:
+	FSTP @auxAssembler47
+	FLD @auxAssembler47
+	FSTP w
+	DisplayFloat w, 2
+	newLine
+	FLD _n5_5
+	FSTP a1
+	; Inicialización con variables auxiliares
+	FLDZ
+	FSTP @auxAssembler49	; auxContadorLiteral = 0
+	FLDZ
+	FSTP @auxAssembler50	; auxSumaLiteral = 0
+	FLD1
+	FSTP @auxAssembler51	; auxMultiLiteral = 1
+	; Procesando a1
+	FLD a1
+	FTST
+	FSTSW AX
+	SAHF
+	JAE positivo_5_1
+	FLD @auxAssembler49
+	FLD1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler49
+	FLD @auxAssembler50
+	FLD a1
+	FADDP ST(1), ST(0)
+	FSTP @auxAssembler50
+	FLD @auxAssembler51
+	FLD a1
+	FMULP ST(1), ST(0)
+	FSTP @auxAssembler51
+positivo_5_1:
+	; --- Verificación matemática de paridad ---
+	FLD @auxAssembler49
+	FLD1
+	FLD1
+	FADDP ST(1), ST(0)
+	FDIVP ST(1), ST(0)
+	FRNDINT
+	FLD1
+	FLD1
+	FADDP ST(1), ST(0)
+	FMULP ST(1), ST(0)
+	FSUB @auxAssembler49
+	FTST
+	FSTSW AX
+	SAHF
+	JNZ impar_5
+par_5:
+	FLD @auxAssembler50
+	JMP guardar_5
+impar_5:
+	FLD @auxAssembler51
+guardar_5:
+	FSTP @auxAssembler52
+	FLD @auxAssembler52
+	FSTP w
+	DisplayFloat w, 2
+	newLine
 	FLD _28
 	FSTP x
+	DisplayFloat x, 0
+	newLine
+	FLD _2
+	FSTP x
+	DisplayFloat x, 0
+	newLine
+	FLD _0
+	FSTP x
+	DisplayFloat x, 0
+	newLine
+	FLD _129
+	FSTP x
+	DisplayFloat x, 0
+	newLine
+	FLD _639
+	FSTP x
+	DisplayFloat x, 0
+	newLine
 	MOV AX, 4C00h
 	INT 21h
 
