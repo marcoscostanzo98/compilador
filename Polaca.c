@@ -41,6 +41,29 @@ int extraerPrimeroDePolaca ( t_polaca *polaca, char *cadena){
     return TRUE;
 }
 
+void mostrarPolaca(t_polaca *polaca) {
+    if (polaca == NULL || polaca->lista == NULL) {
+        printf("La polaca está vacía.\n");
+        return;
+    }
+
+    t_nodo_polaca *actual = polaca->lista;
+    int celda = 0;
+
+    printf("\nContenido de la Polaca:\n");
+    printf("----------------------\n");
+    printf("Celda\t| Valor\n");
+    printf("----------------------\n");
+
+    while (actual != NULL) {
+        printf("%d\t| %s\n", celda, actual->cadena);
+        actual = actual->sig;
+        celda++;
+    }
+    printf("----------------------\n");
+    printf("Total de celdas: %d\n", celda);
+}
+
 int buscarYActualizarPolaca ( t_polaca *polaca, int numCelda, char* cadNueva){
     t_nodo_polaca *current = polaca->lista;
     int i;

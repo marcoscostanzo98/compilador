@@ -211,3 +211,73 @@ mientras(x < y OR z > y)
 		x := 11
 	}
 }
+
+*- Negative Calculation -*
+
+*- Cantidad impar de negativos -*
+a1 := 4.1
+b1 := -1.5
+
+w := negativeCalculation(3.5, -2.0, a1, b1, -3.0) *- Resultado: -9.0 -*
+escribir(w)
+*- Fin cantidad impar de negativo -*
+
+*- Cantidad par de negativos -*
+a1 := -1.7
+
+w := negativeCalculation(-4.0, 2.3, a1, 5.6) *- Resultado: -5.7 -*
+escribir(w)
+*- Fin cantidad par de negativos -*
+
+*- Sin negativos -*
+w := negativeCalculation(1.2, 3.4, 5.6, 7.8) *- Resultado: 0 -*
+escribir(w)
+*- Fin sin negativos -*
+
+*- Solo negativos -*
+w := negativeCalculation(-1.0, -2.0, -3.0, -4.0) *- Resultado: -10 -*
+escribir(w)
+*- Fin solo negativos -*
+
+*- Solo uno negativo -*
+w := negativeCalculation(2.0, 5.0, -3.0, 7.0) *- Resultado: -3 -*
+escribir(w)
+*- Fin solo uno negativo -*
+
+*- Una sola constante negativa -*
+a1 := -5.5
+
+w := negativeCalculation(a1) *- Resultado: -5.5 -*
+escribir(w)
+*- Fin una sola constante negativa -*
+
+*- Fin negative Calculation -*
+
+
+*- Sum First Primes -*
+
+*- Caso normal -*
+x := sumFirstPrimes(5) *- w = 2 + 3 + 5 + 7 + 11 = 28 -*
+escribir(x)
+*- Fin caso normal -*
+
+*- Único primo -*
+x := sumFirstPrimes(1) *- Resultado: 2 -*
+escribir(x)
+
+*- Caso borde -*
+x := sumFirstPrimes(0) *- Resultado: 0 -*
+escribir(x)
+*- Fin caso borde -*
+
+*- Caso mas grande -*
+x := sumFirstPrimes(10) *- Resultado: 129 -*
+escribir(x)
+*- Fin caso mas grande -*
+
+*- Caso testeo performance -*
+x := sumFirstPrimes(20) *- Resultado: 639 -*
+escribir(x)
+*- Fin caso mas grande -*
+
+*- Fin Sum First Primes -*

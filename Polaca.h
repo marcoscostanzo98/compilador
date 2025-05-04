@@ -24,3 +24,4 @@ int buscarYActualizarPolaca ( t_polaca *polaca, int numCelda, char* cadNueva);
 int polacaVacia(t_polaca *polaca);
 int duplicarPolaca(t_polaca *polacaOriginal, t_polaca *polacaDuplicada); 
 char* obtenerDePolaca(t_polaca *polaca, int numCelda);
+void mostrarPolaca(t_polaca *polaca);
